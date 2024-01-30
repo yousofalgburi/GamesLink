@@ -8,6 +8,7 @@ export default async function Page() {
     const session = await getAuthSession()
     let games: ExtendedGame[] = []
 
+    // Check user logged in
     if (session?.user) {
         games = (await db.steamGame.findMany({
             where: {
