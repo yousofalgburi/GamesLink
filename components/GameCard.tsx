@@ -1,7 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 import { Ref, forwardRef } from 'react'
 import { SteamGame, Vote } from '@prisma/client'
 import { CardTitle, CardDescription, CardHeader, CardContent, Card, CardFooter } from '@/components/ui/card'
-import Image from 'next/image'
 import { Badge } from './ui/badge'
 import PostVoteClient from './post-vote/PostVoteClient'
 import Link from 'next/link'
@@ -27,7 +27,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
             >
                 <Link href={`game/${game.id}`}>
                     <CardHeader className="m-0 p-0">
-                        <Image
+                        <img
                             alt={`${game.name} image`}
                             className="w-full rounded-t-lg bg-cover object-cover"
                             height="400"
