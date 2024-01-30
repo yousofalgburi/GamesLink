@@ -4,9 +4,10 @@ import { z } from 'zod'
 import index from '@/lib/pinecone'
 import { SteamGame } from '@prisma/client'
 import OpenAI from 'openai'
-const openai = new OpenAI()
 
 export async function GET(req: Request) {
+    const openai = new OpenAI()
+
     async function getSearchQueryEmbedding(search: string): Promise<any> {
         const embedding = await openai.embeddings.create({
             model: 'text-embedding-3-small',
