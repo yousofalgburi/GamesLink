@@ -6,7 +6,7 @@ import { SteamGame } from '@prisma/client'
 import OpenAI from 'openai'
 
 export async function GET(req: Request) {
-    const openai = new OpenAI()
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
     async function getSearchQueryEmbedding(search: string): Promise<any> {
         const embedding = await openai.embeddings.create({
