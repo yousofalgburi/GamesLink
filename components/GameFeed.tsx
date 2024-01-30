@@ -402,7 +402,6 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                             })}
                     </div>
                 </div>
-                fF
             </div>
         </div>
     )

@@ -37,6 +37,7 @@
         "next": "14.0.4",
         "next-auth": "^4.24.5",
         "next-themes": "^0.2.1",
+        "openai": "^4.26.0",
         "profane-words": "^1.5.11",
         "react": "^18",
         "react-dom": "^18",

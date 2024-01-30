@@ -3,24 +3,18 @@ import { db } from '@/lib/db'
 import { z } from 'zod'
 import index from '@/lib/pinecone'
 import { SteamGame } from '@prisma/client'
+import OpenAI from 'openai'
+const openai = new OpenAI()
 
 export async function GET(req: Request) {
-    async function getSearchQueryEmbedding(search: string): Promise<number[]> {
-        const response = await fetch('https://api.embaas.io/v1/embeddings/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${process.env.EMBAAS_KEY}`,
-            },
-            body: JSON.stringify({
-                texts: [`${search}`],
-                model: 'all-MiniLM-L6-v2',
-            }),
+    async function getSearchQueryEmbedding(search: string): Promise<any> {
+        const embedding = await openai.embeddings.create({
+            model: 'text-embedding-3-small',
+            input: `${search}`,
+            encoding_format: 'float',
         })
 
-        const data = await response.json()
-
-        return data.data[0].embedding
+        return embedding.data[0].embedding.slice(0, 384)
     }
 
     const requestBody = new URL(req.url)
