@@ -34,8 +34,13 @@ export default async function Page({
             sort: searchParams?.sort || 'popularity-desc',
         })
 
+    let url = ''
+    if (process.env.NODE_ENV === 'development') {
+        url = 'http://localhost:3000'
+    }
+
     const { data } = await axios.get(
-        `http://localhost:3000/api/games?page=${searchParamsObj.page}&search=${searchParamsObj.search}&genres=${searchParamsObj.genres}&categories=${searchParamsObj.categories}&sort=${searchParamsObj.sort}`
+        `${url}/api/games?page=${searchParamsObj.page}&search=${searchParamsObj.search}&genres=${searchParamsObj.genres}&categories=${searchParamsObj.categories}&sort=${searchParamsObj.sort}`
     )
 
     if (data.games) {
