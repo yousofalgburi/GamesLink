@@ -17,15 +17,17 @@ export async function PATCH(req: Request) {
             return new Response('Unauthorized', { status: 401 })
         }
 
+        // check profanity
         if (words.includes(text.toLowerCase())) {
             return new Response('Please keep it nice :)', { status: 403 })
         }
 
+        // check text length
         if (text.length > 256) {
             return new Response('Max length is 256.', { status: 403 })
         }
 
-        // if no existing vote, create a new vote
+        // create a new comment
         await db.comment.create({
             data: {
                 text,
@@ -41,6 +43,6 @@ export async function PATCH(req: Request) {
             return new Response(error.message, { status: 400 })
         }
 
-        return new Response('Could not post to subreddit at this time. Please try later', { status: 500 })
+        return new Response('Could not post comment at this time. Please try later', { status: 500 })
     }
 }

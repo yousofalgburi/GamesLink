@@ -4,6 +4,7 @@ import { CommentVoteValidator } from '@/lib/validators/vote'
 import { z } from 'zod'
 
 export async function PATCH(req: Request) {
+    // check server side vote count
     const updatVoteCount = async (commentId: string) => {
         const updatedComment = await db.comment.findUnique({
             where: { id: commentId },
@@ -97,6 +98,6 @@ export async function PATCH(req: Request) {
             return new Response(error.message, { status: 400 })
         }
 
-        return new Response('Could not post to subreddit at this time. Please try later', { status: 500 })
+        return new Response('Could not vote on comment at this time. Please try later', { status: 500 })
     }
 }

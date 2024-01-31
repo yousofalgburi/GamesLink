@@ -17,7 +17,6 @@ export async function POST(req: Request) {
             })
             .parse(body)
 
-        // update username
         const friendRequest = await db.friendRequest.findFirst({
             where: {
                 id: id,

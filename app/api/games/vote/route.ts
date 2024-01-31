@@ -44,7 +44,7 @@ export async function PATCH(req: Request) {
             return new Response('Unauthorized', { status: 401 })
         }
 
-        // check if user has already voted on this post
+        // check if user has already voted on this game
         const existingVote = await db.vote.findFirst({
             where: {
                 userId: session.user.id,
@@ -94,7 +94,7 @@ export async function PATCH(req: Request) {
                         genres: game.genres.join(','),
                     }
 
-                    await redis.hset(`game:${gameId}`, cachePayload) // Store the post data as a hash
+                    await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
                 }
 
                 return new Response('OK')
@@ -130,7 +130,7 @@ export async function PATCH(req: Request) {
                     genres: game.genres.join(','),
                 }
 
-                await redis.hset(`game:${gameId}`, cachePayload) // Store the post data as a hash
+                await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
             }
 
             return new Response('OK')
@@ -162,7 +162,7 @@ export async function PATCH(req: Request) {
                 genres: game.genres.join(','),
             }
 
-            await redis.hset(`game:${gameId}`, cachePayload) // Store the post data as a hash
+            await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
         }
 
         return new Response('OK')
@@ -172,6 +172,6 @@ export async function PATCH(req: Request) {
             return new Response(error.message, { status: 400 })
         }
 
-        return new Response('Could not post to subreddit at this time. Please try later', { status: 500 })
+        return new Response('Could not vote on game at this time. Please try later', { status: 500 })
     }
 }

@@ -17,7 +17,6 @@ export async function POST(req: Request) {
             })
             .parse(body)
 
-        // update username
         await db.friendRequest.delete({
             where: {
                 id: id,

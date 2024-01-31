@@ -14,7 +14,6 @@ export async function POST(req: Request) {
         const body = await req.json()
         const { name } = UsernameValidator.parse(body)
 
-        // check if username is taken
         const username = await db.user.findFirst({
             where: {
                 username: name,
@@ -25,7 +24,6 @@ export async function POST(req: Request) {
             return new Response('User does not exist.', { status: 409 })
         }
 
-        // check if username is taken
         const friendRequestExists = await db.friendRequest.findFirst({
             where: {
                 toUserId: username.id,
@@ -37,7 +35,6 @@ export async function POST(req: Request) {
             return new Response('Request already sent.', { status: 410 })
         }
 
-        // check if username is taken
         const alreadyFriends = await db.friendship.findFirst({
             where: {
                 userId: session.user.id,
@@ -53,7 +50,6 @@ export async function POST(req: Request) {
             return new Response('That is yourself.', { status: 412 })
         }
 
-        // update username
         await db.friendRequest.create({
             data: {
                 toUserId: username.id,
