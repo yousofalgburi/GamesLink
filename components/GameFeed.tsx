@@ -17,6 +17,7 @@ import axios from 'axios'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
 import { ExtendedGame } from '@/types/db'
 import { Session } from 'next-auth'
+import { init } from 'next/dist/compiled/webpack/webpack'
 
 interface GameFeedProps {
     initGames: ExtendedGame[]
@@ -178,11 +179,19 @@ const CategoryFilters = [
 ]
 
 export default function GameFeed({ initGames, initTotalGames, searchParamsObj, session }: GameFeedProps) {
-    // states to manage the filters
-    const [selectedGenres, setSelectedGenres] = useState<{ label: string; value: string }[]>([])
-    const [selectedCategories, setSelectedCategories] = useState<{ label: string; value: string }[]>([])
-    const [searchQuery, setSearchQuery] = useState('')
-    const [sortOption, setSortOption] = useState('popularity-desc')
+    const [selectedGenres, setSelectedGenres] = useState<{ label: string; value: string }[]>(
+        searchParamsObj.genres
+            .split(',')
+            .map((g) => ({ label: g, value: GenreFilters.find((genre) => genre.value === g)?.label || '' }))
+    )
+    const [selectedCategories, setSelectedCategories] = useState<{ label: string; value: string }[]>(
+        searchParamsObj.categories
+            .split(',')
+            .map((c) => ({ label: c, value: CategoryFilters.find((category) => category.value === c)?.label || '' }))
+    )
+    const [searchQuery, setSearchQuery] = useState(searchParamsObj.search)
+    const [sortOption, setSortOption] = useState(searchParamsObj.sort || 'popularity-desc')
+
     const [games, setGames] = useState<ExtendedGame[] | null>(initGames)
     const [totalGames, setTotalGames] = useState(initTotalGames)
     const [shouldFetchData, setShouldFetchData] = useState(false)

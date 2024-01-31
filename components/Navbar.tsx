@@ -28,7 +28,7 @@ export default async function Navbar() {
                     My Games
                 </Link>
 
-                <Friends />
+                <Friends session={session} />
 
                 <ModeToggle />
                 {session?.user ? (

@@ -27,6 +27,7 @@ import { toast } from './ui/use-toast'
 import { FriendRequest } from '@prisma/client'
 import { formatTimeToNow } from '@/lib/utils'
 import { UserAvatar } from './UserAvatar'
+import { Session } from 'next-auth'
 
 type FormData = z.infer<typeof UsernameValidator>
 
@@ -35,7 +36,7 @@ type FriendRequestType = FriendRequest & {
     image: string
 }
 
-export default function Friends() {
+export default function Friends({ session }: { session: Session | null }) {
     const [friendRequest, setFriendRequest] = useState<FriendRequestType[]>([])
     const [friends, setFriends] = useState<{ name: string; image: string }[]>([])
 
@@ -171,6 +172,8 @@ export default function Friends() {
 
     useEffect(() => {
         const getFriends = async () => {
+            if (!session) return
+
             try {
                 const { data } = await axios.get(`/api/friends`)
                 setFriends(data.friends)
