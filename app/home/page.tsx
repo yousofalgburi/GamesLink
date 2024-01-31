@@ -1,17 +1,12 @@
 import GameFeed from '@/components/GameFeed'
-import { INFINITE_SCROLL_PAGINATION_RESULTS } from '@/config'
 import { getAuthSession } from '@/lib/auth'
-import { db } from '@/lib/db'
-import index from '@/lib/pinecone'
 import { ExtendedGame } from '@/types/db'
 import axios from 'axios'
 import { z } from 'zod'
 
 export default async function Page({
-    params,
     searchParams,
 }: {
-    params: { slug: string }
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
     let session = await getAuthSession()
@@ -37,6 +32,8 @@ export default async function Page({
     let url = ''
     if (process.env.NODE_ENV === 'development') {
         url = 'http://localhost:3000'
+    } else {
+        url = 'https://games-link.vercel.app'
     }
 
     const { data } = await axios.get(
