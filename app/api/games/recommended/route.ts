@@ -68,10 +68,10 @@ export async function POST(req: Request) {
                     if (random <= cumulativeWeight) {
                         selectedGames.push(game)
 
-                        // Remove the selected game from the weightedGames array
+                        // remove the selected game from the weightedGames array
                         weightedGames = weightedGames.filter((wg) => wg.game.id !== game.id)
 
-                        // Recalculate totalWeight after removing the selected game
+                        // recalculate totalWeight after removing the selected game
                         totalWeight = weightedGames.reduce((total, { weight }) => total + weight, 0)
 
                         break
