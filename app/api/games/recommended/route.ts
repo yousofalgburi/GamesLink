@@ -93,14 +93,14 @@ export async function POST(req: Request) {
         return recommendedGames
     }
 
-    const requestBody = await new Response(req.body).json()
+    const body = await req.json()
 
     try {
         const { userId } = z
             .object({
                 userId: z.string(),
             })
-            .parse(requestBody)
+            .parse(body)
 
         const userGames = (await db.steamGame.findMany({
             where: {
