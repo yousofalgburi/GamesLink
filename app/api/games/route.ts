@@ -20,8 +20,6 @@ export async function GET(req: Request) {
 
     const requestBody = new URL(req.url)
 
-    console.log(req.url)
-
     try {
         let games: SteamGame[] = []
         let totalGames = 0

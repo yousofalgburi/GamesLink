@@ -17,7 +17,7 @@ import axios from 'axios'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
 import { ExtendedGame } from '@/types/db'
 import { Session } from 'next-auth'
-import { init } from 'next/dist/compiled/webpack/webpack'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 interface GameFeedProps {
     initGames: ExtendedGame[]
@@ -33,162 +33,74 @@ interface GameFeedProps {
 }
 
 const GenreFilters = [
-    { value: 'accounting', label: 'Accounting', checked: false },
-    { value: 'action', label: 'Action', checked: false },
-    { value: 'adventure', label: 'Adventure', checked: false },
-    { value: 'aktion', label: 'Aktion', checked: false },
-    { value: 'audioproduction', label: 'Audio Production', checked: false },
-    { value: 'casual', label: 'Casual', checked: false },
-    { value: 'earlyaccess', label: 'Early Access', checked: false },
-    { value: 'education', label: 'Education', checked: false },
-    { value: 'freetoplay', label: 'Free to Play', checked: false },
-    { value: 'gamedevelopment', label: 'Game Development', checked: false },
-    { value: 'gore', label: 'Gore', checked: false },
-    { value: 'indie', label: 'Indie', checked: false },
-    { value: 'photoediting', label: 'Photo Editing', checked: false },
-    { value: 'racing', label: 'Racing', checked: false },
-    { value: 'rpg', label: 'RPG', checked: false },
-    { value: 'simulation', label: 'Simulation', checked: false },
-    { value: 'softwaretraining', label: 'Software Training', checked: false },
-    { value: 'sports', label: 'Sports', checked: false },
-    { value: 'strategy', label: 'Strategy', checked: false },
-    { value: 'utilities', label: 'Utilities', checked: false },
-    { value: 'videoproduction', label: 'Video Production', checked: false },
-    { value: 'violent', label: 'Violent', checked: false },
-    { value: 'webpublishing', label: 'Web Publishing', checked: false },
+    { label: 'Accounting', checked: false },
+    { label: 'Action', checked: false },
+    { label: 'Adventure', checked: false },
+    { label: 'Aktion', checked: false },
+    { label: 'Audio Production', checked: false },
+    { label: 'Casual', checked: false },
+    { label: 'Early Access', checked: false },
+    { label: 'Education', checked: false },
+    { label: 'Free to Play', checked: false },
+    { label: 'Game Development', checked: false },
+    { label: 'Gore', checked: false },
+    { label: 'Indie', checked: false },
+    { label: 'Photo Editing', checked: false },
+    { label: 'Racing', checked: false },
+    { label: 'RPG', checked: false },
+    { label: 'Simulation', checked: false },
+    { label: 'Software Training', checked: false },
+    { label: 'Sports', checked: false },
+    { label: 'Strategy', checked: false },
+    { label: 'Utilities', checked: false },
+    { label: 'Video Production', checked: false },
+    { label: 'Violent', checked: false },
+    { label: 'Web Publishing', checked: false },
 ]
 
 const CategoryFilters = [
-    {
-        value: 'captions_available',
-        label: 'Captions available',
-        checked: false,
-    },
-    { value: 'steam_cloud', label: 'Steam Cloud', checked: false },
-    {
-        value: 'includes_level_editor',
-        label: 'Includes level editor',
-        checked: false,
-    },
-    { value: 'steam_workshop', label: 'Steam Workshop', checked: false },
-    { value: 'stats', label: 'Stats', checked: false },
-    {
-        value: 'remote_play_together',
-        label: 'Remote Play Together',
-        checked: false,
-    },
-    { value: 'co_op', label: 'Co-op', checked: false },
-    {
-        value: 'steam_achievements',
-        label: 'Steam Achievements',
-        checked: false,
-    },
-    {
-        value: 'full_controller_support',
-        label: 'Full controller support',
-        checked: false,
-    },
-    {
-        value: 'cross_platform_multiplayer',
-        label: 'Cross-Platform Multiplayer',
-        checked: false,
-    },
-    { value: 'in_app_purchases', label: 'In-App Purchases', checked: false },
-    {
-        value: 'partial_controller_support',
-        label: 'Partial Controller Support',
-        checked: false,
-    },
-    { value: 'pvp', label: 'PvP', checked: false },
-    {
-        value: 'steam_trading_cards',
-        label: 'Steam Trading Cards',
-        checked: false,
-    },
-    {
-        value: 'steam_leaderboards',
-        label: 'Steam Leaderboards',
-        checked: false,
-    },
-    {
-        value: 'tracked_controller_support',
-        label: 'Tracked Controller Support',
-        checked: false,
-    },
-    { value: 'vr_only', label: 'VR Only', checked: false },
-    { value: 'vr_supported', label: 'VR Supported', checked: false },
-    { value: 'vr_support', label: 'VR Support', checked: false },
-    {
-        value: 'includes_source_sdk',
-        label: 'Includes Source SDK',
-        checked: false,
-    },
-    { value: 'mmo', label: 'MMO', checked: false },
-    { value: 'online_pvp', label: 'Online PvP', checked: false },
-    { value: 'online_co_op', label: 'Online Co-op', checked: false },
-    { value: 'multi_player', label: 'Multi-player', checked: false },
-    {
-        value: 'remote_play_on_tablet',
-        label: 'Remote Play on Tablet',
-        checked: false,
-    },
-    {
-        value: 'valve_anti_cheat_enabled',
-        label: 'Valve Anti-Cheat enabled',
-        checked: false,
-    },
-    { value: 'remote_play_on_tv', label: 'Remote Play on TV', checked: false },
-    { value: 'lan_co_op', label: 'LAN Co-op', checked: false },
-    {
-        value: 'shared_split_screen_co_op',
-        label: 'Shared/Split Screen Co-op',
-        checked: false,
-    },
-    {
-        value: 'shared_split_screen',
-        label: 'Shared/Split Screen',
-        checked: false,
-    },
-    {
-        value: 'steam_turn_notifications',
-        label: 'Steam Turn Notifications',
-        checked: false,
-    },
-    {
-        value: 'remote_play_on_phone',
-        label: 'Remote Play on Phone',
-        checked: false,
-    },
-    {
-        value: 'commentary_available',
-        label: 'Commentary available',
-        checked: false,
-    },
-    {
-        value: 'shared_split_screen_pvp',
-        label: 'Shared/Split Screen PvP',
-        checked: false,
-    },
-    {
-        value: 'steamvr_collectibles',
-        label: 'SteamVR Collectibles',
-        checked: false,
-    },
-    { value: 'lan_pvp', label: 'LAN PvP', checked: false },
-    { value: 'single_player', label: 'Single-player', checked: false },
+    { label: 'Captions available', checked: false },
+    { label: 'Steam Cloud', checked: false },
+    { label: 'Includes level editor', checked: false },
+    { label: 'Steam Workshop', checked: false },
+    { label: 'Stats', checked: false },
+    { label: 'Remote Play Together', checked: false },
+    { label: 'Co-op', checked: false },
+    { label: 'Steam Achievements', checked: false },
+    { label: 'Full controller support', checked: false },
+    { label: 'Cross-Platform Multiplayer', checked: false },
+    { label: 'In-App Purchases', checked: false },
+    { label: 'Partial Controller Support', checked: false },
+    { label: 'PvP', checked: false },
+    { label: 'Steam Trading Cards', checked: false },
+    { label: 'Steam Leaderboards', checked: false },
+    { label: 'Tracked Controller Support', checked: false },
+    { label: 'VR Only', checked: false },
+    { label: 'VR Supported', checked: false },
+    { label: 'VR Support', checked: false },
+    { label: 'Includes Source SDK', checked: false },
+    { label: 'MMO', checked: false },
+    { label: 'Online PvP', checked: false },
+    { label: 'Online Co-op', checked: false },
+    { label: 'Multi-player', checked: false },
+    { label: 'Remote Play on Tablet', checked: false },
+    { label: 'Valve Anti-Cheat enabled', checked: false },
+    { label: 'Remote Play on TV', checked: false },
+    { label: 'LAN Co-op', checked: false },
+    { label: 'Shared/Split Screen Co-op', checked: false },
+    { label: 'Shared/Split Screen', checked: false },
+    { label: 'Steam Turn Notifications', checked: false },
+    { label: 'Remote Play on Phone', checked: false },
+    { label: 'Commentary available', checked: false },
+    { label: 'Shared/Split Screen PvP', checked: false },
+    { label: 'SteamVR Collectibles', checked: false },
+    { label: 'LAN PvP', checked: false },
+    { label: 'Single-player', checked: false },
 ]
 
 export default function GameFeed({ initGames, initTotalGames, searchParamsObj, session }: GameFeedProps) {
-    const [selectedGenres, setSelectedGenres] = useState<{ label: string; value: string }[]>(
-        searchParamsObj.genres
-            .split(',')
-            .map((g) => ({ label: g, value: GenreFilters.find((genre) => genre.value === g)?.label || '' }))
-    )
-    const [selectedCategories, setSelectedCategories] = useState<{ label: string; value: string }[]>(
-        searchParamsObj.categories
-            .split(',')
-            .map((c) => ({ label: c, value: CategoryFilters.find((category) => category.value === c)?.label || '' }))
-    )
+    const [selectedGenres, setSelectedGenres] = useState<string[]>(searchParamsObj.genres.split(','))
+    const [selectedCategories, setSelectedCategories] = useState<string[]>(searchParamsObj.categories.split(','))
     const [searchQuery, setSearchQuery] = useState(searchParamsObj.search)
     const [sortOption, setSortOption] = useState(searchParamsObj.sort || 'popularity-desc')
 
@@ -197,6 +109,10 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
     const [shouldFetchData, setShouldFetchData] = useState(false)
     const [searchParams, setSearchParams] = useState(searchParamsObj)
     const hasMounted = useRef(false)
+
+    const searchParamsURL = useSearchParams()
+    const pathname = usePathname()
+    const { replace } = useRouter()
 
     // ref to the last post and the intersection observer
     const lastPostRef = useRef<HTMLElement>(null)
@@ -219,16 +135,41 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                 ...prev,
                 page: 1,
                 search: searchQuery,
-                genres: selectedGenres.map((g) => g.label).join(','),
-                categories: selectedCategories.map((c) => c.label).join(','),
+                genres: selectedGenres.join(','),
+                categories: selectedCategories.join(','),
                 sort: sortOption,
             }))
         }, 300)
+
+        const params = new URLSearchParams(searchParamsURL)
+
+        if (selectedGenres.length === 1) {
+            params.delete('genres')
+        } else {
+            params.set('genres', selectedGenres.join(','))
+        }
+
+        if (selectedCategories.length === 1) {
+            params.delete('categories')
+        } else {
+            params.set('categories', selectedCategories.join(','))
+        }
+
+        if (searchQuery === '') {
+            params.delete('search')
+        } else {
+            params.set('search', searchQuery)
+        }
+
+        params.set('sort', sortOption)
+
+        replace(`${pathname}?${params.toString()}`)
 
         return () => {
             clearTimeout(handler)
             setShouldFetchData(false)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedGenres, selectedCategories, searchQuery, sortOption])
 
     // the use effect that handles the intersection logic
@@ -260,22 +201,18 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
     }, [searchParams, shouldFetchData])
 
     // the function that handles the genre checkbox changes
-    const handleGenreCheckboxChange = (genre: { label: string; value: string }) => {
-        const isAlreadySelected = selectedGenres.some((g) => g.value === genre.value)
-        const updatedGenres = isAlreadySelected
-            ? selectedGenres.filter((g) => g.value !== genre.value)
-            : [...selectedGenres, genre]
-
+    const handleGenreCheckboxChange = (genre: string) => {
+        const isAlreadySelected = selectedGenres.includes(genre)
+        const updatedGenres = isAlreadySelected ? selectedGenres.filter((g) => g !== genre) : [...selectedGenres, genre]
         setSelectedGenres(updatedGenres)
     }
 
     // the function that handles the categories checkbox changes
-    const handleCategoryCheckboxChange = (category: { label: string; value: string }) => {
-        const isAlreadySelected = selectedCategories.some((c) => c.value === category.value)
+    const handleCategoryCheckboxChange = (category: string) => {
+        const isAlreadySelected = selectedCategories.includes(category)
         const updatedCategories = isAlreadySelected
-            ? selectedCategories.filter((c) => c.value !== category.value)
+            ? selectedCategories.filter((c) => c !== category)
             : [...selectedCategories, category]
-
         setSelectedCategories(updatedCategories)
     }
 
@@ -292,16 +229,16 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                     <h2 className="mb-4 text-2xl font-bold">Genres</h2>
                     <div className="max-h-48 space-y-2 overflow-y-scroll lg:max-h-80">
                         {GenreFilters.map((genre) => (
-                            <div key={genre.value} className="flex items-center space-x-2">
+                            <div key={genre.label} className="flex items-center space-x-2">
                                 <Checkbox
-                                    id={genre.value}
-                                    checked={selectedGenres.includes(genre)}
+                                    id={genre.label}
+                                    checked={selectedGenres.includes(genre.label)}
                                     onClick={() => {
-                                        handleGenreCheckboxChange(genre)
+                                        handleGenreCheckboxChange(genre.label)
                                     }}
                                 />
                                 <label
-                                    htmlFor={genre.value}
+                                    htmlFor={genre.label}
                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                 >
                                     {genre.label}
@@ -313,16 +250,16 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                     <h2 className="mb-4 mt-8 text-2xl font-bold">Categories</h2>
                     <div className="max-h-48 space-y-2 overflow-y-scroll lg:max-h-80">
                         {CategoryFilters.map((category) => (
-                            <div key={category.value} className="flex items-center space-x-2">
+                            <div key={category.label} className="flex items-center space-x-2">
                                 <Checkbox
-                                    id={category.value}
-                                    checked={selectedCategories.includes(category)}
+                                    id={category.label}
+                                    checked={selectedCategories.includes(category.label)}
                                     onClick={() => {
-                                        handleCategoryCheckboxChange(category)
+                                        handleCategoryCheckboxChange(category.label)
                                     }}
                                 />
                                 <label
-                                    htmlFor={category.value}
+                                    htmlFor={category.label}
                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                 >
                                     {category.label}

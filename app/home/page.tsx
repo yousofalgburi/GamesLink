@@ -45,8 +45,6 @@ export default async function Page({
         totalGames = data.totalGames
     }
 
-    console.log(data)
-
     return (
         <GameFeed initGames={games} initTotalGames={totalGames} searchParamsObj={searchParamsObj} session={session} />
     )
