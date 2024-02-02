@@ -1,8 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 import { Badge } from '@/components/ui/badge'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { db } from '@/lib/db'
 import { CalendarHeartIcon, ChevronLeft, DollarSignIcon, ExternalLinkIcon, ShieldIcon, UserIcon } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import CommentsSection from '@/components/CommentsSection'
 import { buttonVariants } from '@/components/ui/button'
@@ -46,7 +46,7 @@ export default async function Page({ params: { id } }: PageProps) {
             <div className="w-full max-w-[600px]">
                 <div className="grid gap-6">
                     <div className="overflow-hidden rounded-lg">
-                        <Image
+                        <img
                             alt="Game banner"
                             className="object-fit h-64 w-full"
                             height="400"
