@@ -17,7 +17,7 @@ const Credits = () => {
                 variant="ghost"
                 className='className="text-sm hover:underline" flex gap-2 font-medium underline-offset-4'
             >
-                {session && session.user.credits} Credits <CreditCard />
+                {session && session?.user?.credits} Credits <CreditCard />
             </Button>
 
             <div className={`fixed inset-0 z-10 bg-zinc-900/20 ${openModal ? '' : 'hidden'}`}>
