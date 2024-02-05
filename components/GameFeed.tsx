@@ -99,8 +99,12 @@ const CategoryFilters = [
 ]
 
 export default function GameFeed({ initGames, initTotalGames, searchParamsObj, session }: GameFeedProps) {
-    const [selectedGenres, setSelectedGenres] = useState<string[]>(searchParamsObj.genres.split(','))
-    const [selectedCategories, setSelectedCategories] = useState<string[]>(searchParamsObj.categories.split(','))
+    const [selectedGenres, setSelectedGenres] = useState<string[]>(
+        searchParamsObj.genres ? searchParamsObj.genres.split(',') : []
+    )
+    const [selectedCategories, setSelectedCategories] = useState<string[]>(
+        searchParamsObj.categories ? searchParamsObj.categories.split(',') : []
+    )
     const [searchQuery, setSearchQuery] = useState(searchParamsObj.search)
     const [sortOption, setSortOption] = useState(searchParamsObj.sort || 'popularity-desc')
 
@@ -122,12 +126,12 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
     })
 
     useEffect(() => {
-        if (!hasMounted.current) {
-            hasMounted.current = true
-            return
-        }
-
         const handler = setTimeout(() => {
+            if (!hasMounted.current) {
+                hasMounted.current = true
+                return
+            }
+
             setGames(null)
             setShouldFetchData(true)
 
@@ -139,17 +143,17 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                 categories: selectedCategories.join(','),
                 sort: sortOption,
             }))
-        }, 300)
+        }, 1) // debounce the search query
 
         const params = new URLSearchParams(searchParamsURL)
 
-        if (selectedGenres.length === 1) {
+        if (selectedGenres.length === 0) {
             params.delete('genres')
         } else {
             params.set('genres', selectedGenres.join(','))
         }
 
-        if (selectedCategories.length === 1) {
+        if (selectedCategories.length === 0) {
             params.delete('categories')
         } else {
             params.set('categories', selectedCategories.join(','))

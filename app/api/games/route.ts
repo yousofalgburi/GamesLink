@@ -65,14 +65,14 @@ export async function GET(req: Request) {
                         genresArray.length
                             ? {
                                   genres: {
-                                      hasSome: genresArray,
+                                      hasEvery: genresArray,
                                   },
                               }
                             : {},
                         categoriesArray.length
                             ? {
                                   categories: {
-                                      hasSome: categoriesArray,
+                                      hasEvery: categoriesArray,
                                   },
                               }
                             : {},
@@ -103,14 +103,14 @@ export async function GET(req: Request) {
                     genresArray.length
                         ? {
                               genres: {
-                                  hasSome: genresArray,
+                                  hasEvery: genresArray,
                               },
                           }
                         : {},
                     categoriesArray.length
                         ? {
                               categories: {
-                                  hasSome: categoriesArray,
+                                  hasEvery: categoriesArray,
                               },
                           }
                         : {},
@@ -139,14 +139,14 @@ export async function GET(req: Request) {
                         genresArray.length
                             ? {
                                   genres: {
-                                      hasSome: genresArray,
+                                      hasEvery: genresArray,
                                   },
                               }
                             : {},
                         categoriesArray.length
                             ? {
                                   categories: {
-                                      hasSome: categoriesArray,
+                                      hasEvery: categoriesArray,
                                   },
                               }
                             : {},

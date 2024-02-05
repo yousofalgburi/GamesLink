@@ -36,6 +36,16 @@ export default async function Page({
         url = 'https://games-link.vercel.app'
     }
 
+    searchParamsObj.genres = searchParamsObj.genres
+        .split(',')
+        .filter((genre) => genre !== '')
+        .join(',')
+
+    searchParamsObj.categories = searchParamsObj.categories
+        .split(',')
+        .filter((category) => category !== '')
+        .join(',')
+
     const { data } = await axios.get(
         `${url}/api/games?page=${searchParamsObj.page}&search=${searchParamsObj.search}&genres=${searchParamsObj.genres}&categories=${searchParamsObj.categories}&sort=${searchParamsObj.sort}`
     )
