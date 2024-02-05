@@ -28,9 +28,9 @@ export default function RootLayout({ children, authModal }: { children: React.Re
                         <div className="min-h-[85vh]">
                             {authModal}
                             {children}
+                            <Analytics />
                         </div>
                         <Footer />
-                        <Analytics />
                     </main>
                 </Providers>
                 <Toaster />
