@@ -3,13 +3,21 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from './ui/button'
 import { toast } from 'sonner'
+import pusher from '@/lib/pusher'
+import { useState } from 'react'
 
 export default function LinkRoom() {
+    const [testText, setTestText] = useState('')
+
+    pusher.subscribe('my-channel').bind('my-event', (data: any) => {
+        setTestText(data.message)
+    })
+
     return (
         <div className="grid grid-cols-2 gap-10">
             <Card>
                 <CardHeader>
-                    <CardTitle>User name</CardTitle>
+                    <CardTitle>{testText}</CardTitle>
                     <CardDescription>Card Description</CardDescription>
                 </CardHeader>
                 <CardContent>
