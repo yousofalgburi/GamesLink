@@ -39,9 +39,11 @@
         "next-themes": "^0.2.1",
         "openai": "^4.26.0",
         "profane-words": "^1.5.11",
+        "pusher-js": "8.4.0-rc2",
         "react": "^18",
         "react-dom": "^18",
         "react-hook-form": "^7.49.3",
+        "sonner": "^1.4.0",
         "tailwind-merge": "^2.1.0",
         "tailwindcss-animate": "^1.0.7",
         "zod": "^3.22.4"

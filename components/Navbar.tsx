@@ -24,6 +24,10 @@ export default async function Navbar() {
                     Home
                 </Link>
 
+                <Link className="text-sm font-medium underline-offset-4 hover:underline" href="/link-room/host">
+                    Link Room
+                </Link>
+
                 <Link className="text-sm font-medium underline-offset-4 hover:underline" href="/my-games">
                     My Games
                 </Link>

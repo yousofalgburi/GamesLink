@@ -6,6 +6,7 @@ import Providers from '@/components/Providers'
 import Footer from '@/components/Footer'
 import Navbar from '@/components/Navbar'
 import { Toaster } from '@/components/ui/toaster'
+import { Toaster as SonnerToaster } from '@/components/ui/sonner'
 
 export const fontSans = FontSans({
     subsets: ['latin'],
@@ -32,6 +33,7 @@ export default function RootLayout({ children, authModal }: { children: React.Re
                     </main>
                 </Providers>
                 <Toaster />
+                <SonnerToaster />
             </body>
         </html>
     )
