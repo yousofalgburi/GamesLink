@@ -1,8 +1,8 @@
 import GameCard from '@/components/GameCard'
+import RecommendedGames from '@/components/RecommendedGames'
+import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { ExtendedGame } from '@/types/db'
-import { getAuthSession } from '@/lib/auth'
-import RecommendedGames from '@/components/RecommendedGames'
 
 export default async function Page() {
     const session = await getAuthSession()

@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation'
 import { UserNameForm } from '@/components/UserNameForm'
 import { authOptions, getAuthSession } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 
 export const metadata = {
     title: 'Settings',

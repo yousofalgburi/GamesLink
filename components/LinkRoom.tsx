@@ -1,23 +1,15 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from './ui/button'
-import { toast } from 'sonner'
-import pusher from '@/lib/pusher'
-import { useState } from 'react'
+import { Label } from './ui/label'
 
 export default function LinkRoom() {
-    const [testText, setTestText] = useState('')
-
-    pusher.subscribe('my-channel').bind('my-event', (data: any) => {
-        setTestText(data.message)
-    })
-
     return (
         <div className="grid grid-cols-2 gap-10">
-            <Card>
+            <Label>Coming soon...</Label>
+
+            {/* <Card>
                 <CardHeader>
-                    <CardTitle>{testText}</CardTitle>
+                    <CardTitle>Test 2</CardTitle>
                     <CardDescription>Card Description</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -39,7 +31,7 @@ export default function LinkRoom() {
                         Copy Invite Link
                     </Button>
                 </CardContent>
-            </Card>
+            </Card> */}
         </div>
     )
 }
