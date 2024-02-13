@@ -1,12 +1,12 @@
 import { authOptions } from '@/lib/auth'
+import { Gamepad } from 'lucide-react'
 import { getServerSession } from 'next-auth'
 import Link from 'next/link'
-import { ModeToggle } from './ModeToggle'
-import { buttonVariants } from './ui/button'
-import { UserAccountNav } from './UserAccountNav'
-import { Gamepad } from 'lucide-react'
 import Credits from './Credits'
 import Friends from './Friends'
+import { ModeToggle } from './ModeToggle'
+import { UserAccountNav } from './UserAccountNav'
+import { buttonVariants } from './ui/button'
 
 export default async function Navbar() {
     const session = await getServerSession(authOptions)
@@ -22,6 +22,10 @@ export default async function Navbar() {
 
                 <Link className="text-sm font-medium underline-offset-4 hover:underline" href="/home">
                     Home
+                </Link>
+
+                <Link className="text-sm font-medium underline-offset-4 hover:underline" href="/link-room/host">
+                    Link Room
                 </Link>
 
                 <Link className="text-sm font-medium underline-offset-4 hover:underline" href="/my-games">

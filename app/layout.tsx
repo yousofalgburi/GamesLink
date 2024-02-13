@@ -1,11 +1,12 @@
+import Footer from '@/components/Footer'
+import Navbar from '@/components/Navbar'
+import Providers from '@/components/Providers'
+import { Toaster as SonnerToaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/ui/toaster'
+import { cn } from '@/lib/utils'
 import type { Metadata } from 'next'
 import { Inter as FontSans } from 'next/font/google'
 import './globals.css'
-import { cn } from '@/lib/utils'
-import Providers from '@/components/Providers'
-import Footer from '@/components/Footer'
-import Navbar from '@/components/Navbar'
-import { Toaster } from '@/components/ui/toaster'
 
 export const fontSans = FontSans({
     subsets: ['latin'],
@@ -32,6 +33,7 @@ export default function RootLayout({ children, authModal }: { children: React.Re
                     </main>
                 </Providers>
                 <Toaster />
+                <SonnerToaster />
             </body>
         </html>
     )
