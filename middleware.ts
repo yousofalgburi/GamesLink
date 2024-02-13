@@ -1,5 +1,5 @@
-import { redis } from './lib/redis'
 import { NextRequest, NextResponse } from 'next/server'
+import { redis } from './lib/redis'
 
 // rate limit settings
 const RATE_LIMIT = 100 // requests per minute
@@ -11,8 +11,7 @@ const BAN_THRESHOLD = 10 // times needed to be banned
 
 export default async function rateLimitMiddleware(req: NextRequest) {
     const ip = req.ip
-
-    if (ip == process.env.OWNER_IP) return
+    if (!ip || ip == process.env.OWNER_IP) return
 
     const currentWindow = Math.floor(Date.now() / 1000 / EXPIRATION)
     const key = `rate_limit:${ip}:${currentWindow}`

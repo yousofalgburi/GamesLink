@@ -1,17 +1,17 @@
 'use client'
 
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ExtendedGame } from '@/types/db'
-import GameCard from './GameCard'
-import { useSession } from 'next-auth/react'
-import { Button } from './ui/button'
 import { useMutation } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
-import { toast } from './ui/use-toast'
+import { BadgeInfo, Loader2 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { BadgeInfo, Loader2 } from 'lucide-react'
+import GameCard from './GameCard'
+import { Button } from './ui/button'
+import { toast } from './ui/use-toast'
 
 export default function RecommendedGames() {
     const [fetchOnce, setFetchOnce] = useState(false)

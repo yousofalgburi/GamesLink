@@ -18,17 +18,14 @@ export const metadata: Metadata = {
     description: 'Explore and find games to play with your friends.',
 }
 
-export default function RootLayout({ children, authModal }: { children: React.ReactNode; authModal: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
                 <Providers>
                     <main className="flex flex-1 flex-col">
                         <Navbar />
-                        <div className="min-h-[85vh]">
-                            {authModal}
-                            {children}
-                        </div>
+                        <div className="min-h-[85vh]">{children}</div>
                         <Footer />
                     </main>
                 </Providers>

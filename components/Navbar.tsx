@@ -5,8 +5,8 @@ import Link from 'next/link'
 import Credits from './Credits'
 import Friends from './Friends'
 import { ModeToggle } from './ModeToggle'
+import SignIn from './SignIn'
 import { UserAccountNav } from './UserAccountNav'
-import { buttonVariants } from './ui/button'
 
 export default async function Navbar() {
     const session = await getServerSession(authOptions)
@@ -45,9 +45,7 @@ export default async function Navbar() {
                         }}
                     />
                 ) : (
-                    <Link href="/sign-in" className={buttonVariants()}>
-                        Sign In
-                    </Link>
+                    <SignIn />
                 )}
             </nav>
         </header>
