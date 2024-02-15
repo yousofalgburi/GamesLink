@@ -1,8 +1,7 @@
 'use client'
 
-import axios, { AxiosError } from 'axios'
-import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import {
     Sheet,
@@ -14,20 +13,22 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet'
-import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Users } from 'lucide-react'
-import { Input } from './ui/input'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { UsernameValidator } from '@/lib/validators/username'
-import { useMutation } from '@tanstack/react-query'
-import { toast } from './ui/use-toast'
-import { FriendRequest } from '@prisma/client'
+import { FriendsContext } from '@/lib/context/FriendsContext'
 import { formatTimeToNow } from '@/lib/utils'
-import { UserAvatar } from './UserAvatar'
+import { UsernameValidator } from '@/lib/validators/username'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { FriendRequest } from '@prisma/client'
+import { useMutation } from '@tanstack/react-query'
+import axios, { AxiosError } from 'axios'
+import { Users } from 'lucide-react'
 import { Session } from 'next-auth'
+import { useContext, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { UserAvatar } from './UserAvatar'
+import { Input } from './ui/input'
+import { toast } from './ui/use-toast'
 
 type FormData = z.infer<typeof UsernameValidator>
 
@@ -38,7 +39,7 @@ type FriendRequestType = FriendRequest & {
 
 export default function Friends({ session }: { session: Session | null }) {
     const [friendRequest, setFriendRequest] = useState<FriendRequestType[]>([])
-    const [friends, setFriends] = useState<{ name: string; image: string }[]>([])
+    const { friends, setFriends } = useContext(FriendsContext)
 
     const {
         handleSubmit,

@@ -7,6 +7,7 @@ import { Comment, CommentVote, User } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import { MessageSquare } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { FC, useRef, useState } from 'react'
 import CommentVotes from '../CommentVotes'
@@ -15,7 +16,6 @@ import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { Textarea } from '../ui/textarea'
 import { toast } from '../ui/use-toast'
-import { useSession } from 'next-auth/react'
 
 type ExtendedComment = Comment & {
     votes: CommentVote[]

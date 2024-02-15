@@ -173,7 +173,7 @@ devDependencies:
     specifier: ^3.3.0
     version: 3.3.6(ts-node@10.9.2)
   typescript:
-    specifier: ^5
+    specifier: ^5.3.3
     version: 5.3.3
 
 packages:

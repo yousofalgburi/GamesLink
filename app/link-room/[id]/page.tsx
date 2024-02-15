@@ -2,7 +2,7 @@ import LinkRoom from '@/components/LinkRoom'
 
 export const metadata = {
     title: 'Link Room',
-    description: 'The place where the realtime AI powered game matching magic happens.',
+    description: 'The place where the AI powered game matching magic happens.',
 }
 
 export default async function Page() {
