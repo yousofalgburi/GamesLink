@@ -1,5 +1,6 @@
-import Link from 'next/link'
+/* eslint-disable @next/next/no-img-element */
 import { buttonVariants } from '@/components/ui/button'
+import Link from 'next/link'
 
 export default function Page() {
     return (
@@ -20,19 +21,184 @@ export default function Page() {
                     />
                 </div>
 
-                <div className="flex flex-col items-center space-y-4 text-center">
-                    <div className="space-y-2">
-                        <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-                            Welcome to GamesLink
-                        </h1>
-                        <p className="mx-auto max-w-[700px] md:text-xl">
-                            Your place to find games to play with friends.
-                        </p>
+                <div className="flex flex-col gap-20">
+                    <div className="mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8">
+                        <div className="grid lg:grid-cols-7 lg:items-center lg:gap-x-8 xl:gap-x-12">
+                            <div className="lg:col-span-3">
+                                <h1 className="block text-3xl font-bold text-gray-800 dark:text-white sm:text-4xl md:text-5xl lg:text-6xl">
+                                    GamesLink
+                                </h1>
+                                <p className="mt-3 text-lg text-gray-800 dark:text-gray-400">
+                                    Your place to find games to play with friends.
+                                </p>
+
+                                <div className="mt-5 flex flex-col items-center gap-2 sm:flex-row sm:gap-3 lg:mt-8">
+                                    <Link className={buttonVariants()} href="/home">
+                                        View Games
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="mt-10 lg:col-span-4 lg:mt-0">
+                                <img
+                                    className="w-full rounded-xl"
+                                    src="https://gaming-cdn.com/images/products/96/orig/far-cry-3-pc-game-ubisoft-connect-europe-cover.jpg?v=1701181729"
+                                    alt="A game cover of Far Cry 3"
+                                />
+                            </div>
+                        </div>
                     </div>
-                    <div className="space-x-4">
-                        <Link className={buttonVariants()} href="/home">
-                            View Games
-                        </Link>
+
+                    <div className="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+                        <div className="md:grid md:grid-cols-2 md:items-center md:gap-12 xl:gap-32">
+                            <div>
+                                <img
+                                    className="rounded-xl"
+                                    src="https://buy.thewitcher.com/build/images/home/bg-witcher3-1440@1x-ce4038c1.jpg"
+                                    alt="A game cover of The Witcher 3: Wild Hunt"
+                                />
+                            </div>
+
+                            <div className="mt-5 sm:mt-10 lg:mt-0">
+                                <div className="space-y-6 sm:space-y-8">
+                                    <div className="space-y-2 md:space-y-4">
+                                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 lg:text-4xl">
+                                            We fix the &quot;what should we play?&quot; problem
+                                        </h2>
+                                        <p className="text-gray-500">
+                                            Many gamers have experiencd the problem of not knowing what to play. Our
+                                            platform aims to solve that problem.
+                                        </p>
+                                    </div>
+
+                                    <ul role="list" className="space-y-2 sm:space-y-4">
+                                        <li className="flex space-x-3">
+                                            <span className="size-5 mt-0.5 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-800/30 dark:text-blue-500">
+                                                <svg
+                                                    className="size-3.5 flex-shrink-0"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="24"
+                                                    height="24"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                >
+                                                    <polyline points="20 6 9 17 4 12" />
+                                                </svg>
+                                            </span>
+
+                                            <span className="text-sm text-gray-500 sm:text-base">
+                                                <span className="font-bold">Easy & fast</span> game browsing
+                                            </span>
+                                        </li>
+
+                                        <li className="flex space-x-3">
+                                            <span className="size-5 mt-0.5 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-800/30 dark:text-blue-500">
+                                                <svg
+                                                    className="size-3.5 flex-shrink-0"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="24"
+                                                    height="24"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                >
+                                                    <polyline points="20 6 9 17 4 12" />
+                                                </svg>
+                                            </span>
+
+                                            <span className="text-sm text-gray-500 sm:text-base">
+                                                Powerful{' '}
+                                                <span className="font-bold">filters/sorting and AI powered search</span>
+                                            </span>
+                                        </li>
+
+                                        <li className="flex space-x-3">
+                                            <span className="size-5 mt-0.5 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-800/30 dark:text-blue-500">
+                                                <svg
+                                                    className="size-3.5 flex-shrink-0"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="24"
+                                                    height="24"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                >
+                                                    <polyline points="20 6 9 17 4 12" />
+                                                </svg>
+                                            </span>
+
+                                            <span className="text-sm text-gray-500 sm:text-base">
+                                                A recommendation engine and multi-person Link Room
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+                        <div className="mx-auto mb-10 max-w-2xl text-center lg:mb-14">
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 md:text-3xl md:leading-tight">
+                                Frequently Asked Questions
+                            </h2>
+                        </div>
+
+                        <div className="mx-auto max-w-5xl">
+                            <div className="grid gap-6 sm:grid-cols-2 md:gap-12">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                        Is GamesLink free to use?
+                                    </h3>
+                                    <p className="mt-2 text-gray-600 dark:text-gray-400">
+                                        GamesLink offers a generous free tier experinece. We also offer paid features
+                                        like the Link Room but we give you starter credits to try it out.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                        My team and I have credits. How do we use them?
+                                    </h3>
+                                    <p className="mt-2 text-gray-600 dark:text-gray-400">
+                                        The credits are used in the Link Room where a credit per person is used and link
+                                        results are saved for future reference.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                        I do not see a game, can I add it?
+                                    </h3>
+                                    <p className="mt-2 text-gray-600 dark:text-gray-400">
+                                        While we have a big library of games, we do not have every game in the world. We
+                                        are currently working on developing a system that allows users to submit games
+                                        to be reviewed and added to the site.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                        Can I use GamesLink in a different language?
+                                    </h3>
+                                    <p className="mt-2 text-gray-600 dark:text-gray-400">
+                                        GamesLink is currently single region with English as the only language. We are
+                                        currently working on making it accessible in other languages and give you the
+                                        ability to get region specific recommendations.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
