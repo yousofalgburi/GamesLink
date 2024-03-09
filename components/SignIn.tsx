@@ -1,19 +1,17 @@
-'use client'
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { useSession } from 'next-auth/react'
 import { Icons } from './Icons'
 import UserAuthForm from './UserAuthForm'
 import { Button } from './ui/button'
 
-export default function SignIn() {
-    const { data: session } = useSession()
-
+export default function SignIn({ variant }: { variant?: 'default' | 'link' }) {
     return (
         <>
             <Dialog>
                 <DialogTrigger asChild>
-                    <Button className='className="text-sm hover:underline" flex gap-2 font-medium underline-offset-4'>
+                    <Button
+                        variant={variant ?? 'default'}
+                        className='className="text-sm hover:underline" flex gap-2 font-medium underline-offset-4'
+                    >
                         Sign In
                     </Button>
                 </DialogTrigger>

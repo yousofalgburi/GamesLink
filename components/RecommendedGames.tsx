@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import GameCard from './GameCard'
+import SignIn from './SignIn'
 import { Button } from './ui/button'
 import { toast } from './ui/use-toast'
 
@@ -123,14 +124,12 @@ export default function RecommendedGames() {
                     <CarouselNext className={`${isLoading ? 'hidden' : ''}`} />
                 </Carousel>
             ) : (
-                <div className="flex h-20 items-center justify-center">
-                    <p>
-                        Please{' '}
-                        <Button variant="link" onClick={() => router.push('/sign-in')}>
-                            sign in
-                        </Button>{' '}
-                        to see games you have interacted with and get recommendations.
-                    </p>
+                <div className="flex h-20 items-center justify-center gap-4">
+                    <p>Please</p>
+
+                    <SignIn variant="link" />
+
+                    <p>to see games you have interacted with and get recommendations.</p>
                 </div>
             )}
         </>

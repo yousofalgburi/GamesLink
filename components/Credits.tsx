@@ -21,7 +21,7 @@ const Credits = () => {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>Sign In</DialogTitle>
+                        <DialogTitle>Credits</DialogTitle>
                     </DialogHeader>
 
                     <div className="flex flex-col space-y-2 text-center">
