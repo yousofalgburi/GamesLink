@@ -12,12 +12,12 @@ export default async function Navbar() {
     const session = await getServerSession(authOptions)
 
     return (
-        <header className="flex h-14 items-center px-4 lg:px-6">
+        <header className="flex flex-col items-center px-4 lg:h-14 lg:flex-row lg:px-6">
             <Link className="flex items-center justify-center" href={`${session?.user ? '/home' : '/'}`}>
                 <Gamepad className="h-6 w-6" />
                 <span className="ml-2 text-2xl font-bold">GamesLink</span>
             </Link>
-            <nav className="ml-auto flex items-center gap-4 sm:gap-6">
+            <nav className="ml-auto flex flex-wrap items-center gap-4 sm:gap-6 lg:flex-nowrap">
                 {session?.user && <Credits />}
 
                 <Link className="text-sm font-medium underline-offset-4 hover:underline" href="/home">

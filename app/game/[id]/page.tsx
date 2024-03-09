@@ -37,7 +37,7 @@ export default async function Page({ params: { id } }: PageProps) {
     if (!game && !cachedGame) return notFound()
 
     return (
-        <div className="container mx-auto flex min-h-[90vh] justify-around gap-8 px-4 py-12">
+        <div className="container mx-auto flex min-h-[90vh] flex-col justify-around gap-8 px-4 py-12 lg:flex-row">
             <Link href="/home" className={cn(buttonVariants({ variant: 'ghost' }), '-mt-10 self-start')}>
                 <ChevronLeft className="mr-2 h-4 w-4" />
                 Home

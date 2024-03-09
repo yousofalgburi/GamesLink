@@ -227,7 +227,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
     }
 
     return (
-        <div className="mx-auto min-h-[90vh] px-16 py-6">
+        <div className="mx-auto min-h-[90vh] p-4 lg:px-16 lg:py-6">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 xl:grid-cols-6">
                 <aside className="col-span-1 lg:col-span-1">
                     <h2 className="mb-4 text-2xl font-bold">Genres</h2>
@@ -276,7 +276,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                     <div className="mb-6 flex flex-wrap items-center justify-between gap-2 lg:gap-0">
                         <h1 className="text-3xl font-bold">Games ({totalGames})</h1>
 
-                        <div className="flex gap-3">
+                        <div className="flex flex-wrap gap-3 lg:flex-nowrap">
                             <div className="flex items-center space-x-4">
                                 <Input
                                     className="w-64"
