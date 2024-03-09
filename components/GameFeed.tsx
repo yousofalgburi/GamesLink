@@ -1,23 +1,23 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import {
-    DropdownMenuTrigger,
-    DropdownMenuRadioItem,
-    DropdownMenuRadioGroup,
-    DropdownMenuContent,
-    DropdownMenu,
-} from '@/components/ui/dropdown-menu'
-import { Checkbox } from '@/components/ui/checkbox'
 import GameCard from '@/components/GameCard'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { ExtendedGame } from '@/types/db'
 import { useIntersection } from '@mantine/hooks'
 import axios from 'axios'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
-import { ExtendedGame } from '@/types/db'
 import { Session } from 'next-auth'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 
 interface GameFeedProps {
     initGames: ExtendedGame[]
@@ -143,7 +143,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                 categories: selectedCategories.join(','),
                 sort: sortOption,
             }))
-        }, 1) // debounce the search query
+        }, 250) // debounce the search query
 
         const params = new URLSearchParams(searchParamsURL)
 

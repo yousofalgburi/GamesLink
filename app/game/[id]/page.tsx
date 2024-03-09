@@ -1,15 +1,15 @@
-/* eslint-disable @next/next/no-img-element */
-import { Badge } from '@/components/ui/badge'
-import { Card, CardHeader, CardContent } from '@/components/ui/card'
-import { db } from '@/lib/db'
-import { CalendarHeartIcon, ChevronLeft, DollarSignIcon, ExternalLinkIcon, ShieldIcon, UserIcon } from 'lucide-react'
-import Link from 'next/link'
 import CommentsSection from '@/components/CommentsSection'
+import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { db } from '@/lib/db'
 import { redis } from '@/lib/redis'
+import { cn } from '@/lib/utils'
 import { CachedGame } from '@/types/redis'
 import { SteamGame } from '@prisma/client'
+import { CalendarHeartIcon, ChevronLeft, DollarSignIcon, ExternalLinkIcon, ShieldIcon, UserIcon } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 interface PageProps {
@@ -46,7 +46,7 @@ export default async function Page({ params: { id } }: PageProps) {
             <div className="w-full max-w-[600px]">
                 <div className="grid gap-6">
                     <div className="overflow-hidden rounded-lg">
-                        <img
+                        <Image
                             alt="Game banner"
                             className="object-fit h-64 w-full"
                             height="400"

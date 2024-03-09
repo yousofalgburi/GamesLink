@@ -1,5 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
 import { buttonVariants } from '@/components/ui/button'
+import Image from 'next/image'
 import Link from 'next/link'
 
 export default function Page() {
@@ -40,7 +40,7 @@ export default function Page() {
                             </div>
 
                             <div className="mt-10 lg:col-span-4 lg:mt-0">
-                                <img
+                                <Image
                                     className="w-full rounded-xl"
                                     src="https://gaming-cdn.com/images/products/96/orig/far-cry-3-pc-game-ubisoft-connect-europe-cover.jpg?v=1701181729"
                                     alt="A game cover of Far Cry 3"
@@ -52,7 +52,7 @@ export default function Page() {
                     <div className="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
                         <div className="md:grid md:grid-cols-2 md:items-center md:gap-12 xl:gap-32">
                             <div>
-                                <img
+                                <Image
                                     className="rounded-xl"
                                     src="https://buy.thewitcher.com/build/images/home/bg-witcher3-1440@1x-ce4038c1.jpg"
                                     alt="A game cover of The Witcher 3: Wild Hunt"
@@ -83,8 +83,8 @@ export default function Page() {
                                                     fill="none"
                                                     stroke="currentColor"
                                                     stroke-width="2"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
                                                 >
                                                     <polyline points="20 6 9 17 4 12" />
                                                 </svg>
@@ -106,8 +106,8 @@ export default function Page() {
                                                     fill="none"
                                                     stroke="currentColor"
                                                     stroke-width="2"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
                                                 >
                                                     <polyline points="20 6 9 17 4 12" />
                                                 </svg>
@@ -130,8 +130,8 @@ export default function Page() {
                                                     fill="none"
                                                     stroke="currentColor"
                                                     stroke-width="2"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
                                                 >
                                                     <polyline points="20 6 9 17 4 12" />
                                                 </svg>

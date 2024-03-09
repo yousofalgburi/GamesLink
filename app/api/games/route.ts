@@ -1,16 +1,16 @@
 import { INFINITE_SCROLL_PAGINATION_RESULTS } from '@/config'
 import { db } from '@/lib/db'
-import { z } from 'zod'
 import index from '@/lib/pinecone'
 import { SteamGame } from '@prisma/client'
 import OpenAI from 'openai'
+import { z } from 'zod'
 
 export async function GET(req: Request) {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
     async function getSearchQueryEmbedding(search: string): Promise<any> {
         const embedding = await openai.embeddings.create({
-            model: 'text-embedding-3-small',
+            model: 'text-embedding-ada-002',
             input: `${search}`,
             encoding_format: 'float',
         })
@@ -55,34 +55,9 @@ export async function GET(req: Request) {
         if (search) {
             const queryEmbedding = await getSearchQueryEmbedding(search)
 
-            let tempGames = await db.steamGame.findMany({
-                where: {
-                    name: {
-                        contains: search,
-                        mode: 'insensitive',
-                    },
-                    AND: [
-                        genresArray.length
-                            ? {
-                                  genres: {
-                                      hasEvery: genresArray,
-                                  },
-                              }
-                            : {},
-                        categoriesArray.length
-                            ? {
-                                  categories: {
-                                      hasEvery: categoriesArray,
-                                  },
-                              }
-                            : {},
-                    ],
-                },
-            })
-
             const queryResult = await index.query({
                 vector: queryEmbedding,
-                topK: (tempGames.length + 25 > 100 ? 100 : tempGames.length + 25) || 25,
+                topK: 25,
                 includeMetadata: true,
             })
 
