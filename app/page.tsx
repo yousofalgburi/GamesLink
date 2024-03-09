@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function Page() {
     return (
-        <section className="flex min-h-[80vh] w-full items-center py-12 md:py-24  lg:min-h-[87.5vh] lg:items-start lg:py-32 xl:py-48">
+        <section className="flex min-h-[80vh] w-full items-center py-12 md:py-24 lg:min-h-[87.5vh] lg:items-start  ">
             <div className="container px-4 md:px-6">
                 <div
                     className="absolute inset-x-0 top-[calc(15%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl"
@@ -21,7 +21,7 @@ export default function Page() {
                     />
                 </div>
 
-                <div className="flex flex-col gap-20">
+                <div className="flex flex-col gap-20 lg:gap-48">
                     <div className="mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8">
                         <div className="grid lg:grid-cols-7 lg:items-center lg:gap-x-8 xl:gap-x-12">
                             <div className="lg:col-span-3">
@@ -42,6 +42,8 @@ export default function Page() {
                             <div className="mt-10 lg:col-span-4 lg:mt-0">
                                 <Image
                                     className="w-full rounded-xl"
+                                    width={800}
+                                    height={500}
                                     src="https://gaming-cdn.com/images/products/96/orig/far-cry-3-pc-game-ubisoft-connect-europe-cover.jpg?v=1701181729"
                                     alt="A game cover of Far Cry 3"
                                 />
@@ -54,6 +56,8 @@ export default function Page() {
                             <div>
                                 <Image
                                     className="rounded-xl"
+                                    width={800}
+                                    height={500}
                                     src="https://buy.thewitcher.com/build/images/home/bg-witcher3-1440@1x-ce4038c1.jpg"
                                     alt="A game cover of The Witcher 3: Wild Hunt"
                                 />

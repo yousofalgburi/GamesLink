@@ -8,6 +8,12 @@ const nextConfig = {
             {
                 hostname: 'lh3.googleusercontent.com',
             },
+            {
+                hostname: 'gaming-cdn.com',
+            },
+            {
+                hostname: 'buy.thewitcher.com',
+            },
         ],
     },
 }
