@@ -6,16 +6,16 @@ export const metadata = {
 }
 
 export default async function Page() {
-    const ws = await new WebSocket('ws://localhost:8000')
+    // const ws = await new WebSocket('ws://localhost:8000')
 
-    ws.onopen = () => {
-        console.log('WebSocket is open')
-        ws.send('Hello, world!')
-    }
+    // ws.onopen = () => {
+    //     console.log('WebSocket is open')
+    //     ws.send('Hello, world!')
+    // }
 
-    ws.onmessage = (event) => {
-        console.log('Message received: ', event.data)
-    }
+    // ws.onmessage = (event) => {
+    //     console.log('Message received: ', event.data)
+    // }
 
     return (
         <div className="container mx-auto py-12">
