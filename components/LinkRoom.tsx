@@ -5,7 +5,7 @@ import { FriendsContext } from '@/lib/context/FriendsContext'
 import { useMutation } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useContext, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { Button } from './ui/button'
@@ -15,11 +15,12 @@ import { useToast } from './ui/use-toast'
 export default function LinkRoom() {
     const { data: session } = useSession()
     const router = useRouter()
+    const pathname = usePathname()
 
     const { loginToast } = useCustomToasts()
     const { toast } = useToast()
     const { friends } = useContext(FriendsContext)
-    const [roomStarted, setRoomStarted] = useState(false)
+    const [roomStarted, setRoomStarted] = useState(pathname.includes('/new') ? false : true)
 
     const { mutate: createRoom, isPending: isLoading } = useMutation({
         mutationFn: async () => {
