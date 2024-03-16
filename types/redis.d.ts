@@ -1,5 +1,3 @@
-import { Vote } from '@prisma/client'
-
 export type CachedGame = {
     id: string
     steamAppId: string

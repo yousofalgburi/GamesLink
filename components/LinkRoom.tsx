@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { Loader2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import GameCard from './GameCard'
 import { UserAvatar } from './UserAvatar'
 import { Button } from './ui/button'
@@ -27,8 +27,29 @@ export default function LinkRoom() {
         },
     })
 
+    useEffect(() => {
+        const roomID = window.location.pathname.split('/').pop()
+        const ws = new WebSocket(`ws://localhost:8000`)
+
+        ws.onopen = () => {
+            ws.send(JSON.stringify({ type: 'join', roomID }))
+        }
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data)
+
+            if (data.type === 'userJoined') {
+                console.log('A new user has joined the room')
+            }
+        }
+
+        return () => {
+            ws.close()
+        }
+    }, [])
+
     return (
-        <div className="grid grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
             <Card>
                 <CardHeader>
                     <CardTitle>
@@ -44,7 +65,7 @@ export default function LinkRoom() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p className="pb-2 text-2xl font-medium">Games:</p>
+                    <p className="pb-2 text-2xl font-medium">Games ({hostGames?.games.length}):</p>
 
                     <Carousel>
                         <CarouselContent className={`${isLoading ? 'flex items-center justify-center' : ''}`}>
@@ -61,7 +82,7 @@ export default function LinkRoom() {
                                     const currentVote = game.votes.find((vote) => vote.userId === session?.user.id)
 
                                     return (
-                                        <CarouselItem key={index} className="flex basis-1/2 gap-2">
+                                        <CarouselItem key={index} className="flex basis-full gap-2 lg:basis-1/2">
                                             <GameCard
                                                 className="h-[28rem]"
                                                 nowidth={true}
@@ -82,14 +103,14 @@ export default function LinkRoom() {
             </Card>
 
             <Card>
-                <CardContent className="flex h-full w-full items-center justify-center">
+                <CardContent className="flex h-full w-full items-center justify-center p-4">
                     <Button
                         onClick={() => {
                             toast({
                                 title: 'Copied',
                                 description: 'The invite link has been copied to your clipboard',
                             })
-                            navigator.clipboard.writeText('test')
+                            navigator.clipboard.writeText(window.location.href)
                         }}
                     >
                         Copy Invite Link
