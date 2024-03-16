@@ -191,7 +191,7 @@ export default function Friends({ session }: { session: Session | null }) {
         }, 10000)
 
         return () => clearInterval(interval)
-    }, [])
+    }, [session, setFriends])
 
     return (
         <Sheet>

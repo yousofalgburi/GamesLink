@@ -1,12 +1,12 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { signIn } from 'next-auth/react'
 import * as React from 'react'
 import { FC } from 'react'
-import { useToast } from './ui/use-toast'
-import { Button } from '@/components/ui/button'
 import { Icons } from './Icons'
+import { useToast } from './ui/use-toast'
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
