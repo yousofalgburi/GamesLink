@@ -15,17 +15,18 @@ interface GameCardProps {
     votesAmt: number
     currentVote?: PartialVote
     className?: string
+    nowidth?: boolean
 }
 
 const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
-    ({ game, votesAmt: _votesAmt, currentVote: _currentVote, className }, ref) => {
+    ({ game, votesAmt: _votesAmt, currentVote: _currentVote, className, nowidth }, ref) => {
         return (
             <Card
-                className={cn('min-w-[20rem] max-w-[30rem] flex-[calc(19%-10px)]', className)}
+                className={cn(`${nowidth ? '' : 'min-w-[20rem] max-w-[30rem] flex-[calc(19%-10px)]'}`, className)}
                 key={game.id}
                 ref={ref}
             >
-                <Link href={`game/${game.id}`}>
+                <Link href={`/game/${game.id}`}>
                     <CardHeader className="m-0 p-0">
                         <Image
                             alt={`${game.name} image`}
@@ -36,7 +37,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
                         />
                     </CardHeader>
 
-                    <CardContent className="px-3 py-4">
+                    <CardContent className={`px-3 py-4 ${nowidth ? 'max-h-60 overflow-y-scroll' : ''}`}>
                         <CardTitle>{game.name}</CardTitle>
                         <CardDescription>{game.shortDescription}</CardDescription>
 
