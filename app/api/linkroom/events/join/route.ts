@@ -2,6 +2,7 @@ import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { JoinRoomValidator } from '@/lib/validators/linkroom/events/join'
 import { ExtendedGame } from '@/types/db'
+import { User } from '@prisma/client'
 import { z } from 'zod'
 
 export async function GET(req: Request) {
@@ -16,6 +17,12 @@ export async function GET(req: Request) {
         const { userId } = JoinRoomValidator.parse({
             userId: url.searchParams.get('userId'),
         })
+
+        let user = (await db.user.findUnique({
+            where: {
+                id: userId,
+            },
+        })) as User
 
         let games = (await db.steamGame.findMany({
             where: {
@@ -37,7 +44,7 @@ export async function GET(req: Request) {
             },
         })) as ExtendedGame[]
 
-        return new Response(JSON.stringify({ games }), { status: 201 })
+        return new Response(JSON.stringify({ user, games }), { status: 201 })
     } catch (error) {
         if (error instanceof z.ZodError) {
             return new Response(error.message, { status: 400 })

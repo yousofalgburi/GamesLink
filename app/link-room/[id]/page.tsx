@@ -1,4 +1,5 @@
 import LinkRoom from '@/components/LinkRoom'
+import { getAuthSession } from '@/lib/auth'
 
 export const metadata = {
     title: 'Link Room',
@@ -6,13 +7,15 @@ export const metadata = {
 }
 
 export default async function Page() {
+    let session = await getAuthSession()
+
+    if (!session?.user) {
+        return null
+    }
+
     return (
         <div className="container mx-auto py-12">
-            <div className="grid items-start gap-8">
-                <h1 className="text-3xl font-bold md:text-4xl">Link Room</h1>
-
-                <LinkRoom />
-            </div>
+            <LinkRoom userId={session?.user.id} />
         </div>
     )
 }
