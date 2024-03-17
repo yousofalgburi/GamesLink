@@ -47,7 +47,7 @@ export default function LinkRoom({ userId }: { userId: string }) {
                 setUsersInRoom((prevUsers) => prevUsers.filter((user) => user.id !== data.userId))
             }
         }
-    }, [usersInRoom, ws])
+    }, [usersInRoom, ws, userId])
 
     return (
         <div className="grid items-start gap-8">
@@ -80,7 +80,7 @@ export default function LinkRoom({ userId }: { userId: string }) {
                                                 return acc
                                             }, 0)
 
-                                            const currentVote = game.votes.find((vote) => vote.userId === user.id)
+                                            const currentVote = game.votes.find((vote) => vote.userId === userId)
 
                                             return (
                                                 <CarouselItem
