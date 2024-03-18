@@ -52,6 +52,8 @@ model User {
 
     sentRequests     FriendRequest[] @relation("requestFrom")
     receivedRequests FriendRequest[] @relation("requestTo")
+
+    rooms Room[] @relation("RoomMembers")
 }
 
 model SteamGame {
@@ -141,4 +143,12 @@ model Friendship {
 
     @@unique([userId, friendId])
     @@index([friendId])
+}
+
+model Room {
+    id        String   @id @default(cuid())
+    isActive  Boolean  @default(true)
+    isPublic  Boolean  @default(true)
+    members   User[]   @relation("RoomMembers")
+    createdAt DateTime @default(now())
 }

@@ -3,7 +3,6 @@
 import { FriendsContext } from '@/lib/context/FriendsContext'
 import { ExtendedGame } from '@/types/db'
 import axios from 'axios'
-import { useSession } from 'next-auth/react'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import GameCard from './GameCard'
 import { UserAvatar } from './UserAvatar'
