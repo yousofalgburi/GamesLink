@@ -1,4 +1,5 @@
 import { getAuthSession } from '@/lib/auth'
+import { db } from '@/lib/db'
 import { LinkRoomValidator } from '@/lib/validators/linkroom/linkroom'
 import { z } from 'zod'
 
@@ -11,10 +12,23 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json()
-        const { roomID } = LinkRoomValidator.parse(body)
+        const { roomId } = LinkRoomValidator.parse(body)
 
-        return new Response(JSON.stringify({ roomID }), { status: 201 })
+        await db.room.create({
+            data: {
+                roomId: roomId,
+                members: {
+                    connect: {
+                        id: session.user.id,
+                    },
+                },
+            },
+        })
+
+        return new Response(JSON.stringify({ roomId }), { status: 201 })
     } catch (error) {
+        console.log(error)
+
         if (error instanceof z.ZodError) {
             return new Response(error.message, { status: 400 })
         }

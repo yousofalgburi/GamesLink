@@ -15,19 +15,15 @@ export default function LinkRoomNew() {
     const { loginToast } = useCustomToasts()
     const { toast } = useToast()
 
-    const {
-        data,
-        mutate: createRoom,
-        isPending: isLoading,
-    } = useMutation({
+    const { mutate: createRoom, isPending: isLoading } = useMutation({
         mutationFn: async () => {
-            const roomID = uuidv4()
+            const roomId = uuidv4()
 
             const { data } = await axios.post('/api/linkroom/create', {
-                roomID,
+                roomId,
             })
 
-            return data as { roomID: string; games: ExtendedGame[] }
+            return data as { roomId: string }
         },
         onError: (err) => {
             if (err instanceof AxiosError) {
@@ -42,8 +38,8 @@ export default function LinkRoomNew() {
                 variant: 'destructive',
             })
         },
-        onSuccess: ({ roomID }) => {
-            router.push(`/link-room/${roomID}`)
+        onSuccess: ({ roomId }) => {
+            router.push(`/link-room/${roomId}`)
         },
     })
 

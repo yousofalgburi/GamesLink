@@ -1,25 +1,18 @@
 'use client'
 
-import { FriendsContext } from '@/lib/context/FriendsContext'
-import { ExtendedGame } from '@/types/db'
 import axios from 'axios'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import GameCard from './GameCard'
 import { UserAvatar } from './UserAvatar'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/carousel'
 import { useToast } from './ui/use-toast'
-import { User } from '@prisma/client'
+import { UserInRoom } from '@/types/linkroom'
 
-interface UserInRoom extends User {
-    games: ExtendedGame[]
-}
-
-export default function LinkRoom({ userId }: { userId: string }) {
+export default function LinkRoom({ userId, roomUsers }: { userId: string; roomUsers: UserInRoom[] }) {
     const { toast } = useToast()
-    const { friends } = useContext(FriendsContext)
-    const [usersInRoom, setUsersInRoom] = useState<UserInRoom[]>([])
+    const [usersInRoom, setUsersInRoom] = useState<UserInRoom[]>(roomUsers)
 
     const ws = useMemo(() => {
         return new WebSocket(`ws://localhost:8000`)
