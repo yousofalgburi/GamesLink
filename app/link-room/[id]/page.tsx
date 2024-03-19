@@ -10,7 +10,13 @@ export const metadata = {
     description: 'The place where the AI powered game matching magic happens.',
 }
 
-export default async function Page({ id }: { id: string }) {
+interface PageProps {
+    params: {
+        id: string
+    }
+}
+
+export default async function Page({ params: { id } }: PageProps) {
     let session = await getAuthSession()
 
     if (!session?.user) {
