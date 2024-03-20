@@ -147,6 +147,7 @@ model Friendship {
 
 model Room {
   id        String   @id @default(cuid())
+  hostId    String
   roomId    String   @unique
   isActive  Boolean  @default(true)
   isPublic  Boolean  @default(true)

@@ -19,16 +19,12 @@ export async function PATCH(req: Request) {
             },
         })
 
-        console.log('attempting to delete room...')
-
         if (updatedRooms) {
             await db.room.delete({
                 where: {
                     roomId: roomId,
                 },
             })
-
-            console.log('Room deleted')
         }
 
         return new Response('OK!', { status: 201 })

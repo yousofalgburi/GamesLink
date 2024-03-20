@@ -21,7 +21,7 @@ export default async function Page({ params: { id } }: PageProps) {
         return null
     }
 
-    const roomUserIds = await db.room.findUnique({
+    const roomUsers = await db.room.findUnique({
         where: {
             roomId: id,
         },
@@ -30,10 +30,10 @@ export default async function Page({ params: { id } }: PageProps) {
         },
     })
 
-    if (!roomUserIds) return notFound()
+    if (!roomUsers) return notFound()
 
-    const roomUsers = await Promise.all(
-        roomUserIds.members.map(async (user) => {
+    const roomUsersWithGames = await Promise.all(
+        roomUsers.members.map(async (user) => {
             const games = await db.steamGame.findMany({
                 where: {
                     votes: {
@@ -61,9 +61,12 @@ export default async function Page({ params: { id } }: PageProps) {
         })
     )
 
+    // i want roomdetails to be all the room details excluding members
+    const { members, ...roomDetails } = roomUsers
+
     return (
         <div className="container mx-auto py-12">
-            <LinkRoom roomId={id} userId={session?.user.id} roomUsers={roomUsers} />
+            <LinkRoom roomId={id} userId={session?.user.id} roomDetails={roomDetails} roomUsers={roomUsersWithGames} />
         </div>
     )
 }

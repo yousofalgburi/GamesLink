@@ -11,15 +11,18 @@ import { useToast } from './ui/use-toast'
 import { UserInRoom } from '@/types/linkroom'
 import { Alert, AlertDescription, AlertTitle } from './ui/alert'
 import { GamepadIcon } from 'lucide-react'
+import { Room } from '@prisma/client'
 
 export default function LinkRoom({
     roomId,
     userId,
     roomUsers,
+    roomDetails,
 }: {
     roomId: string
     userId: string
     roomUsers: UserInRoom[]
+    roomDetails: Room
 }) {
     const { toast } = useToast()
     const [usersInRoom, setUsersInRoom] = useState<UserInRoom[]>(roomUsers)
@@ -79,7 +82,7 @@ export default function LinkRoom({
                                 <CardTitle>
                                     <div className="flex items-center gap-2">
                                         <UserAvatar user={{ name: user.name || null, image: user.image || null }} />
-                                        {user.name}
+                                        {user.name} {roomDetails.hostId === user.id ? '(Host)' : ''}
                                     </div>
                                 </CardTitle>
                                 <CardDescription>

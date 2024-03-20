@@ -17,6 +17,7 @@ export async function POST(req: Request) {
         await db.room.create({
             data: {
                 roomId: roomId,
+                hostId: session.user.id,
                 members: {
                     connect: {
                         id: session.user.id,
