@@ -15,7 +15,7 @@ interface PageProps {
 }
 
 export default async function Page({ params: { id } }: PageProps) {
-    let session = await getAuthSession()
+    const session = await getAuthSession()
 
     if (!session?.user) {
         return null
@@ -60,8 +60,6 @@ export default async function Page({ params: { id } }: PageProps) {
             }
         })
     )
-
-    console.log(roomUsers)
 
     return (
         <div className="container mx-auto py-12">

@@ -1,34 +1,35 @@
-import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { roomEventValidator } from '@/lib/validators/linkroom/events'
 import { z } from 'zod'
 
 export async function PATCH(req: Request) {
     try {
-        const session = await getAuthSession()
-
-        if (!session?.user) {
-            return new Response('Unauthorized', { status: 401 })
-        }
-
         const url = new URL(req.url)
-        const { userId, roomId } = roomEventValidator.parse({
-            userId: url.searchParams.get('userId'),
+        const { roomId } = roomEventValidator.parse({
             roomId: url.searchParams.get('roomId'),
+            userId: '',
         })
 
-        await db.room.update({
+        const updatedRooms = await db.room.findUnique({
             where: {
                 roomId: roomId,
             },
-            data: {
-                members: {
-                    disconnect: {
-                        id: userId,
-                    },
-                },
+            include: {
+                members: true,
             },
         })
+
+        console.log('attempting to delete room...')
+
+        if (updatedRooms) {
+            await db.room.delete({
+                where: {
+                    roomId: roomId,
+                },
+            })
+
+            console.log('Room deleted')
+        }
 
         return new Response('OK!', { status: 201 })
     } catch (error) {
