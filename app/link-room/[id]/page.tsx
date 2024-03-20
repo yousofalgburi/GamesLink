@@ -1,8 +1,6 @@
 import LinkRoom from '@/components/LinkRoom'
 import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { ExtendedGame } from '@/types/db'
-import { UserInRoom } from '@/types/linkroom'
 import { notFound } from 'next/navigation'
 
 export const metadata = {
@@ -32,11 +30,11 @@ export default async function Page({ params: { id } }: PageProps) {
         },
     })
 
-    if (!roomUserIds) notFound()
+    if (!roomUserIds) return notFound()
 
     const roomUsers = await Promise.all(
         roomUserIds.members.map(async (user) => {
-            const games = (await db.steamGame.findMany({
+            const games = await db.steamGame.findMany({
                 where: {
                     votes: {
                         some: {
@@ -54,7 +52,7 @@ export default async function Page({ params: { id } }: PageProps) {
                 orderBy: {
                     voteCount: 'desc',
                 },
-            })) as ExtendedGame[]
+            })
 
             return {
                 ...user,
@@ -65,7 +63,7 @@ export default async function Page({ params: { id } }: PageProps) {
 
     return (
         <div className="container mx-auto py-12">
-            <LinkRoom roomUsers={roomUsers} userId={session?.user.id} />
+            <LinkRoom roomId={id} userId={session?.user.id} roomUsers={roomUsers} />
         </div>
     )
 }

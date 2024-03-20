@@ -10,7 +10,15 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { useToast } from './ui/use-toast'
 import { UserInRoom } from '@/types/linkroom'
 
-export default function LinkRoom({ userId, roomUsers }: { userId: string; roomUsers: UserInRoom[] }) {
+export default function LinkRoom({
+    roomId,
+    userId,
+    roomUsers,
+}: {
+    roomId: string
+    userId: string
+    roomUsers: UserInRoom[]
+}) {
     const { toast } = useToast()
     const [usersInRoom, setUsersInRoom] = useState<UserInRoom[]>(roomUsers)
 
@@ -19,8 +27,6 @@ export default function LinkRoom({ userId, roomUsers }: { userId: string; roomUs
     }, [])
 
     useEffect(() => {
-        const roomId = window.location.pathname.split('/').pop()
-
         ws.onopen = () => {
             if (!usersInRoom.find((user) => user.id === userId)) {
                 ws.send(JSON.stringify({ type: 'join', roomId, userId: userId }))
@@ -30,7 +36,7 @@ export default function LinkRoom({ userId, roomUsers }: { userId: string; roomUs
         ws.onmessage = async (event) => {
             const data: { type: string; roomId: string; userId: string } = JSON.parse(event.data)
 
-            if (data.type === 'userJoined' && data.userId !== userId) {
+            if (data.type === 'userJoined') {
                 if (!usersInRoom.find((user) => user.id === data.userId)) {
                     const { data: user } = await axios.get(`/api/linkroom/events/join?userId=${data.userId}`)
                     setUsersInRoom((prevUsers) => [...prevUsers, { ...user.user, games: user.games }])
@@ -39,7 +45,7 @@ export default function LinkRoom({ userId, roomUsers }: { userId: string; roomUs
                 setUsersInRoom((prevUsers) => prevUsers.filter((user) => user.id !== data.userId))
             }
         }
-    }, [usersInRoom, ws, userId])
+    }, [usersInRoom, ws, userId, roomId])
 
     return (
         <div className="grid items-start gap-8">
