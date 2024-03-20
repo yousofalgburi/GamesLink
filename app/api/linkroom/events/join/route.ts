@@ -1,6 +1,6 @@
 import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { JoinRoomValidator } from '@/lib/validators/linkroom/events/join'
+import { roomEventValidator } from '@/lib/validators/linkroom/events'
 import { ExtendedGame } from '@/types/db'
 import { User } from '@prisma/client'
 import { z } from 'zod'
@@ -14,8 +14,9 @@ export async function GET(req: Request) {
         }
 
         const url = new URL(req.url)
-        const { userId } = JoinRoomValidator.parse({
+        const { userId, roomId } = roomEventValidator.parse({
             userId: url.searchParams.get('userId'),
+            roomId: url.searchParams.get('roomId'),
         })
 
         let user = (await db.user.findUnique({
@@ -43,6 +44,19 @@ export async function GET(req: Request) {
                 voteCount: 'desc',
             },
         })) as ExtendedGame[]
+
+        await db.room.update({
+            where: {
+                roomId: roomId,
+            },
+            data: {
+                members: {
+                    connect: {
+                        id: user.id,
+                    },
+                },
+            },
+        })
 
         return new Response(JSON.stringify({ user, games }), { status: 201 })
     } catch (error) {

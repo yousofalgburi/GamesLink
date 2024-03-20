@@ -61,6 +61,8 @@ export default async function Page({ params: { id } }: PageProps) {
         })
     )
 
+    console.log(roomUsers)
+
     return (
         <div className="container mx-auto py-12">
             <LinkRoom roomId={id} userId={session?.user.id} roomUsers={roomUsers} />
