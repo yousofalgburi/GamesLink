@@ -1,7 +1,7 @@
 import LinkRoom from '@/components/LinkRoom'
 import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { notFound } from 'next/navigation'
+import { notFound, redirect, useRouter } from 'next/navigation'
 
 export const metadata = {
     title: 'Link Room',
@@ -32,6 +32,10 @@ export default async function Page({ params: { id } }: PageProps) {
 
     if (!roomUsers) return notFound()
 
+    if (session.user.id !== roomUsers.hostId && !roomUsers.isPublic) {
+        return redirect(`/link-room/queue/${id}`)
+    }
+
     const roomUsersWithGames = await Promise.all(
         roomUsers.members.map(async (user) => {
             const games = await db.steamGame.findMany({
@@ -61,7 +65,6 @@ export default async function Page({ params: { id } }: PageProps) {
         })
     )
 
-    // i want roomdetails to be all the room details excluding members
     const { members, ...roomDetails } = roomUsers
 
     return (
