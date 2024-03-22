@@ -1,3 +1,4 @@
+import HiddenAuth from '@/components/HiddenAuth'
 import LinkRoom from '@/components/LinkRoom'
 import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
@@ -18,7 +19,7 @@ export default async function Page({ params: { id } }: PageProps) {
     const session = await getAuthSession()
 
     if (!session?.user) {
-        return null
+        return <HiddenAuth message="to be able to join a room." />
     }
 
     const roomUsers = await db.room.findUnique({

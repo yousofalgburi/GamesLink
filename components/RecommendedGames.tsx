@@ -13,6 +13,7 @@ import GameCard from './GameCard'
 import SignIn from './SignIn'
 import { Button } from './ui/button'
 import { toast } from './ui/use-toast'
+import HiddenAuth from './HiddenAuth'
 
 export default function RecommendedGames() {
     const [fetchOnce, setFetchOnce] = useState(false)
@@ -124,13 +125,7 @@ export default function RecommendedGames() {
                     <CarouselNext className={`${isLoading ? 'hidden' : ''}`} />
                 </Carousel>
             ) : (
-                <div className="flex h-20 items-center justify-center gap-4">
-                    <p>Please</p>
-
-                    <SignIn variant="link" />
-
-                    <p>to see games you have interacted with and get recommendations.</p>
-                </div>
+                <HiddenAuth message="to see games you have interacted with and get recommendations." />
             )}
         </>
     )
