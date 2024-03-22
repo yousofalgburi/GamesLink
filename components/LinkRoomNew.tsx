@@ -1,7 +1,6 @@
 'use client'
 
 import { useCustomToasts } from '@/hooks/use-custom-toasts'
-import { ExtendedGame } from '@/types/db'
 import { useMutation } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
 import { useRouter } from 'next/navigation'

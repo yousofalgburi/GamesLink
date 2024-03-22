@@ -21,7 +21,7 @@ export default async function Page({ params: { id } }: PageProps) {
 
     return (
         <div className="container mx-auto py-12">
-            <LinkRoomQueue />
+            <LinkRoomQueue roomId={id} userId={session?.user.id} />
         </div>
     )
 }

@@ -68,6 +68,12 @@ export default function LinkRoom({
             } else if (data.type === 'userLeft') {
                 setUsersInRoom((prevUsers) => prevUsers.filter((user) => user.id !== data.userId))
                 await axios.patch(`/api/linkroom/events/leave?userId=${data.userId}&roomId=${roomId}`)
+            } else if (data.type === 'userJoinedQueue') {
+                console.log('User joined queue')
+                const { data: user } = await axios.get(
+                    `/api/linkroom/events/join/queue?userId=${data.userId}&roomId=${roomId}`
+                )
+                setWaitList((prevUsers) => [...prevUsers, user])
             }
         }
     }, [usersInRoom, ws, userId, roomId])

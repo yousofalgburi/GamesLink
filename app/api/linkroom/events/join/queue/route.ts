@@ -25,26 +25,6 @@ export async function GET(req: Request) {
             },
         })) as User
 
-        let games = (await db.steamGame.findMany({
-            where: {
-                votes: {
-                    some: {
-                        userId,
-                    },
-                },
-            },
-            include: {
-                votes: {
-                    where: {
-                        userId,
-                    },
-                },
-            },
-            orderBy: {
-                voteCount: 'desc',
-            },
-        })) as ExtendedGame[]
-
         await db.room.update({
             where: {
                 roomId: roomId,
@@ -56,7 +36,7 @@ export async function GET(req: Request) {
             },
         })
 
-        return new Response(JSON.stringify({ user, games }), { status: 201 })
+        return new Response(JSON.stringify({ user }), { status: 201 })
     } catch (error) {
         if (error instanceof z.ZodError) {
             return new Response(error.message, { status: 400 })

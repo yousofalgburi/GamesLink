@@ -146,11 +146,13 @@ model Friendship {
 }
 
 model Room {
-  id        String   @id @default(cuid())
-  hostId    String
-  roomId    String   @unique
-  isActive  Boolean  @default(true)
-  isPublic  Boolean  @default(true)
-  members   User[]   @relation("RoomMembers")
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  hostId       String
+  roomId       String   @unique
+  isActive     Boolean  @default(true)
+  isPublic     Boolean  @default(true)
+  queuedUsers  String[]
+  allowedUsers String[]
+  members      User[]   @relation("RoomMembers")
+  createdAt    DateTime @default(now())
 }

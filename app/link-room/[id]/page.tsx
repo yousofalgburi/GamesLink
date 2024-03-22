@@ -2,7 +2,7 @@ import HiddenAuth from '@/components/HiddenAuth'
 import LinkRoom from '@/components/LinkRoom'
 import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { notFound, redirect, useRouter } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 export const metadata = {
     title: 'Link Room',
