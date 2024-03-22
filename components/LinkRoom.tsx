@@ -18,7 +18,6 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -39,6 +38,7 @@ export default function LinkRoom({
     const [usersInRoom, setUsersInRoom] = useState<UserInRoom[]>(roomUsers)
     const [userLowGameCount, setUserLowGameCount] = useState(false)
     const [waitList, setWaitList] = useState<User[]>([])
+    const [publicAccess, setPublicAccess] = useState(roomDetails.isPublic)
 
     const ws = useMemo(() => {
         return new WebSocket(`ws://localhost:8000`)
@@ -96,7 +96,9 @@ export default function LinkRoom({
                     <div className="flex gap-4">
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button variant="outline">Show Room Queue</Button>
+                                <Button disabled={roomDetails.hostId !== userId} variant="outline">
+                                    Show Room Queue
+                                </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
                                 <DialogHeader>
@@ -127,11 +129,19 @@ export default function LinkRoom({
                         </Dialog>
 
                         <div className="flex items-center space-x-2">
-                            <Switch id="airplane-mode" />
+                            <Switch
+                                checked={publicAccess}
+                                onCheckedChange={async (e) => {
+                                    setPublicAccess(e)
+                                    await axios.patch(`/api/linkroom/events/access?roomId=${roomId}&publicAccess=${e}`)
+                                }}
+                                id="airplane-mode"
+                                disabled={roomDetails.hostId !== userId}
+                            />
                             <Label htmlFor="airplane-mode">Public</Label>
                         </div>
 
-                        <Button>Roll!</Button>
+                        <Button disabled={roomDetails.hostId !== userId}>Roll!</Button>
                     </div>
                 </div>
 
