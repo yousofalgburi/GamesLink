@@ -69,14 +69,15 @@ export default function LinkRoom({
                 setUsersInRoom((prevUsers) => prevUsers.filter((user) => user.id !== data.userId))
                 await axios.patch(`/api/linkroom/events/leave?userId=${data.userId}&roomId=${roomId}`)
             } else if (data.type === 'userJoinedQueue') {
-                console.log('User joined queue')
                 const { data: user } = await axios.get(
                     `/api/linkroom/events/join/queue?userId=${data.userId}&roomId=${roomId}`
                 )
-                setWaitList((prevUsers) => [...prevUsers, user])
+                if (!waitList.find((u) => u.id === user.id)) {
+                    setWaitList((prevUsers) => [...prevUsers, user.user])
+                }
             }
         }
-    }, [usersInRoom, ws, userId, roomId])
+    }, [usersInRoom, ws, userId, roomId, waitList])
 
     return (
         <>
@@ -121,9 +122,7 @@ export default function LinkRoom({
                                                 </div>
 
                                                 <div className="flex gap-2">
-                                                    <Button size="sm" disabled>
-                                                        Accept
-                                                    </Button>
+                                                    <Button size="sm">Accept</Button>
                                                 </div>
                                             </div>
                                         ))
