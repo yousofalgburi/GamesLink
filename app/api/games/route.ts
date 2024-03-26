@@ -25,10 +25,11 @@ export async function GET(req: Request) {
         let totalGames = 0
         let indexQuery = {}
 
-        const { page, search, genres, categories, sort } = z
+        const { page, search, searchOption, genres, categories, sort } = z
             .object({
                 page: z.number(),
                 search: z.string(),
+                searchOption: z.string(),
                 genres: z.string(),
                 categories: z.string(),
                 sort: z.string(),
@@ -36,12 +37,13 @@ export async function GET(req: Request) {
             .parse({
                 page: Number(requestBody.searchParams.get('page')) || 1,
                 search: requestBody.searchParams.get('search') || '',
+                searchOption: requestBody.searchParams.get('searchOption') || '',
                 genres: requestBody.searchParams.get('genres') || '',
                 categories: requestBody.searchParams.get('categories') || '',
                 sort: requestBody.searchParams.get('sort') || 'popularity',
             })
 
-        if (page > 1 && search !== '') {
+        if (page > 1 && search !== '' && searchOption === 'ai-search') {
             return new Response(JSON.stringify({ games: [] }))
         }
 
@@ -53,19 +55,36 @@ export async function GET(req: Request) {
         let limit = INFINITE_SCROLL_PAGINATION_RESULTS
 
         if (search) {
-            const queryEmbedding = await getSearchQueryEmbedding(search)
+            if (searchOption === 'ai-search') {
+                const queryEmbedding = await getSearchQueryEmbedding(search)
 
-            const queryResult = await index.query({
-                vector: queryEmbedding,
-                topK: 25,
-                includeMetadata: true,
-            })
+                const queryResult = await index.query({
+                    vector: queryEmbedding,
+                    topK: 25,
+                    includeMetadata: true,
+                })
 
-            totalGames = queryResult.matches.length
+                totalGames = queryResult.matches.length
 
-            const gamesNames = queryResult.matches.map((r) => r.metadata && r.metadata.name)
+                const gamesNames = queryResult.matches.map((r) => r.metadata && r.metadata.name)
 
-            indexQuery = { in: gamesNames }
+                indexQuery = {
+                    name: {
+                        in: gamesNames,
+                    },
+                }
+            } else if (searchOption === 'smart-text') {
+                const searchWords = search.split(' ')
+
+                indexQuery = {
+                    AND: searchWords.map((word) => ({
+                        OR: [
+                            { name: { contains: word, mode: 'insensitive' } },
+                            { shortDescription: { contains: word, mode: 'insensitive' } },
+                        ],
+                    })),
+                }
+            }
         }
 
         games = await db.steamGame.findMany({
@@ -73,8 +92,8 @@ export async function GET(req: Request) {
                 votes: true,
             },
             where: {
-                name: search ? indexQuery : undefined,
                 AND: [
+                    indexQuery,
                     genresArray.length
                         ? {
                               genres: {
@@ -91,8 +110,8 @@ export async function GET(req: Request) {
                         : {},
                 ],
             },
-            take: search ? undefined : limit,
-            skip: search ? undefined : (page - 1) * limit,
+            take: search && searchOption === 'ai-search' ? undefined : limit,
+            skip: search && searchOption === 'ai-search' ? undefined : (page - 1) * limit,
             orderBy: [
                 {
                     ...orderBy,
@@ -103,14 +122,13 @@ export async function GET(req: Request) {
             ],
         })
 
-        if (!search) {
+        if (!search || searchOption === 'smart-text') {
+            console.log('running')
+
             totalGames = await db.steamGame.count({
                 where: {
-                    name: {
-                        contains: search,
-                        mode: 'insensitive',
-                    },
                     AND: [
+                        indexQuery,
                         genresArray.length
                             ? {
                                   genres: {

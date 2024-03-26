@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { ExtendedGame } from '@/types/db'
 import { useIntersection } from '@mantine/hooks'
 import axios from 'axios'
-import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
+import { ArrowDownUp, ArrowUpDown, Brain, Search, Sparkles } from 'lucide-react'
 import { Session } from 'next-auth'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
@@ -25,6 +25,7 @@ interface GameFeedProps {
     searchParamsObj: {
         page: number
         search: string
+        searchOption: string
         genres: string
         categories: string
         sort: string
@@ -106,6 +107,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
         searchParamsObj.categories ? searchParamsObj.categories.split(',') : []
     )
     const [searchQuery, setSearchQuery] = useState(searchParamsObj.search)
+    const [searchOption, setSearchOption] = useState('smart-text')
     const [sortOption, setSortOption] = useState(searchParamsObj.sort || 'popularity-desc')
 
     const [games, setGames] = useState<ExtendedGame[] | null>(initGames)
@@ -139,6 +141,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                 ...prev,
                 page: 1,
                 search: searchQuery,
+                searchOption: searchOption,
                 genres: selectedGenres.join(','),
                 categories: selectedCategories.join(','),
                 sort: sortOption,
@@ -165,6 +168,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
             params.set('search', searchQuery)
         }
 
+        params.set('searchOption', searchOption)
         params.set('sort', sortOption)
 
         replace(`${pathname}?${params.toString()}`)
@@ -189,13 +193,14 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
         const getGamesData = async () => {
             if (shouldFetchData) {
                 const { data } = await axios.get(
-                    `/api/games?page=${searchParams.page}&search=${searchParams.search}&genres=${searchParams.genres}&categories=${searchParams.categories}&sort=${searchParams.sort}`
+                    `/api/games?page=${searchParams.page}&search=${searchParams.search}&searchOption=${searchParams.searchOption}&genres=${searchParams.genres}&categories=${searchParams.categories}&sort=${searchParams.sort}`
                 )
 
                 if (data.games) {
                     setGames((prevGames) => (prevGames ? [...prevGames, ...data.games] : data.games))
                 }
 
+                console.log(data.totalGames)
                 setTotalGames(data.totalGames)
                 setShouldFetchData(false)
             }
@@ -224,6 +229,11 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
     const handleSortChange = (option: string) => {
         if (option === sortOption) return
         setSortOption(option)
+    }
+
+    // handles the search option changes
+    const handleSearchOptionChange = (option: string) => {
+        setSearchOption(option)
     }
 
     return (
@@ -285,6 +295,27 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline">
+                                            <Search className="mr-2 h-4 w-4" />
+                                            Search Option
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-[200px]">
+                                        <DropdownMenuRadioGroup
+                                            value={searchOption}
+                                            onValueChange={handleSearchOptionChange}
+                                        >
+                                            <DropdownMenuRadioItem value="smart-text">
+                                                Smart Text &nbsp; <Brain />
+                                            </DropdownMenuRadioItem>
+                                            <DropdownMenuRadioItem value="ai-search">
+                                                AI Search &nbsp; <Sparkles />
+                                            </DropdownMenuRadioItem>
+                                        </DropdownMenuRadioGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
                             <div className="flex items-center space-x-4">
                                 <DropdownMenu>

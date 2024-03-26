@@ -17,6 +17,7 @@ export default async function Page({
         .object({
             page: z.number(),
             search: z.string(),
+            searchOption: z.string(),
             genres: z.string(),
             categories: z.string(),
             sort: z.string(),
@@ -24,6 +25,7 @@ export default async function Page({
         .parse({
             page: searchParams?.page || 1,
             search: searchParams?.search || '',
+            searchOption: searchParams?.searchOption || '',
             genres: searchParams?.genres || '',
             categories: searchParams?.categories || '',
             sort: searchParams?.sort || 'popularity-desc',
