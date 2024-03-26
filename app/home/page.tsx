@@ -49,7 +49,7 @@ export default async function Page({
         .join(',')
 
     const { data } = await axios.get(
-        `${url}/api/games?page=${searchParamsObj.page}&search=${searchParamsObj.search}&genres=${searchParamsObj.genres}&categories=${searchParamsObj.categories}&sort=${searchParamsObj.sort}`
+        `${url}/api/games?page=${searchParamsObj.page}&search=${searchParamsObj.search}&searchOption=${searchParamsObj.searchOption}&genres=${searchParamsObj.genres}&categories=${searchParamsObj.categories}&sort=${searchParamsObj.sort}`
     )
 
     if (data.games) {

@@ -107,7 +107,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
         searchParamsObj.categories ? searchParamsObj.categories.split(',') : []
     )
     const [searchQuery, setSearchQuery] = useState(searchParamsObj.search)
-    const [searchOption, setSearchOption] = useState('smart-text')
+    const [searchOption, setSearchOption] = useState(searchParamsObj.searchOption || 'smart-text')
     const [sortOption, setSortOption] = useState(searchParamsObj.sort || 'popularity-desc')
 
     const [games, setGames] = useState<ExtendedGame[] | null>(initGames)
@@ -178,7 +178,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
             setShouldFetchData(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedGenres, selectedCategories, searchQuery, sortOption])
+    }, [selectedGenres, selectedCategories, searchQuery, searchOption, sortOption])
 
     // the use effect that handles the intersection logic
     useEffect(() => {
