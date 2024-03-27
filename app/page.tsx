@@ -1,8 +1,27 @@
+'use client'
+
 import { buttonVariants } from '@/components/ui/button'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect } from 'react'
 
 export default function Page() {
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100')
+                    entry.target.classList.add('translate-y-0')
+                }
+            })
+        })
+
+        const hiddenElements = document.querySelectorAll('.opacity-0')
+        hiddenElements.forEach((element) => {
+            observer.observe(element)
+        })
+    }, [])
+
     return (
         <section className="flex min-h-[80vh] w-full items-center py-12 md:py-24 lg:min-h-[87.5vh] lg:items-start  ">
             <div className="container px-4 md:px-6">
@@ -23,48 +42,45 @@ export default function Page() {
 
                 <div className="flex flex-col gap-20 lg:gap-48">
                     <div className="mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8">
-                        <div className="grid lg:grid-cols-7 lg:items-center lg:gap-x-8 xl:gap-x-12">
-                            <div className="lg:col-span-3">
-                                <h1 className="block text-3xl font-bold text-gray-800 dark:text-white sm:text-4xl md:text-5xl lg:text-6xl">
-                                    GamesLink
-                                </h1>
-                                <p className="mt-3 text-lg text-gray-800 dark:text-gray-400">
-                                    Your place to find games to play with friends.
-                                </p>
+                        <div className="flex translate-y-40 flex-col items-center opacity-0 transition-all">
+                            <h1 className="text-3xl font-bold sm:text-4xl md:text-5xl lg:text-6xl">
+                                Discover Your Next Game
+                            </h1>
+                            <p className="mt-3 text-lg text-gray-800 dark:text-gray-400">
+                                Your place to find games to play with friends.
+                            </p>
 
-                                <div className="mt-5 flex flex-col items-center gap-2 sm:flex-row sm:gap-3 lg:mt-8">
-                                    <Link className={buttonVariants()} href="/home">
-                                        View Games
-                                    </Link>
-                                </div>
+                            <div className="mt-5 flex flex-col items-center gap-2 sm:flex-row sm:gap-3 lg:mt-8">
+                                <Link className={buttonVariants()} href="/home">
+                                    View Games
+                                </Link>
                             </div>
 
-                            <div className="mt-10 lg:col-span-4 lg:mt-0">
-                                <Image
-                                    className="w-full rounded-xl"
-                                    width={800}
-                                    height={500}
-                                    src="https://gaming-cdn.com/images/products/96/orig/far-cry-3-pc-game-ubisoft-connect-europe-cover.jpg?v=1701181729"
-                                    alt="A game cover of Far Cry 3"
-                                />
-                            </div>
+                            <Image
+                                className="mt-10 w-full
+                                 rounded-xl"
+                                width={1600}
+                                height={900}
+                                src="/hero_image.png"
+                                alt="A game cover of Far Cry 3"
+                            />
                         </div>
                     </div>
 
                     <div className="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
                         <div className="md:grid md:grid-cols-2 md:items-center md:gap-12 xl:gap-32">
-                            <div>
+                            <div className="opacity-0 transition-all">
                                 <Image
                                     className="rounded-xl"
                                     width={800}
                                     height={500}
-                                    src="https://buy.thewitcher.com/build/images/home/bg-witcher3-1440@1x-ce4038c1.jpg"
+                                    src="/link_room.png"
                                     alt="A game cover of The Witcher 3: Wild Hunt"
                                 />
                             </div>
 
                             <div className="mt-5 sm:mt-10 lg:mt-0">
-                                <div className="space-y-6 sm:space-y-8">
+                                <div className="space-y-6 opacity-0 transition-all sm:space-y-8">
                                     <div className="space-y-2 md:space-y-4">
                                         <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 lg:text-4xl">
                                             We fix the &quot;what should we play?&quot; problem
@@ -152,13 +168,13 @@ export default function Page() {
                     </div>
 
                     <div className="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-                        <div className="mx-auto mb-10 max-w-2xl text-center lg:mb-14">
+                        <div className="mx-auto mb-10 max-w-2xl text-center opacity-0 transition-all lg:mb-14">
                             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 md:text-3xl md:leading-tight">
                                 Frequently Asked Questions
                             </h2>
                         </div>
 
-                        <div className="mx-auto max-w-5xl">
+                        <div className="mx-auto max-w-5xl opacity-0 transition-all">
                             <div className="grid gap-6 sm:grid-cols-2 md:gap-12">
                                 <div>
                                     <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">

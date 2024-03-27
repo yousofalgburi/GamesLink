@@ -1,3 +1,5 @@
+'use client'
+
 import { UserInRoom } from '@/types/linkroom'
 import { Room, User } from '@prisma/client'
 import { UserAvatar } from './UserAvatar'

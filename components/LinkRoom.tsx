@@ -99,7 +99,6 @@ export default function LinkRoom({
                             </Button>
                         </CardContent>
                     </Card>
-                    L
                 </div>
             </div>
         </>

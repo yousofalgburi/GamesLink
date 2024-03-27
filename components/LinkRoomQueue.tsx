@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 export default function LinkRoomQueue({ roomId, userId }: { roomId: string; userId: string }) {
     const ws = useMemo(() => {
