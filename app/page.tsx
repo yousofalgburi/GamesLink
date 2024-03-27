@@ -1,6 +1,7 @@
 'use client'
 
 import { buttonVariants } from '@/components/ui/button'
+import { Github } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect } from 'react'
@@ -40,9 +41,19 @@ export default function Page() {
                     />
                 </div>
 
-                <div className="flex flex-col gap-20 lg:gap-48">
+                <div className="flex flex-col gap-16 lg:gap-48">
                     <div className="mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8">
                         <div className="flex translate-y-40 flex-col items-center opacity-0 transition-all">
+                            <div className="relative mb-1  rounded-full px-3 py-1 text-sm leading-6 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
+                                <a
+                                    className="flex gap-2"
+                                    target="_blank"
+                                    href="https://github.com/yousofalgburi/GamesLink"
+                                >
+                                    We are open source!
+                                    <Github />
+                                </a>
+                            </div>
                             <h1 className="text-3xl font-bold sm:text-4xl md:text-5xl lg:text-6xl">
                                 Discover Your Next Game
                             </h1>
