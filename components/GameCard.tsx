@@ -1,7 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { SteamGame, Vote } from '@prisma/client'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Ref, forwardRef } from 'react'
 import PostVoteClient from './post-vote/PostVoteClient'
@@ -21,14 +21,10 @@ interface GameCardProps {
 const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
     ({ game, votesAmt: _votesAmt, currentVote: _currentVote, className, nowidth }, ref) => {
         return (
-            <Card
-                className={cn(`${nowidth ? '' : 'min-w-[20rem] max-w-[30rem] flex-[calc(19%-10px)]'}`, className)}
-                key={game.id}
-                ref={ref}
-            >
+            <Card className={cn(`${nowidth ? '' : 'min-w-64'}`, className)} key={game.id} ref={ref}>
                 <Link href={`/game/${game.id}`}>
                     <CardHeader className="m-0 p-0">
-                        <Image
+                        <img
                             alt={`${game.name} image`}
                             className="w-full rounded-t-lg bg-cover object-cover"
                             height="400"

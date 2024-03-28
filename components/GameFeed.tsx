@@ -124,7 +124,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
     const lastPostRef = useRef<HTMLElement>(null)
     const { ref, entry } = useIntersection({
         root: lastPostRef.current,
-        threshold: 0.8,
+        threshold: 0.6,
     })
 
     useEffect(() => {
@@ -146,7 +146,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                 categories: selectedCategories.join(','),
                 sort: sortOption,
             }))
-        }, 250) // debounce the search query
+        }, 300) // debounce the search query
 
         const params = new URLSearchParams(searchParamsURL)
 
@@ -354,7 +354,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-4 px-2">
+                    <div className="grid-auto-rows-min grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                         {games &&
                             games.map((game, index) => {
                                 const votesAmt = game.votes.reduce((acc, vote) => {

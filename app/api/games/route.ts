@@ -123,8 +123,6 @@ export async function GET(req: Request) {
         })
 
         if (!search || searchOption === 'smart-text') {
-            console.log('running')
-
             totalGames = await db.steamGame.count({
                 where: {
                     AND: [
