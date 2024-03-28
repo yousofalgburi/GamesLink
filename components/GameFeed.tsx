@@ -354,7 +354,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                         </div>
                     </div>
 
-                    <div className="grid-auto-rows-min grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                    <div className="grid auto-rows-fr grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                         {games &&
                             games.map((game, index) => {
                                 const votesAmt = game.votes.reduce((acc, vote) => {

@@ -56,7 +56,3 @@
         @apply bg-background text-foreground;
     }
 }
-
-.grid-auto-rows-min {
-    grid-auto-rows: minmax(0, min-content);
-}

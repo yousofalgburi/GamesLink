@@ -35,10 +35,10 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
 
                     <CardContent className={`px-3 py-4 ${nowidth ? 'max-h-60 overflow-y-scroll' : ''}`}>
                         <CardTitle>{game.name}</CardTitle>
-                        <CardDescription>{game.shortDescription}</CardDescription>
+                        <CardDescription className="pt-1">{game.shortDescription}</CardDescription>
 
                         {game.genres.length && (
-                            <div className="flex flex-wrap gap-1 pt-3">
+                            <div className="flex flex-wrap items-center gap-1 pt-3">
                                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                     Genres:
                                 </label>
@@ -49,7 +49,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
                         )}
 
                         {game.categories.length && (
-                            <div className="flex flex-wrap gap-1 pt-3">
+                            <div className="flex max-h-24 flex-wrap items-center gap-1 overflow-y-auto pt-3">
                                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                     Categories:
                                 </label>
@@ -61,7 +61,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
                     </CardContent>
                 </Link>
 
-                <CardFooter>
+                <CardFooter className="justify-end">
                     <PostVoteClient
                         gameId={game.id.toString()}
                         initialVotesAmt={_votesAmt}
