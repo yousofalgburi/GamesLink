@@ -1,24 +1,15 @@
 import CommentsSection from '@/components/CommentsSection'
 import PostVoteServer from '@/components/post-vote/PostVoteServer'
+import PostVoteShell from '@/components/post-vote/PostVoteShell'
 import { Badge } from '@/components/ui/badge'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { db } from '@/lib/db'
 import { redis } from '@/lib/redis'
 import { cn } from '@/lib/utils'
 import { CachedGame } from '@/types/redis'
 import { SteamGame } from '@prisma/client'
-import {
-    CalendarHeartIcon,
-    ChevronLeft,
-    DollarSignIcon,
-    ExternalLinkIcon,
-    Loader2,
-    ShieldIcon,
-    ThumbsDown,
-    ThumbsUp,
-    UserIcon,
-} from 'lucide-react'
+import { CalendarHeartIcon, ChevronLeft, DollarSignIcon, ExternalLinkIcon, ShieldIcon, UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -193,22 +184,6 @@ export default async function Page({ params: { id } }: PageProps) {
                     </CardContent>
                 </Card>
             </div>
-        </div>
-    )
-}
-
-function PostVoteShell() {
-    return (
-        <div className="flex items-center gap-4">
-            <Button variant="ghost" aria-label="upvote">
-                <ThumbsUp className={cn('h-5 w-5 text-zinc-700')} />
-            </Button>
-
-            <Loader2 className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" />
-
-            <Button variant="ghost" aria-label="downvote">
-                <ThumbsDown className={cn('h-5 w-5 text-zinc-700')} />
-            </Button>
         </div>
     )
 }

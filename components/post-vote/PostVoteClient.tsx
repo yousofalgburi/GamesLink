@@ -28,7 +28,6 @@ const PostVoteClient = ({ gameId, initialVotesAmt, initialVote }: PostVoteClient
     const [currentVote, setCurrentVote] = useState(initialVote)
     const prevVote = usePrevious(currentVote)
 
-    // ensure sync with server
     useEffect(() => {
         setCurrentVote(initialVote)
     }, [initialVote])
@@ -53,7 +52,6 @@ const PostVoteClient = ({ gameId, initialVotesAmt, initialVote }: PostVoteClient
             if (voteType === 'UP') setVotesAmt((prev) => prev - 1)
             else setVotesAmt((prev) => prev + 1)
 
-            // reset current vote
             setCurrentVote(prevVote)
 
             if (err instanceof AxiosError) {
@@ -70,12 +68,10 @@ const PostVoteClient = ({ gameId, initialVotesAmt, initialVote }: PostVoteClient
         },
         onMutate: (type: VoteType) => {
             if (currentVote === type) {
-                // User is voting the same way again, so remove their vote
                 setCurrentVote(undefined)
                 if (type === 'UP') setVotesAmt((prev) => prev - 1)
                 else if (type === 'DOWN') setVotesAmt((prev) => prev + 1)
             } else {
-                // User is voting in the opposite direction, so subtract 2
                 setCurrentVote(type)
                 if (type === 'UP') setVotesAmt((prev) => prev + (currentVote ? 2 : 1))
                 else if (type === 'DOWN') setVotesAmt((prev) => prev - (currentVote ? 2 : 1))
@@ -87,7 +83,6 @@ const PostVoteClient = ({ gameId, initialVotesAmt, initialVote }: PostVoteClient
 
     return (
         <div className="flex items-center gap-4">
-            {/* upvote */}
             <Button onClick={() => !isLoading && vote('UP')} variant="ghost" aria-label="upvote">
                 <ThumbsUp
                     className={cn('h-5 w-5 text-zinc-700', {
@@ -96,12 +91,10 @@ const PostVoteClient = ({ gameId, initialVotesAmt, initialVote }: PostVoteClient
                 />
             </Button>
 
-            {/* score */}
             <label className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 {votesAmt}
             </label>
 
-            {/* downvote */}
             <Button
                 onClick={() => !isLoading && vote('DOWN')}
                 className={cn({
