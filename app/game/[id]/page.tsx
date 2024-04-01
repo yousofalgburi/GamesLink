@@ -1,16 +1,28 @@
 import CommentsSection from '@/components/CommentsSection'
+import PostVoteServer from '@/components/post-vote/PostVoteServer'
 import { Badge } from '@/components/ui/badge'
-import { buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { db } from '@/lib/db'
 import { redis } from '@/lib/redis'
 import { cn } from '@/lib/utils'
 import { CachedGame } from '@/types/redis'
 import { SteamGame } from '@prisma/client'
-import { CalendarHeartIcon, ChevronLeft, DollarSignIcon, ExternalLinkIcon, ShieldIcon, UserIcon } from 'lucide-react'
+import {
+    CalendarHeartIcon,
+    ChevronLeft,
+    DollarSignIcon,
+    ExternalLinkIcon,
+    Loader2,
+    ShieldIcon,
+    ThumbsDown,
+    ThumbsUp,
+    UserIcon,
+} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 
 interface PageProps {
     params: {
@@ -140,7 +152,7 @@ export default async function Page({ params: { id } }: PageProps) {
                             </span>
                         </div>
                     </div>
-                    <div>
+                    <div className="flex items-center justify-between">
                         <Link
                             className="inline-flex items-center rounded-full bg-gray-100 px-3 py-2 text-sm font-medium text-gray-800"
                             href={`https://store.steampowered.com/app/${game?.steamAppId ?? cachedGame.steamAppId}`}
@@ -150,6 +162,23 @@ export default async function Page({ params: { id } }: PageProps) {
                             <ExternalLinkIcon className="mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" />
                             View on Steam
                         </Link>
+                        <Suspense fallback={<PostVoteShell />}>
+                            <PostVoteServer
+                                postId={id}
+                                getData={async () => {
+                                    const game = await db.steamGame.findFirst({
+                                        where: {
+                                            id: Number(id),
+                                        },
+                                        include: {
+                                            votes: true,
+                                        },
+                                    })
+
+                                    return game
+                                }}
+                            />
+                        </Suspense>
                     </div>
                 </div>
             </div>
@@ -164,6 +193,22 @@ export default async function Page({ params: { id } }: PageProps) {
                     </CardContent>
                 </Card>
             </div>
+        </div>
+    )
+}
+
+function PostVoteShell() {
+    return (
+        <div className="flex items-center gap-4">
+            <Button variant="ghost" aria-label="upvote">
+                <ThumbsUp className={cn('h-5 w-5 text-zinc-700')} />
+            </Button>
+
+            <Loader2 className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" />
+
+            <Button variant="ghost" aria-label="downvote">
+                <ThumbsDown className={cn('h-5 w-5 text-zinc-700')} />
+            </Button>
         </div>
     )
 }

@@ -21,7 +21,11 @@ interface GameCardProps {
 const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
     ({ game, votesAmt: _votesAmt, currentVote: _currentVote, className, nowidth }, ref) => {
         return (
-            <Card className={cn(`${nowidth ? '' : 'min-w-64'}`, className)} key={game.id} ref={ref}>
+            <Card
+                className={cn(`${nowidth ? '' : 'min-w-64'}`, className, 'max-h-[35rem] overflow-auto')}
+                key={game.id}
+                ref={ref}
+            >
                 <Link href={`/game/${game.id}`}>
                     <CardHeader className="m-0 p-0">
                         <img

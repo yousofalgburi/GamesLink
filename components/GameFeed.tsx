@@ -368,7 +368,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                                 if (index === games.length - 1) {
                                     return (
                                         <GameCard
-                                            key={index}
+                                            key={game.id}
                                             votesAmt={votesAmt}
                                             currentVote={currentVote}
                                             ref={ref}
@@ -378,7 +378,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
                                 }
 
                                 return (
-                                    <GameCard key={index} votesAmt={votesAmt} currentVote={currentVote} game={game} />
+                                    <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote} game={game} />
                                 )
                             })}
                     </div>
