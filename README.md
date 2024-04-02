@@ -3,12 +3,15 @@
 >
 > Follow me on twitter [@yousof_dev](https://twitter.com/yousof_dev) for updates.
 
+![alt text](./public/hero_image.png)
+
 ## Planned Features
 
--   A game matching live room where up to 10 users can connect in a "room" and match games live.
+-   A game matching live room where up to 10 users can connect in a "room" and use a complex AI powered algorithm to find games.
 -   More user customization and allow ability to reset recommendation algorithm.
 -   Allow site to work on multiple languages and get region specific games.
 -   Block feature, API limiter, content safety features, and terms of use warnings.
+-   Merge the 2 code bases to one monorepo.
 
 ## Purpose
 
