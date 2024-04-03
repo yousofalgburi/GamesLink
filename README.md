@@ -3,7 +3,7 @@
 >
 > Follow me on twitter [@yousof_dev](https://twitter.com/yousof_dev) for updates.
 
-![alt text](./public/hero_image.png)
+![alt text](./next-app/public/hero_image.png)
 
 ## Planned Features
 
