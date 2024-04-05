@@ -1,0 +1,41 @@
+name: Next App CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+      
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build and Push Docker Image
+      working-directory: ./next-app
+      run: |
+        docker buildx build --platform linux/amd64 -t ghcr.io/${{ github.repository_owner }}/next-app:latest --push .
+        
+    - name: Deploy to VPS
+      env:
+        SSH_USER: ${{ secrets.SSH_USER }}
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      run: |
+        echo "$SSH_KEY" > id_rsa && chmod 600 id_rsa
+        ssh -o StrictHostKeyChecking=no -i id_rsa ${SSH_USER}@${SSH_HOST} '
+          docker stop next-app || true
+          docker rm next-app || true
+          docker pull ghcr.io/${{ github.repository_owner }}/next-app:latest
+          docker run -d --name next-app -p 3000:3000 ghcr.io/${{ github.repository_owner }}/next-app:latest
+        '
