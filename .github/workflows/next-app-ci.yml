@@ -20,7 +20,12 @@ jobs:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
-        
+    
+    - name: Create .env file
+      working-directory: ./next-app
+      run: |
+        echo "${{ secrets.ENV_FILE }}" > .env
+    
     - name: Build and Push Docker Image
       working-directory: ./next-app
       run: |
