@@ -41,5 +41,5 @@ jobs:
           docker stop gameslink || true
           docker rm gameslink || true
           docker pull ghcr.io/${{ github.repository_owner }}/gameslink:latest
-          docker run -d --name gameslink -p 3000:3000 ghcr.io/${{ github.repository_owner }}/gameslink:latest
+          docker run -d --name gameslink -p 3000:3000 --pull always ghcr.io/${{ github.repository_owner }}/gameslink:latest
         '
