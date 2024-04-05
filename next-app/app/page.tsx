@@ -55,7 +55,7 @@ export default function Page() {
                                 </a>
                             </div>
                             <h1 className="text-3xl font-bold sm:text-4xl md:text-5xl lg:text-6xl">
-                                Discover Your Next Game 2
+                                Discover Your Next Game 3
                             </h1>
                             <p className="mt-3 text-lg text-gray-800 dark:text-gray-400">
                                 Your place to find games to play with friends.
