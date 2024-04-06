@@ -109,7 +109,10 @@ export default function RecommendedGames() {
                                 const currentVote = game.votes.find((vote) => vote.userId === session?.user.id)
 
                                 return (
-                                    <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/5">
+                                    <CarouselItem
+                                        key={index}
+                                        className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5"
+                                    >
                                         <GameCard
                                             className="h-[40rem]"
                                             key={index}

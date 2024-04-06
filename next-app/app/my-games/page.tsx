@@ -41,7 +41,7 @@ export default async function Page() {
 
             <div>
                 <h1 className="pb-4 text-3xl font-bold">Games ({games.length})</h1>
-                <div className="flex max-h-[50rem] flex-wrap gap-4 overflow-y-scroll pr-2 xl:max-h-[80rem]">
+                <div className="grid auto-rows-fr grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                     {games &&
                         games.map((game, index) => {
                             const votesAmt = game.votes.reduce((acc, vote) => {

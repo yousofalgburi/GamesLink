@@ -8,146 +8,106 @@ export async function POST(req: Request) {
         userGames: ExtendedGame[],
         allGames: ExtendedGame[]
     ): ExtendedGame[] {
-        // Create a map to store genre and category information for quick access
-        let gameProfileMap = new Map<string, Set<string>>()
-
-        allGames.forEach((game) => {
-            let profile = new Set<string>()
-            game.genres.forEach((genre) => profile.add('genre:' + genre))
-            game.categories.forEach((category) => profile.add('category:' + category))
-            gameProfileMap.set(game.id.toString(), profile)
-        })
-
-        // Function to calculate similarity between two games
-        function calculateSimilarity(game1: ExtendedGame, game2: ExtendedGame): number {
-            let profile1 = gameProfileMap.get(game1.id.toString())
-            let profile2 = gameProfileMap.get(game2.id.toString())
-
-            // Check if both profiles are defined
-            if (!profile1 || !profile2) return 0
-
-            let common = new Set([...profile1].filter((x) => profile2 && profile2.has(x)))
-            return common.size / Math.sqrt(profile1.size * profile2.size) // Cosine similarity
-        }
-
-        // Predict user preferences for each game
-        let gameScores = new Map<string, number>()
-        allGames.forEach((game) => {
-            if (userGames.find((ug) => ug.id === game.id)) return // Skip games the user has already voted on
-
-            let score = 0
-            userGames.forEach((userGame) => {
-                let similarity = calculateSimilarity(game, userGame)
-                let vote = userGame.votes.find((vote) => vote.userId === userId)?.type
-                score += (vote === 'UP' ? 1 : -1) * similarity
-            })
-
-            gameScores.set(game.id.toString(), score)
-        })
-
-        function weightedRandomSelection(
-            games: ExtendedGame[],
-            scores: Map<string, number>,
-            count: number
-        ): ExtendedGame[] {
-            let weightedGames: { game: ExtendedGame; weight: number }[] = games.map((game) => ({
-                game: game,
-                weight: scores.get(game.id.toString()) || 0,
-            }))
-
-            // Normalize weights
-            let totalWeight = weightedGames.reduce((total, { weight }) => total + weight, 0)
-
-            let selectedGames: ExtendedGame[] = []
-            for (let i = 0; i < count; i++) {
-                let random = Math.random()
-                let cumulativeWeight = 0
-
-                for (const { game, weight } of weightedGames) {
-                    cumulativeWeight += weight / totalWeight
-                    if (random <= cumulativeWeight) {
-                        selectedGames.push(game)
-
-                        // remove the selected game from the weightedGames array
-                        weightedGames = weightedGames.filter((wg) => wg.game.id !== game.id)
-
-                        // recalculate totalWeight after removing the selected game
-                        totalWeight = weightedGames.reduce((total, { weight }) => total + weight, 0)
-
-                        break
-                    }
-                }
-            }
-
-            return selectedGames
-        }
-
-        // Sort games based on scores and return the top recommendations
-        let sortedGames = Array.from(allGames).sort(
-            (a, b) => (gameScores.get(b.id.toString()) || 0) - (gameScores.get(a.id.toString()) || 0)
+        // Create a map to store user votes for quick access
+        const userVotesMap = new Map<string, 'UP' | 'DOWN'>(
+            userGames.flatMap((game) =>
+                game.votes.filter((vote) => vote.userId === userId).map((vote) => [game.id.toString(), vote.type])
+            )
         )
 
-        // Randomly select a subset of the top recommendations
-        const recommendedGames = weightedRandomSelection(sortedGames.slice(0, 50), gameScores, 10)
+        // Create a map to store game profiles for quick access
+        const gameProfileMap = new Map<string, Set<string>>(
+            allGames.map((game) => [
+                game.id.toString(),
+                new Set([
+                    ...game.genres.map((genre) => `genre:${genre}`),
+                    ...game.categories.map((category) => `category:${category}`),
+                ]),
+            ])
+        )
 
-        return recommendedGames
+        // Calculate scores for each game
+        const gameScores = allGames.reduce((scores, game) => {
+            if (userVotesMap.has(game.id.toString())) return scores
+
+            const gameProfile = gameProfileMap.get(game.id.toString())
+            const score = userGames.reduce((sum, userGame) => {
+                const userGameProfile = gameProfileMap.get(userGame.id.toString())
+                const similarity = calculateJaccardSimilarity(gameProfile, userGameProfile)
+                const vote = userVotesMap.get(userGame.id.toString())
+                return sum + (vote === 'UP' ? similarity : -similarity)
+            }, 0)
+
+            scores.set(game.id.toString(), score)
+            return scores
+        }, new Map<string, number>())
+
+        // Sort games based on scores and return the top recommendations
+        const sortedGames = [...allGames].sort(
+            (a, b) => (gameScores.get(b.id.toString()) || 0) - (gameScores.get(a.id.toString()) || 0)
+        )
+        const topRecommendations = sortedGames.slice(0, 50)
+
+        return weightedRandomSelection(topRecommendations, gameScores, 10)
+    }
+
+    function calculateJaccardSimilarity(set1?: Set<string>, set2?: Set<string>): number {
+        if (!set1 || !set2) return 0
+        const intersection = new Set([...set1].filter((x) => set2.has(x)))
+        const union = new Set([...set1, ...set2])
+        return intersection.size / union.size
+    }
+
+    function weightedRandomSelection(
+        games: ExtendedGame[],
+        scores: Map<string, number>,
+        count: number
+    ): ExtendedGame[] {
+        let totalWeight = games.reduce((sum, game) => sum + (scores.get(game.id.toString()) || 0), 0)
+        const selectedGames: ExtendedGame[] = []
+
+        for (let i = 0; i < count; i++) {
+            let random = Math.random() * totalWeight
+            let cumulativeWeight = 0
+
+            for (const game of games) {
+                const weight = scores.get(game.id.toString()) || 0
+                cumulativeWeight += weight
+                if (random <= cumulativeWeight) {
+                    selectedGames.push(game)
+                    totalWeight -= weight
+                    games = games.filter((g) => g.id !== game.id)
+                    break
+                }
+            }
+        }
+
+        return selectedGames
     }
 
     const body = await req.json()
 
     try {
-        const { userId } = z
-            .object({
-                userId: z.string(),
-            })
-            .parse(body)
+        const { userId } = z.object({ userId: z.string() }).parse(body)
 
         const userGames = (await db.steamGame.findMany({
-            where: {
-                votes: {
-                    some: {
-                        userId,
-                    },
-                },
-            },
-            include: {
-                votes: {
-                    where: {
-                        userId,
-                    },
-                },
-            },
+            where: { votes: { some: { userId } } },
+            include: { votes: { where: { userId } } },
         })) as ExtendedGame[]
 
-        let preferredGenres = new Set<string>()
-        userGames.forEach((vote) => {
-            vote.genres.forEach((genre) => preferredGenres.add(genre))
-        })
+        const preferredGenres = new Set(userGames.flatMap((game) => game.genres))
+        const preferredCategories = new Set(userGames.flatMap((game) => game.categories))
 
-        let preferredCategories = new Set<string>()
-        userGames.forEach((vote) => {
-            vote.categories.forEach((category) => preferredCategories.add(category))
-        })
-
-        // Fetch all games with genres and categories
         const allGames = (await db.steamGame.findMany({
             where: {
-                genres: {
-                    hasSome: Array.from(preferredGenres),
-                },
-                categories: {
-                    hasSome: Array.from(preferredCategories),
-                },
+                genres: { hasSome: [...preferredGenres] },
+                categories: { hasSome: [...preferredCategories] },
             },
-            include: {
-                votes: true,
-            },
+            include: { votes: true },
         })) as ExtendedGame[]
 
-        // Calculate recommendations
-        const recommendedGames = await calculateRecommendations(userId, userGames, allGames)
+        const recommendedGames = calculateRecommendations(userId, userGames, allGames)
 
-        // Return both games and the total count
         return new Response(JSON.stringify({ recommendedGames }))
     } catch (error: any) {
         return new Response(error, { status: 500 })
