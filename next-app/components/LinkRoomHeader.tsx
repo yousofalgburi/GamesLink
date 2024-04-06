@@ -15,6 +15,7 @@ import { Switch } from './ui/switch'
 import { Label } from './ui/label'
 import { Button } from './ui/button'
 import axios from 'axios'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export default function LinkRoomHeader({
     userId,
@@ -88,7 +89,16 @@ export default function LinkRoomHeader({
                     <Label htmlFor="airplane-mode">Public</Label>
                 </div>
 
-                <Button disabled={roomDetails.hostId !== userId}>Roll!</Button>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <Button disabled>Roll!</Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>This feature is still in progress. Coming soon!</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
         </div>
     )

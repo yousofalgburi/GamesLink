@@ -1,7 +1,7 @@
 'use client'
 
 import axios from 'axios'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from './ui/button'
 import { Card, CardContent } from './ui/card'
 import { useToast } from './ui/use-toast'
@@ -74,6 +74,7 @@ export default function LinkRoom({
         return () => {
             ws.close()
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId, roomId])
 
     return (
