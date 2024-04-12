@@ -10,8 +10,10 @@ const BAN_TIME = 24 * 60 * 60 // ban time: 24 hours
 const BAN_THRESHOLD = 10 // times needed to be banned
 
 export default async function rateLimitMiddleware(req: NextRequest) {
-    const ip = req.ip
-    if (!ip || ip == process.env.OWNER_IP) return
+    const forwardedIp = req.headers.get('x-forwarded-for')
+    const ip = forwardedIp ? forwardedIp.split(',')[0].trim() : null
+
+    if (ip == '::1') return
 
     const currentWindow = Math.floor(Date.now() / 1000 / EXPIRATION)
     const key = `rate_limit:${ip}:${currentWindow}`

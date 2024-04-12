@@ -35,7 +35,7 @@ export default async function Page({
     if (process.env.NODE_ENV === 'development') {
         url = 'http://localhost:3000'
     } else {
-        url = 'https://games-link.vercel.app'
+        url = 'https://gameslink.app'
     }
 
     searchParamsObj.genres = searchParamsObj.genres
