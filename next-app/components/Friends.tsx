@@ -14,7 +14,7 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { FriendsContext } from '@/lib/context/FriendsContext'
+import { FriendsContext } from '@/context/FriendsContext'
 import { formatTimeToNow } from '@/lib/utils'
 import { UsernameValidator } from '@/lib/validators/username'
 import { zodResolver } from '@hookform/resolvers/zod'

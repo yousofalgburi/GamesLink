@@ -2,7 +2,7 @@
 
 import { UserInRoom } from '@/types/linkroom'
 import { Room, User } from '@prisma/client'
-import { UserAvatar } from './UserAvatar'
+import { UserAvatar } from '../UserAvatar'
 import {
     Dialog,
     DialogContent,
@@ -11,9 +11,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog'
-import { Switch } from './ui/switch'
-import { Label } from './ui/label'
-import { Button } from './ui/button'
+import { Switch } from '../ui/switch'
+import { Label } from '../ui/label'
+import { Button } from '../ui/button'
 import axios from 'axios'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 

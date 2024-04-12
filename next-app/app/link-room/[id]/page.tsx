@@ -1,5 +1,5 @@
 import HiddenAuth from '@/components/HiddenAuth'
-import LinkRoom from '@/components/LinkRoom'
+import LinkRoom from '@/components/link-room/LinkRoom'
 import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { notFound, redirect } from 'next/navigation'

@@ -1,16 +1,16 @@
 import { getAuthSession } from '@/lib/auth'
 import type { SteamGame, Vote } from '@prisma/client'
 import { notFound } from 'next/navigation'
-import PostVoteClient from './PostVoteClient'
+import GameVoteClient from './GameVoteClient'
 
-interface PostVoteServerProps {
-    postId: string
+interface GameVoteServerProps {
+    gameId: string
     initialVotesAmt?: number
     initialVote?: Vote['type'] | null
     getData?: () => Promise<(SteamGame & { votes: Vote[] }) | null>
 }
 
-const PostVoteServer = async ({ postId, initialVotesAmt, initialVote, getData }: PostVoteServerProps) => {
+const GameVoteServer = async ({ gameId, initialVotesAmt, initialVote, getData }: GameVoteServerProps) => {
     const session = await getAuthSession()
 
     let _votesAmt: number = 0
@@ -32,7 +32,7 @@ const PostVoteServer = async ({ postId, initialVotesAmt, initialVote, getData }:
         _currentVote = initialVote
     }
 
-    return <PostVoteClient gameId={postId} initialVotesAmt={_votesAmt} initialVote={_currentVote} />
+    return <GameVoteClient gameId={gameId} initialVotesAmt={_votesAmt} initialVote={_currentVote} />
 }
 
-export default PostVoteServer
+export default GameVoteServer

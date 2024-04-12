@@ -1,4 +1,4 @@
-import LinkRoomNew from '@/components/LinkRoomNew'
+import LinkRoomNew from '@/components/link-room/LinkRoomNew'
 
 export const metadata = {
     title: 'Link Room',

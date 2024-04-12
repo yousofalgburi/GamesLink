@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { SteamGame, Vote } from '@prisma/client'
 import Link from 'next/link'
 import { Ref, forwardRef } from 'react'
-import PostVoteClient from './post-vote/PostVoteClient'
+import GamePostVoteClient from './game-vote/GameVoteClient'
 import { Badge } from './ui/badge'
 
 type PartialVote = Pick<Vote, 'type'>
@@ -66,7 +66,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
                 </Link>
 
                 <CardFooter className="justify-end">
-                    <PostVoteClient
+                    <GamePostVoteClient
                         gameId={game.id.toString()}
                         initialVotesAmt={_votesAmt}
                         initialVote={_currentVote?.type}

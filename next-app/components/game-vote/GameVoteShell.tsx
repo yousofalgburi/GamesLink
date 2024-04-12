@@ -1,7 +1,7 @@
 import { Loader2, ThumbsDown, ThumbsUp } from 'lucide-react'
 import { Button } from '../ui/button'
 
-export default function PostVoteShell() {
+export default function GameVoteShell() {
     return (
         <div className="flex items-center gap-4">
             <Button variant="ghost" aria-label="upvote">

@@ -1,6 +1,6 @@
 'use client'
 
-import { FriendsContextProvider } from '@/lib/context/FriendsContext'
+import { FriendsContextProvider } from '@/context/FriendsContext'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'

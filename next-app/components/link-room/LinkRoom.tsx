@@ -2,13 +2,13 @@
 
 import axios from 'axios'
 import { useEffect, useRef, useState } from 'react'
-import { Button } from './ui/button'
-import { Card, CardContent } from './ui/card'
-import { useToast } from './ui/use-toast'
+import { Button } from '../ui/button'
+import { Card, CardContent } from '../ui/card'
+import { useToast } from '../ui/use-toast'
 import { Room, User } from '@prisma/client'
 import { UserInRoom } from '@/types/linkroom'
 import LinkRoomPlayers from './LinkRoomPlayers'
-import LowPlayersAvatar from './LowPlayersAvatar'
+import LowPlayersAvatar from '../LowPlayersAvatar'
 import LinkRoomHeader from './LinkRoomHeader'
 
 export default function LinkRoom({

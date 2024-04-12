@@ -22,14 +22,14 @@ type ExtendedComment = Comment & {
     author: User
 }
 
-interface PostCommentProps {
+interface GameCommentProps {
     comment: ExtendedComment
     votesAmt: number
     currentVote: CommentVote | undefined
     gameId: string
 }
 
-const PostComment: FC<PostCommentProps> = ({ comment, votesAmt, currentVote, gameId }) => {
+const GameComment: FC<GameCommentProps> = ({ comment, votesAmt, currentVote, gameId }) => {
     const { data: session } = useSession()
     const [isReplying, setIsReplying] = useState<boolean>(false)
     const commentRef = useRef<HTMLDivElement>(null)
@@ -141,4 +141,4 @@ const PostComment: FC<PostCommentProps> = ({ comment, votesAmt, currentVote, gam
     )
 }
 
-export default PostComment
+export default GameComment

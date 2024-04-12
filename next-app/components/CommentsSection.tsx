@@ -2,7 +2,7 @@ import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { Comment, CommentVote, User } from '@prisma/client'
 import CreateComment from './CreateComment'
-import PostComment from './comments/PostComment'
+import GameComment from './comments/GameComment'
 
 type ExtendedComment = Comment & {
     votes: CommentVote[]
@@ -67,7 +67,7 @@ const CommentsSection = async ({ gameId, orderBy }: CommentsSectionProps) => {
                         return (
                             <div key={topLevelComment.id} className="flex flex-col">
                                 <div className="mb-2">
-                                    <PostComment
+                                    <GameComment
                                         comment={topLevelComment}
                                         currentVote={topLevelCommentVote}
                                         votesAmt={topLevelCommentVotesAmt}
@@ -89,7 +89,7 @@ const CommentsSection = async ({ gameId, orderBy }: CommentsSectionProps) => {
 
                                         return (
                                             <div key={reply.id} className="ml-2 border-l-2 border-zinc-200 py-2 pl-4">
-                                                <PostComment
+                                                <GameComment
                                                     comment={reply}
                                                     currentVote={replyVote}
                                                     votesAmt={replyVotesAmt}

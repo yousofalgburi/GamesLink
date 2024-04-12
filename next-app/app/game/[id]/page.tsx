@@ -1,6 +1,6 @@
 import CommentsSection from '@/components/CommentsSection'
-import PostVoteServer from '@/components/post-vote/PostVoteServer'
-import PostVoteShell from '@/components/post-vote/PostVoteShell'
+import GameVoteServer from '@/components/game-vote/GameVoteServer'
+import GameVoteShell from '@/components/game-vote/GameVoteShell'
 import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -153,9 +153,9 @@ export default async function Page({ params: { id } }: PageProps) {
                             <ExternalLinkIcon className="mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" />
                             View on Steam
                         </Link>
-                        <Suspense fallback={<PostVoteShell />}>
-                            <PostVoteServer
-                                postId={id}
+                        <Suspense fallback={<GameVoteShell />}>
+                            <GameVoteServer
+                                gameId={id}
                                 getData={async () => {
                                     const game = await db.steamGame.findFirst({
                                         where: {

@@ -1,4 +1,4 @@
-import LinkRoomQueue from '@/components/LinkRoomQueue'
+import LinkRoomQueue from '@/components/link-room/LinkRoomQueue'
 import { getAuthSession } from '@/lib/auth'
 
 export const metadata = {

@@ -14,13 +14,13 @@ import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 
-interface PostVoteClientProps {
+interface GameVoteClientProps {
     gameId: string
     initialVotesAmt: number
     initialVote?: VoteType | null
 }
 
-const PostVoteClient = ({ gameId, initialVotesAmt, initialVote }: PostVoteClientProps) => {
+const GameVoteClient = ({ gameId, initialVotesAmt, initialVote }: GameVoteClientProps) => {
     const { data: session } = useSession()
     const router = useRouter()
     const { loginToast } = useCustomToasts()
@@ -113,4 +113,4 @@ const PostVoteClient = ({ gameId, initialVotesAmt, initialVote }: PostVoteClient
     )
 }
 
-export default PostVoteClient
+export default GameVoteClient

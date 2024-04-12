@@ -1,18 +1,16 @@
 'use client'
 
-import { authOptions, getAuthSession } from '@/lib/auth'
 import { Gamepad } from 'lucide-react'
-import { Session, getServerSession } from 'next-auth'
-import Link from 'next/link'
+import { Session } from 'next-auth'
 import Credits from './Credits'
 import Friends from './Friends'
 import { ModeToggle } from './ModeToggle'
 import SignIn from './SignIn'
 import { UserAccountNav } from './UserAccountNav'
-
-import { Fragment } from 'react'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
+import { Disclosure } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const navigation = [
     { name: 'Home', href: '/home', current: true },
@@ -29,6 +27,8 @@ interface NavbarProps {
 }
 
 export default function Navbar({ session }: NavbarProps) {
+    const path = usePathname()
+
     return (
         <Disclosure as="nav">
             {({ open }) => (
@@ -54,14 +54,14 @@ export default function Navbar({ session }: NavbarProps) {
                                 <div className="hidden sm:ml-6 sm:block">
                                     <div className="flex space-x-4">
                                         {navigation.map((item) => (
-                                            <a
+                                            <Link
                                                 key={item.name}
                                                 href={item.href}
-                                                className="rounded-md px-3 py-2 text-sm font-medium"
+                                                className={`rounded-md px-3 py-2 text-sm font-medium ${path.includes(item.href) ? 'bg-gray-900 text-white dark:bg-gray-800' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
                                                 aria-current={item.current ? 'page' : undefined}
                                             >
                                                 {item.name}
-                                            </a>
+                                            </Link>
                                         ))}
 
                                         {session?.user && <Credits />}

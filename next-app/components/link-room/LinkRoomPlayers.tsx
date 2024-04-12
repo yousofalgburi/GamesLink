@@ -1,11 +1,11 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/carousel'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel'
 import { UserInRoom } from '@/types/linkroom'
-import GameCard from './GameCard'
+import GameCard from '../GameCard'
 import { Room } from '@prisma/client'
-import { UserAvatar } from './UserAvatar'
+import { UserAvatar } from '../UserAvatar'
 
 export default function LinkRoomPlayers({
     usersInRoom,
