@@ -27,7 +27,6 @@ jobs:
         echo "${{ secrets.ENV_FILE }}" > .env
     
     - name: Build and Push Docker Image
-      working-directory: ./next-app
       run: |
         docker buildx build --platform linux/amd64 -t ghcr.io/${{ github.repository_owner }}/gameslink:latest --push .
         
