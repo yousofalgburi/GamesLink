@@ -27,8 +27,9 @@ jobs:
         echo "${{ secrets.ENV_FILE }}" > .env
     
     - name: Build and Push Docker Image
+      working-directory: ./next-app
       run: |
-        docker buildx build --file .github/workflows/Dockerfile --platform linux/amd64 -t ghcr.io/${{ github.repository_owner }}/gameslink:latest --push .
+        docker buildx build --platform linux/amd64 -t ghcr.io/${{ github.repository_owner }}/gameslink:latest --push .
         
     - name: Login to GitHub Container Registry on VPS
       env:
