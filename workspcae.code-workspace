@@ -5,6 +5,12 @@
 		},
 		{
 			"path": "realtime-engine"
+		},
+		{
+			"path": "Seed-engine"
+		},
+		{
+			"path": "shared"
 		}
 	],
 	"settings": {}

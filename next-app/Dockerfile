@@ -17,7 +17,7 @@ RUN \
 
 # BUILD PRISMA
 RUN npm install -g prisma
-COPY prisma ./prisma
+COPY prisma ../shared/prisma
 RUN npx prisma generate
 
 # Rebuild the source code only when needed
