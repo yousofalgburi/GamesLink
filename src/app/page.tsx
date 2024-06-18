@@ -1,6 +1,6 @@
 'use client'
 
-import { api } from '@/lib/api'
+import { api } from '@frontend/lib/api'
 import { useEffect, useState } from 'react'
 
 export default function Home() {
