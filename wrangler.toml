@@ -1,6 +1,11 @@
 name = "gameslink-api"
 compatibility_date = "2023-12-01"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "gameslink"
+database_id = "5c40300a-d8af-4b99-9e6f-4a689db4f519"
+
 # [vars]
 # MY_VAR = "my-variable"
 
@@ -11,11 +16,6 @@ compatibility_date = "2023-12-01"
 # [[r2_buckets]]
 # binding = "MY_BUCKET"
 # bucket_name = "my-bucket"
-
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "my-database"
-# database_id = ""
 
 # [ai]
 # binding = "AI"
