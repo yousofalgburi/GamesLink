@@ -20,7 +20,7 @@
 		],
 		"paths": {
 			"@frontend*": ["./src/*"],
-			"@server": ["./server/*"]
+			"@server/*": ["./server/*"]
 		}
 	},
 	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
