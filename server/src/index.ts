@@ -1,9 +1,8 @@
 import { Hono } from 'hono'
-import { D1Database } from '@cloudflare/workers-types'
 import { testRoutes } from './testRoutes'
 
 export type Env = {
-    DB: D1Database
+    DB_URL: string
 }
 
 const app = new Hono<{ Bindings: Env }>()

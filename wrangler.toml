@@ -1,21 +1,3 @@
 name = "gameslink-api"
 compatibility_date = "2023-12-01"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "gameslink"
-database_id = "5c40300a-d8af-4b99-9e6f-4a689db4f519"
-
-# [vars]
-# MY_VAR = "my-variable"
-
-# [[kv_namespaces]]
-# binding = "MY_KV_NAMESPACE"
-# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-
-# [[r2_buckets]]
-# binding = "MY_BUCKET"
-# bucket_name = "my-bucket"
-
-# [ai]
-# binding = "AI"
+node_compat = true
