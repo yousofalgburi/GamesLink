@@ -9,28 +9,28 @@ import { Inter as FontSans } from 'next/font/google'
 import './globals.css'
 
 const fontSans = FontSans({
-	subsets: ['latin'],
-	variable: '--font-sans'
+    subsets: ['latin'],
+    variable: '--font-sans',
 })
 
 export const metadata: Metadata = {
-	title: 'GamesLink',
-	description: 'Explore and find games to play with your friends.'
+    title: 'GamesLink',
+    description: 'Explore and find games to play with your friends.',
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-	return (
-		<html lang='en' suppressHydrationWarning>
-			<body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
-				<Providers>
-					<main className='flex flex-1 flex-col'>
-						<div className='min-h-[85vh]'>{children}</div>
-						<Footer />
-					</main>
-				</Providers>
-				<Toaster />
-				<SonnerToaster />
-			</body>
-		</html>
-	)
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
+                <Providers>
+                    <main className="flex flex-1 flex-col">
+                        <div className="min-h-[85vh]">{children}</div>
+                        <Footer />
+                    </main>
+                </Providers>
+                <Toaster />
+                <SonnerToaster />
+            </body>
+        </html>
+    )
 }

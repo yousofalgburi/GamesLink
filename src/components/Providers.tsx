@@ -6,21 +6,21 @@ import { type ThemeProviderProps } from 'next-themes/dist/types'
 import { FC, ReactNode } from 'react'
 
 interface LayoutProps {
-	children: ReactNode
+    children: ReactNode
 }
 
 const queryClient = new QueryClient()
 
 function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-	return <NextThemesProvider {...props}>{children}</NextThemesProvider>
+    return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 }
 
 const Providers: FC<LayoutProps> = ({ children }) => {
-	return (
-		<ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
-			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-		</ThemeProvider>
-	)
+    return (
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        </ThemeProvider>
+    )
 }
 
 export default Providers
