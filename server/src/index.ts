@@ -1,13 +1,15 @@
 import { Hono } from 'hono'
-import { testRoutes } from './testRoutes'
+import { csrf } from 'hono/csrf'
+import { Variables, Bindings } from './bindings'
+import { authMiddleware } from './middleware'
+import api from './api'
 
-export type Env = {
-    DB_URL: string
-}
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
-const app = new Hono<{ Bindings: Env }>()
+app.use(csrf())
+app.use('*', authMiddleware)
 
-const apiRoutes = app.basePath('/api').route('test', testRoutes)
+app.route('/api', api)
 
 export default app
-export type ApiRoutes = typeof apiRoutes
+export type ApiRoutes = typeof app
