@@ -6,11 +6,12 @@ import { Disclosure } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { Button, buttonVariants } from '@frontend/components/ui/button'
 
 const navigation = [
 	{ name: 'Home', href: '/home', current: true },
 	{ name: 'My Games', href: '/my-games', current: false },
-	{ name: 'Link Room', href: '/link-room/new', current: false }
+	{ name: 'Link Room', href: '/link-room/new', current: false },
 ]
 
 function classNames(...classes: string[]) {
@@ -72,6 +73,10 @@ export default function Navbar() {
 									<span className='sr-only'>View notifications</span>
 									<BellIcon className='h-6 w-6' aria-hidden='true' />
 								</button>
+
+								<Link href='auth/signin' className={buttonVariants()}>
+									Sign In
+								</Link>
 							</div>
 						</div>
 					</div>
@@ -85,7 +90,7 @@ export default function Navbar() {
 									href={item.href}
 									className={classNames(
 										item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-										'block rounded-md px-3 py-2 text-base font-medium'
+										'block rounded-md px-3 py-2 text-base font-medium',
 									)}
 									aria-current={item.current ? 'page' : undefined}
 								>

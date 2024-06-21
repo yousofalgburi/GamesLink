@@ -1,15 +1,30 @@
 import { Hono } from 'hono'
 import { csrf } from 'hono/csrf'
-import { Variables, Bindings } from './bindings'
+import type { Variables, Bindings } from './bindings'
 import { authMiddleware } from './middleware'
-import api from './api'
+import { authRouter } from './api/auth'
+import { cors } from 'hono/cors'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
-app.use(csrf())
+app.use(csrf({ origin: 'http://localhost:3000' }))
 app.use('*', authMiddleware)
+app.use(
+	'*',
+	cors({
+		origin: 'http://localhost:3000',
+		allowHeaders: ['Content-Type', 'Authorization'],
+		allowMethods: ['POST', 'GET', 'OPTIONS'],
+		exposeHeaders: ['Content-Length'],
+		maxAge: 600,
+		credentials: true,
+	}),
+)
+app.options('*', (c) => {
+	return c.text('', 204)
+})
 
-app.route('/api', api)
+const apiRoutes = app.basePath('/api').route('/auth', authRouter)
 
 export default app
-export type ApiRoutes = typeof app
+export type ApiRoutes = typeof apiRoutes
