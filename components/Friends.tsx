@@ -9,14 +9,14 @@ import { FriendsContext } from '@/context/FriendsContext'
 import { formatTimeToNow } from '@/lib/utils'
 import { UsernameValidator } from '@/lib/validators/username'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FriendRequest } from '@prisma/client'
+import type { FriendRequest } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
 import { Users } from 'lucide-react'
-import { Session } from 'next-auth'
+import type { Session } from 'next-auth'
 import { useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import type { z } from 'zod'
 import { UserAvatar } from './UserAvatar'
 import { Input } from './ui/input'
 import { toast } from './ui/use-toast'
@@ -47,7 +47,7 @@ export default function Friends({ session }: { session: Session | null }) {
 		mutationFn: async ({ name }: FormData) => {
 			const payload: FormData = { name }
 
-			const { data } = await axios.post(`/api/friends/send`, payload)
+			const { data } = await axios.post('/api/friends/send', payload)
 			return data
 		},
 		onError: (err) => {
@@ -102,7 +102,7 @@ export default function Friends({ session }: { session: Session | null }) {
 		mutationFn: async ({ id }: { id: string }) => {
 			const payload = { id }
 			setFriendRequest((prev) => prev.filter((request) => request.id !== id))
-			const { data } = await axios.post(`/api/friends/reject`, payload)
+			const { data } = await axios.post('/api/friends/reject', payload)
 			return data
 		},
 		onError: (err) => {
@@ -124,7 +124,7 @@ export default function Friends({ session }: { session: Session | null }) {
 			const payload = { id }
 			const request = friendRequest.find((request) => request.id === id)
 			setFriendRequest((prev) => prev.filter((request) => request.id !== id))
-			const { data } = await axios.post(`/api/friends/accept`, payload)
+			const { data } = await axios.post('/api/friends/accept', payload)
 			return data
 		},
 		onError: (err) => {
@@ -145,7 +145,7 @@ export default function Friends({ session }: { session: Session | null }) {
 		mutationFn: async ({ friendName }: { friendName: string }) => {
 			const payload = { friendName }
 			setFriends((prev) => prev.filter((friend) => friend.name !== friendName))
-			const { data } = await axios.post(`/api/friends/unfriend`, payload)
+			const { data } = await axios.post('/api/friends/unfriend', payload)
 			return data
 		},
 		onError: (err) => {
@@ -167,7 +167,7 @@ export default function Friends({ session }: { session: Session | null }) {
 			if (!session) return
 
 			try {
-				const { data } = await axios.get(`/api/friends`)
+				const { data } = await axios.get('/api/friends')
 				setFriends(data.friends)
 				setFriendRequest(data.friendRequests)
 			} catch (error) {
@@ -224,24 +224,23 @@ export default function Friends({ session }: { session: Session | null }) {
 					<TabsContent value='friends'>
 						<Card className='py-4'>
 							<CardContent className='space-y-4'>
-								{friends &&
-									friends.map((friend) => (
-										<div key={friend.name} className='flex items-center justify-between'>
-											<div className='flex items-center gap-2'>
-												<UserAvatar user={friend} />
-												<Label htmlFor='name'>{friend.name}</Label>
-											</div>
-
-											<div className='flex gap-2'>
-												<Button size='sm' disabled>
-													Invite
-												</Button>
-												<Button onClick={() => unfriend({ friendName: friend.name })} size='sm' variant='destructive'>
-													Unfriend
-												</Button>
-											</div>
+								{friends?.map((friend) => (
+									<div key={friend.name} className='flex items-center justify-between'>
+										<div className='flex items-center gap-2'>
+											<UserAvatar user={friend} />
+											<Label htmlFor='name'>{friend.name}</Label>
 										</div>
-									))}
+
+										<div className='flex gap-2'>
+											<Button size='sm' disabled>
+												Invite
+											</Button>
+											<Button onClick={() => unfriend({ friendName: friend.name })} size='sm' variant='destructive'>
+												Unfriend
+											</Button>
+										</div>
+									</div>
+								))}
 							</CardContent>
 						</Card>
 					</TabsContent>
@@ -249,29 +248,26 @@ export default function Friends({ session }: { session: Session | null }) {
 					<TabsContent value='pendingRequests'>
 						<Card className='py-4'>
 							<CardContent className='space-y-4'>
-								{friendRequest &&
-									friendRequest.map((request) => (
-										<div key={request.id} className='flex items-center gap-3'>
-											<div className='flex items-center gap-2'>
-												<UserAvatar user={request} />
-												<div className='flex flex-col'>
-													<Label htmlFor='name'>{request.name}</Label>
-													<p className='truncate text-sm text-muted-foreground'>
-														Sent {formatTimeToNow(request.createdAt)}
-													</p>
-												</div>
-											</div>
-
-											<div className='flex gap-2'>
-												<Button size='sm' onClick={() => acceptFriendRequest({ id: request.id })}>
-													Accept
-												</Button>
-												<Button onClick={() => rejectFriendRequest({ id: request.id })} variant='destructive' size='sm'>
-													Reject
-												</Button>
+								{friendRequest?.map((request) => (
+									<div key={request.id} className='flex items-center gap-3'>
+										<div className='flex items-center gap-2'>
+											<UserAvatar user={request} />
+											<div className='flex flex-col'>
+												<Label htmlFor='name'>{request.name}</Label>
+												<p className='truncate text-sm text-muted-foreground'>Sent {formatTimeToNow(request.createdAt)}</p>
 											</div>
 										</div>
-									))}
+
+										<div className='flex gap-2'>
+											<Button size='sm' onClick={() => acceptFriendRequest({ id: request.id })}>
+												Accept
+											</Button>
+											<Button onClick={() => rejectFriendRequest({ id: request.id })} variant='destructive' size='sm'>
+												Reject
+											</Button>
+										</div>
+									</div>
+								))}
 							</CardContent>
 						</Card>
 					</TabsContent>
