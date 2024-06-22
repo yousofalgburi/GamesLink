@@ -1,12 +1,15 @@
 'use client'
 
 import { Gamepad } from 'lucide-react'
+import type { Session } from 'next-auth'
+import Credits from './Credits'
 import { ModeToggle } from './ModeToggle'
+import SignIn from './SignIn'
+import { UserAccountNav } from './UserAccountNav'
 import { Disclosure } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Button, buttonVariants } from '@frontend/components/ui/button'
 
 const navigation = [
 	{ name: 'Home', href: '/home', current: true },
@@ -18,7 +21,11 @@ function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(' ')
 }
 
-export default function Navbar() {
+interface NavbarProps {
+	session: Session | null
+}
+
+export default function Navbar({ session }: NavbarProps) {
 	const path = usePathname()
 
 	return (
@@ -49,16 +56,14 @@ export default function Navbar() {
 											<Link
 												key={item.name}
 												href={item.href}
-												className={`rounded-md px-3 py-2 text-sm font-medium ${
-													path.includes(item.href)
-														? 'bg-gray-900 text-white dark:bg-gray-800'
-														: 'text-gray-300 hover:bg-gray-700 hover:text-white'
-												}`}
+												className={`rounded-md px-3 py-2 text-sm font-medium ${path.includes(item.href) ? 'bg-gray-900 text-white dark:bg-gray-800' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
 												aria-current={item.current ? 'page' : undefined}
 											>
 												{item.name}
 											</Link>
 										))}
+
+										{session?.user && <Credits />}
 									</div>
 								</div>
 							</div>
@@ -73,10 +78,19 @@ export default function Navbar() {
 									<span className='sr-only'>View notifications</span>
 									<BellIcon className='h-6 w-6' aria-hidden='true' />
 								</button>
-
-								<Link href='auth/signin' className={buttonVariants()}>
-									Sign In
-								</Link>
+								{/* Profile dropdown relative ml-3 */}
+								{session?.user ? (
+									<UserAccountNav
+										user={{
+											name: session.user.name,
+											image: session.user.image,
+											email: session.user.email,
+											username: session.user.username,
+										}}
+									/>
+								) : (
+									<SignIn />
+								)}
 							</div>
 						</div>
 					</div>
