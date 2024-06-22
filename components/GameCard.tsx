@@ -26,8 +26,8 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 					<Image
 						alt={game.name}
 						className='w-full rounded-t-lg bg-cover object-cover'
-						height='400'
-						width='200'
+						height='800'
+						width='400'
 						src={`${game.headerImage}`}
 					/>
 				</CardHeader>
