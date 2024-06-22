@@ -1,11 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { redis } from './lib/redis'
 
-// rate limit settings
 const RATE_LIMIT = 100 // requests per minute
 const EXPIRATION = 60 // 1 minute
 
-// ban settings
 const BAN_TIME = 24 * 60 * 60 // ban time: 24 hours
 const BAN_THRESHOLD = 10 // times needed to be banned
 
@@ -13,7 +11,7 @@ export default async function rateLimitMiddleware(req: NextRequest) {
 	const forwardedIp = req.headers.get('x-forwarded-for')
 	const ip = forwardedIp ? forwardedIp.split(',')[0].trim() : null
 
-	if (ip == '::1') return
+	if (ip === '::1') return
 
 	const currentWindow = Math.floor(Date.now() / 1000 / EXPIRATION)
 	const key = `rate_limit:${ip}:${currentWindow}`
@@ -31,17 +29,13 @@ export default async function rateLimitMiddleware(req: NextRequest) {
 	}
 
 	if (currentCount > RATE_LIMIT) {
-		// increment the ban counter
 		const banCount = await redis.incr(banKey)
 		if (banCount === 1) {
 			await redis.expire(banKey, BAN_TIME)
 		}
 
-		// if the ban threshold is exceeded, ban the IP
 		if (banCount >= BAN_THRESHOLD) {
-			// @ts-ignore
-			// Not sure why TS is complaining about the signature of set. It's correct according to the docs.
-			await redis.set(banKey, 'banned', (ex = BAN_TIME))
+			await redis.set(banKey, 'banned', { ex: BAN_TIME })
 		}
 
 		return NextResponse.json({ error: 'Too Many Requests' })
