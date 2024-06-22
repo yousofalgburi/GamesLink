@@ -1,11 +1,17 @@
 'use client'
 
 import GameCard from '@frontend/components/GameCard'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import type { ExtendedGame } from '@frontend/types/db'
+import { Button } from '@frontend/components/ui/button'
+import { Checkbox } from '@frontend/components/ui/checkbox'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuTrigger,
+} from '@frontend/components/ui/dropdown-menu'
+import { Input } from '@frontend/components/ui/input'
+import { type ExtendedGame, VoteType } from '@frontend/types/db'
 import { useIntersection } from '@mantine/hooks'
 import axios from 'axios'
 import { ArrowDownUp, ArrowUpDown, Brain, Search, Sparkles } from 'lucide-react'
@@ -117,6 +123,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 		threshold: 0.6,
 	})
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		const handler = setTimeout(() => {
 			if (!hasMounted.current) {
@@ -167,7 +174,6 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 			clearTimeout(handler)
 			setShouldFetchData(false)
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedGenres, selectedCategories, searchQuery, searchOption, sortOption])
 
 	// the use effect that handles the intersection logic
@@ -340,22 +346,21 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 					</div>
 
 					<div className='grid auto-rows-fr grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
-						{games &&
-							games.map((game, index) => {
-								const votesAmt = game.votes.reduce((acc, vote) => {
-									if (vote.type === 'UP') return acc + 1
-									if (vote.type === 'DOWN') return acc - 1
-									return acc
-								}, 0)
+						{games?.map((game, index) => {
+							// const votesAmt = game.votes.reduce((acc: number, vote: string) => {
+							// 	if (vote.type === VoteType.UP) return acc + 1
+							// 	if (vote.type === VoteType.DOWN) return acc - 1
+							// 	return acc
+							// }, 0)
 
-								const currentVote = game.votes.find((vote) => vote.userId === session?.user.id)
+							// const currentVote = game.votes.find((vote: { userId: string }) => vote.userId === session?.user.id)
 
-								if (index === games.length - 1) {
-									return <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote} ref={ref} game={game} />
-								}
+							// if (index === games.length - 1) {
+							// 	return <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote} ref={ref} game={game} />
+							// }
 
-								return <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote} game={game} />
-							})}
+							return <GameCard key={game.id} votesAmt={0} currentVote='DOWN' game={game} />
+						})}
 					</div>
 				</div>
 			</div>

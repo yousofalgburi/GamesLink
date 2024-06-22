@@ -7,6 +7,7 @@ import type { Metadata } from 'next'
 import { Inter as FontSans } from 'next/font/google'
 import './globals.css'
 import Navbar from '@frontendcomponents/Navbar'
+import { getAuthSession } from '@frontendlib/auth'
 
 const fontSans = FontSans({
 	subsets: ['latin'],
@@ -19,12 +20,14 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+	const session = await getAuthSession()
+
 	return (
 		<html lang='en' suppressHydrationWarning>
 			<body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
 				<Providers>
 					<main className='flex flex-1 flex-col'>
-						<Navbar />
+						<Navbar session={session} />
 						<div className='min-h-[85vh]'>{children}</div>
 						<Footer />
 					</main>

@@ -48,14 +48,14 @@ export default async function Page({
 		.filter((category) => category !== '')
 		.join(',')
 
-	const { data } = await axios.get(
-		`${url}/api/games?page=${searchParamsObj.page}&search=${searchParamsObj.search}&searchOption=${searchParamsObj.searchOption}&genres=${searchParamsObj.genres}&categories=${searchParamsObj.categories}&sort=${searchParamsObj.sort}`,
-	)
+	// const { data } = await axios.get(
+	// 	`${url}/api/games?page=${searchParamsObj.page}&search=${searchParamsObj.search}&searchOption=${searchParamsObj.searchOption}&genres=${searchParamsObj.genres}&categories=${searchParamsObj.categories}&sort=${searchParamsObj.sort}`,
+	// )
 
-	if (data.games) {
-		games = data.games
-		totalGames = data.totalGames
-	}
+	// if (data.games) {
+	// 	games = data.games
+	// 	totalGames = data.totalGames
+	// }
 
 	return <GameFeed initGames={games} initTotalGames={totalGames} searchParamsObj={searchParamsObj} session={session} />
 }

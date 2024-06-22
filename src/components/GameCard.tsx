@@ -2,9 +2,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { cn } from '@frontend/lib/utils'
 import type { SteamGame, Vote } from '@frontend/types/db'
 import Link from 'next/link'
-import type { Ref, forwardRef } from 'react'
-import GamePostVoteClient from './game-vote/GameVoteClient'
-import { Badge } from './ui/badge'
+import { type Ref, forwardRef } from 'react'
 
 type PartialVote = Pick<Vote, 'type'>
 
@@ -12,7 +10,7 @@ interface GameCardProps {
 	game: SteamGame
 	ref?: Ref<HTMLDivElement>
 	votesAmt: number
-	currentVote?: PartialVote
+	currentVote?: string
 	className?: string
 	nowidth?: boolean
 }
@@ -23,7 +21,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 			<Link href={`/game/${game.id}`}>
 				<CardHeader className='m-0 p-0'>
 					<img
-						alt={`${game.name} image`}
+						alt={game.name || ''}
 						className='w-full rounded-t-lg bg-cover object-cover'
 						height='400'
 						width='200'
@@ -35,7 +33,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 					<CardTitle>{game.name}</CardTitle>
 					<CardDescription className='pt-1'>{game.shortDescription}</CardDescription>
 
-					{game.genres.length && (
+					{/* {game.genres?.length && (
 						<div className='flex flex-wrap items-center gap-1 pt-3'>
 							<label className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
 								Genres:
@@ -55,13 +53,9 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 								<Badge key={index}>{category}</Badge>
 							))}
 						</div>
-					)}
+					)} */}
 				</CardContent>
 			</Link>
-
-			<CardFooter className='justify-end'>
-				<GamePostVoteClient gameId={game.id.toString()} initialVotesAmt={_votesAmt} initialVote={_currentVote?.type} />
-			</CardFooter>
 		</Card>
 	)
 })
