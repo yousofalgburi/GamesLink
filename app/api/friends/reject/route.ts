@@ -3,34 +3,34 @@ import { db } from '@/lib/db'
 import { z } from 'zod'
 
 export async function POST(req: Request) {
-    try {
-        const session = await getAuthSession()
+	try {
+		const session = await getAuthSession()
 
-        if (!session?.user) {
-            return new Response('Unauthorized', { status: 401 })
-        }
+		if (!session?.user) {
+			return new Response('Unauthorized', { status: 401 })
+		}
 
-        const body = await req.json()
-        const { id } = z
-            .object({
-                id: z.string(),
-            })
-            .parse(body)
+		const body = await req.json()
+		const { id } = z
+			.object({
+				id: z.string(),
+			})
+			.parse(body)
 
-        await db.friendRequest.delete({
-            where: {
-                id: id,
-            },
-        })
+		await db.friendRequest.delete({
+			where: {
+				id: id,
+			},
+		})
 
-        return new Response('OK')
-    } catch (error) {
-        error
+		return new Response('OK')
+	} catch (error) {
+		error
 
-        if (error instanceof z.ZodError) {
-            return new Response(error.message, { status: 400 })
-        }
+		if (error instanceof z.ZodError) {
+			return new Response(error.message, { status: 400 })
+		}
 
-        return new Response('Could not reject friend request, please try again later.', { status: 500 })
-    }
+		return new Response('Could not reject friend request, please try again later.', { status: 500 })
+	}
 }
