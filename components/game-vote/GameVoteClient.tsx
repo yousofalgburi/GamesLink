@@ -1,9 +1,9 @@
 'use client'
 
 import { useCustomToasts } from '@/hooks/use-custom-toasts'
-import { GameVoteRequest } from '@/lib/validators/vote'
+import type { GameVoteRequest } from '@/lib/validators/vote'
 import { usePrevious } from '@mantine/hooks'
-import { VoteType } from '@prisma/client'
+import type { VoteType } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
 import { useEffect, useState } from 'react'

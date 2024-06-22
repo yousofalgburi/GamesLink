@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from './ui/use-toast'
-import { CommentRequest } from '@/lib/validators/comment'
+import type { CommentRequest } from '@/lib/validators/comment'
 import { useCustomToasts } from '@/hooks/use-custom-toasts'
 import { useMutation } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
 import { useRouter } from 'next/navigation'
-import { FC, useState } from 'react'
+import { type FC, useState } from 'react'
 import words from 'profane-words'
 
 interface CreateCommentProps {
@@ -34,7 +34,7 @@ const CreateComment: FC<CreateCommentProps> = ({ gameId, replyToId }) => {
 
 			const payload: CommentRequest = { gameId, text, replyToId }
 
-			const { data } = await axios.patch(`/api/comment`, payload)
+			const { data } = await axios.patch('/api/comment', payload)
 			return data
 		},
 		onError: (err) => {

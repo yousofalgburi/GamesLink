@@ -1,4 +1,3 @@
-import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 
 export async function GET(req: Request) {
@@ -33,8 +32,11 @@ export async function GET(req: Request) {
 		})
 
 		return new Response(JSON.stringify({ message: 'Clean up finished successfully' }))
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error(error)
-		return new Response(JSON.stringify({ message: 'Error importing data', error: error.message }), { status: 500 })
+		if (error instanceof Error) {
+			return new Response(JSON.stringify({ message: 'Error importing data', error: error.message }), { status: 500 })
+		}
+		return new Response(JSON.stringify({ message: 'Error importing data', error: 'Unknown error' }), { status: 500 })
 	}
 }

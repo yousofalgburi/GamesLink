@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { db } from '@/lib/db'
 import { redis } from '@/lib/redis'
 import { cn } from '@/lib/utils'
-import { CachedGame } from '@/types/redis'
-import { SteamGame } from '@prisma/client'
+import type { CachedGame } from '@/types/redis'
+import type { SteamGame } from '@prisma/client'
 import { CalendarHeartIcon, ChevronLeft, DollarSignIcon, ExternalLinkIcon, ShieldIcon, UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -67,16 +67,16 @@ export default async function Page({ params: { id } }: PageProps) {
 							<h2 className='text-xl font-bold'>Genres</h2>
 							{cachedGame && (
 								<div className='flex flex-wrap gap-1 pt-3'>
-									{cachedGame?.genres.split(',').map((genre, index) => (
-										<Badge key={index}>{genre}</Badge>
+									{cachedGame?.genres.split(',').map((genre) => (
+										<Badge key={genre}>{genre}</Badge>
 									))}
 								</div>
 							)}
 
 							{game?.genres.length && (
 								<div className='flex flex-wrap gap-1 pt-3'>
-									{game?.genres.map((genre, index) => (
-										<Badge key={index}>{genre}</Badge>
+									{game?.genres.map((genre) => (
+										<Badge key={genre}>{genre}</Badge>
 									))}
 								</div>
 							)}
@@ -86,16 +86,16 @@ export default async function Page({ params: { id } }: PageProps) {
 
 							{cachedGame && (
 								<div className='flex flex-wrap gap-1 pt-3'>
-									{cachedGame?.categories.split(',').map((category, index) => (
-										<Badge key={index}>{category}</Badge>
+									{cachedGame?.categories.split(',').map((category) => (
+										<Badge key={category}>{category}</Badge>
 									))}
 								</div>
 							)}
 
 							{game?.genres.length && (
 								<div className='flex flex-wrap gap-1 pt-3'>
-									{game?.categories.map((category, index) => (
-										<Badge key={index}>{category}</Badge>
+									{game?.categories.map((category) => (
+										<Badge key={category}>{category}</Badge>
 									))}
 								</div>
 							)}
@@ -129,17 +129,16 @@ export default async function Page({ params: { id } }: PageProps) {
 								<span>
 									Developer
 									{game?.developers.length ?? cachedGame.developers.split(',').length > 1 ? 's' : ''}:{' '}
-									{cachedGame &&
-										cachedGame.developers.split(',').map((developer, index) => (
-											<span key={index}>
-												{developer}
-												{index === cachedGame.developers.split(',').length - 1 ? '' : ', '}
-											</span>
-										))}
-									{game?.developers.map((developer, index) => (
-										<span key={index}>
+									{cachedGame?.developers.split(',').map((developer, index, array) => (
+										<span key={developer}>
 											{developer}
-											{index === game?.developers.length || 0 - 1 ? '' : ', '}
+											{index === array.length - 1 ? '' : ', '}
+										</span>
+									))}
+									{game?.developers.map((developer) => (
+										<span key={developer}>
+											{developer}
+											{game?.developers.length - 1 ? '' : ', '}
 										</span>
 									))}
 								</span>

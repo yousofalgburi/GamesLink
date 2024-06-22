@@ -1,6 +1,6 @@
 import GameFeed from '@/components/GameFeed'
 import { getAuthSession } from '@/lib/auth'
-import { ExtendedGame } from '@/types/db'
+import type { ExtendedGame } from '@/types/db'
 import axios from 'axios'
 import { z } from 'zod'
 
@@ -9,7 +9,7 @@ export default async function Page({
 }: {
 	searchParams: { [key: string]: string | string[] | undefined }
 }) {
-	let session = await getAuthSession()
+	const session = await getAuthSession()
 	let games: ExtendedGame[] = []
 	let totalGames = 0
 

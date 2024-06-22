@@ -61,24 +61,24 @@ export async function PATCH(req: Request) {
 				await updatVoteCount(commentId)
 
 				return new Response('OK')
-			} else {
-				// if vote type is different, update the vote
-				await db.commentVote.update({
-					where: {
-						userId_commentId: {
-							commentId,
-							userId: session.user.id,
-						},
-					},
-					data: {
-						type: voteType,
-					},
-				})
-
-				await updatVoteCount(commentId)
-
-				return new Response('OK')
 			}
+
+			// if vote type is different, update the vote
+			await db.commentVote.update({
+				where: {
+					userId_commentId: {
+						commentId,
+						userId: session.user.id,
+					},
+				},
+				data: {
+					type: voteType,
+				},
+			})
+
+			await updatVoteCount(commentId)
+
+			return new Response('OK')
 		}
 
 		// if no existing vote, create a new vote

@@ -1,7 +1,7 @@
 'use client'
 
 import { Gamepad } from 'lucide-react'
-import { Session } from 'next-auth'
+import type { Session } from 'next-auth'
 import Credits from './Credits'
 import Friends from './Friends'
 import { ModeToggle } from './ModeToggle'

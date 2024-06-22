@@ -13,7 +13,7 @@ const Credits = () => {
 			<Dialog>
 				<DialogTrigger asChild>
 					<Button variant='ghost' className='className="text-sm hover:underline" flex gap-2 font-medium underline-offset-4'>
-						{session && session?.user?.credits} Credits
+						{session?.user?.credits} Credits
 					</Button>
 				</DialogTrigger>
 				<DialogContent className='sm:max-w-[425px]'>

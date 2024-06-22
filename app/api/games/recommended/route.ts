@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { ExtendedGame } from '@/types/db'
+import type { ExtendedGame } from '@/types/db'
 import { z } from 'zod'
 
 export async function POST(req: Request) {
@@ -52,16 +52,17 @@ export async function POST(req: Request) {
 		const selectedGames: ExtendedGame[] = []
 
 		for (let i = 0; i < count; i++) {
-			let random = Math.random() * totalWeight
+			const random = Math.random() * totalWeight
 			let cumulativeWeight = 0
+			let remainingGames = games.slice()
 
-			for (const game of games) {
+			for (const game of remainingGames) {
 				const weight = scores.get(game.id.toString()) || 0
 				cumulativeWeight += weight
 				if (random <= cumulativeWeight) {
 					selectedGames.push(game)
 					totalWeight -= weight
-					games = games.filter((g) => g.id !== game.id)
+					remainingGames = remainingGames.filter((g) => g.id !== game.id)
 					break
 				}
 			}
@@ -94,7 +95,10 @@ export async function POST(req: Request) {
 		const recommendedGames = calculateRecommendations(userId, userGames, allGames)
 
 		return new Response(JSON.stringify({ recommendedGames }))
-	} catch (error: any) {
-		return new Response(error, { status: 500 })
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			return new Response(JSON.stringify({ message: 'Error fetching recommended games', error: error.message }), { status: 500 })
+		}
+		return new Response(JSON.stringify({ message: 'Error fetching recommended games', error: 'Unknown error' }), { status: 500 })
 	}
 }

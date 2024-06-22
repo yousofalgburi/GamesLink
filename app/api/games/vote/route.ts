@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { GameVoteValidator } from '@/lib/validators/vote'
 import { z } from 'zod'
 import { redis } from '@/lib/redis'
-import { CachedGame } from '@/types/redis'
+import type { CachedGame } from '@/types/redis'
 
 const CACHE_AFTER_UPVOTES = 1
 
@@ -36,7 +36,7 @@ export async function PATCH(req: Request) {
 		const body = await req.json()
 
 		const { gameId: gameIdString, voteType } = GameVoteValidator.parse(body)
-		const gameId = parseInt(gameIdString)
+		const gameId = Number(gameIdString)
 
 		const session = await getAuthSession()
 

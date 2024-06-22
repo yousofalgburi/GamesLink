@@ -1,11 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { User } from '@prisma/client'
+import type { User } from '@prisma/client'
 import { useRouter } from 'next/navigation'
-import * as React from 'react'
+import type * as React from 'react'
 import { useForm } from 'react-hook-form'
-import * as z from 'zod'
+import type * as z from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -40,7 +40,7 @@ export function UserNameForm({ user, className, ...props }: UserNameFormProps) {
 		mutationFn: async ({ name }: FormData) => {
 			const payload: FormData = { name }
 
-			const { data } = await axios.patch(`/api/username/`, payload)
+			const { data } = await axios.patch('/api/username/', payload)
 			return data
 		},
 		onError: (err) => {

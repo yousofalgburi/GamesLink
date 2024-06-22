@@ -1,4 +1,4 @@
-import { ClassValue, clsx } from 'clsx'
+import { type ClassValue, clsx } from 'clsx'
 import { formatDistanceToNowStrict } from 'date-fns'
 import locale from 'date-fns/locale/en-US'
 import { twMerge } from 'tailwind-merge'
@@ -26,18 +26,18 @@ const formatDistanceLocale = {
 	almostXYears: '{{count}}y',
 }
 
-function formatDistance(token: string, count: number, options?: any): string {
-	options = options || {}
+function formatDistance(token: string, count: number, options?: { addSuffix?: boolean; comparison?: number }): string {
+	const opts = options || {}
 
 	const result = formatDistanceLocale[token as keyof typeof formatDistanceLocale].replace('{{count}}', count.toString())
 
-	if (options.addSuffix) {
-		if (options.comparison > 0) {
-			return 'in ' + result
-		} else {
-			if (result === 'just now') return result
-			return result + ' ago'
+	if (opts.addSuffix) {
+		if (opts.comparison && opts.comparison > 0) {
+			return `in ${result}`
 		}
+
+		if (result === 'just now') return result
+		return `${result} ago`
 	}
 
 	return result

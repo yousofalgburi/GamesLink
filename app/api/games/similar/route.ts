@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { ExtendedGame } from '@/types/db'
+import type { ExtendedGame } from '@/types/db'
 import { z } from 'zod'
 
 export async function POST(req: Request) {
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 		const { gameId } = z.object({ gameId: z.string() }).parse(body)
 
 		const givenGame = (await db.steamGame.findUnique({
-			where: { id: parseInt(gameId) },
+			where: { id: Number(gameId) },
 			include: { votes: true },
 		})) as ExtendedGame | null
 
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 		}
 
 		const allGames = (await db.steamGame.findMany({
-			where: { id: { not: parseInt(gameId) } },
+			where: { id: { not: Number(gameId) } },
 			include: { votes: true },
 		})) as ExtendedGame[]
 
@@ -49,7 +49,10 @@ export async function POST(req: Request) {
 			.map((entry) => entry.game)
 
 		return new Response(JSON.stringify({ similarGames: topSimilarGames }))
-	} catch (error: any) {
-		return new Response(JSON.stringify({ error: error.message }), { status: 500 })
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			return new Response(JSON.stringify({ error: error.message }), { status: 500 })
+		}
+		return new Response(JSON.stringify({ error: 'Unknown error' }), { status: 500 })
 	}
 }

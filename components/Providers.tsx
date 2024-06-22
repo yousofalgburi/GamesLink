@@ -4,8 +4,8 @@ import { FriendsContextProvider } from '@/context/FriendsContext'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
-import { type ThemeProviderProps } from 'next-themes/dist/types'
-import { FC, ReactNode } from 'react'
+import type { ThemeProviderProps } from 'next-themes/dist/types'
+import type { FC, ReactNode } from 'react'
 import PlausibleProvider from 'next-plausible'
 
 interface LayoutProps {

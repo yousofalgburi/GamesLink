@@ -1,4 +1,4 @@
-import { PropsWithChildren, createContext, useState } from 'react'
+import { type PropsWithChildren, createContext, useState } from 'react'
 
 // TODO: turn into a web socket real time
 
@@ -12,7 +12,7 @@ export const FriendsContext = createContext<FriendsContextType>({
 	setFriends: () => {},
 })
 
-export const FriendsContextProvider = ({ children }: PropsWithChildren<{}>) => {
+export const FriendsContextProvider = ({ children }: PropsWithChildren<{ children: React.ReactNode }>) => {
 	const [friends, setFriends] = useState<{ name: string; image: string }[]>([])
 
 	return <FriendsContext.Provider value={{ friends, setFriends }}>{children}</FriendsContext.Provider>

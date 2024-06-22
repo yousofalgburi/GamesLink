@@ -1,7 +1,7 @@
 'use client'
 
-import { UserInRoom } from '@/types/linkroom'
-import { Room, User } from '@prisma/client'
+import type { UserInRoom } from '@/types/linkroom'
+import type { Room, User } from '@prisma/client'
 import { UserAvatar } from '../UserAvatar'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Switch } from '../ui/switch'

@@ -1,6 +1,6 @@
 import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { Comment, CommentVote, User } from '@prisma/client'
+import type { Comment, CommentVote, User } from '@prisma/client'
 import CreateComment from './CreateComment'
 import GameComment from './comments/GameComment'
 
@@ -29,7 +29,7 @@ const CommentsSection = async ({ gameId, orderBy }: CommentsSectionProps) => {
 
 	const comments = await db.comment.findMany({
 		where: {
-			gameId: parseInt(gameId),
+			gameId: Number(gameId),
 			replyToId: null, // only fetch top-level comments
 		},
 		include: {

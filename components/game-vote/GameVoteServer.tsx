@@ -13,7 +13,7 @@ interface GameVoteServerProps {
 const GameVoteServer = async ({ gameId, initialVotesAmt, initialVote, getData }: GameVoteServerProps) => {
 	const session = await getAuthSession()
 
-	let _votesAmt: number = 0
+	let _votesAmt = 0
 	let _currentVote: Vote['type'] | null | undefined = undefined
 
 	if (getData) {
@@ -28,7 +28,7 @@ const GameVoteServer = async ({ gameId, initialVotesAmt, initialVote, getData }:
 
 		_currentVote = post.votes.find((vote) => vote.userId === session?.user?.id)?.type
 	} else {
-		_votesAmt = initialVotesAmt!
+		_votesAmt = initialVotesAmt ?? 0
 		_currentVote = initialVote
 	}
 

@@ -1,14 +1,14 @@
 import { INFINITE_SCROLL_PAGINATION_RESULTS } from '@/config'
 import { db } from '@/lib/db'
 import index from '@/lib/pinecone'
-import { SteamGame } from '@prisma/client'
+import type { SteamGame } from '@prisma/client'
 import OpenAI from 'openai'
 import { z } from 'zod'
 
 export async function GET(req: Request) {
 	const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-	async function getSearchQueryEmbedding(search: string): Promise<any> {
+	async function getSearchQueryEmbedding(search: string): Promise<number[]> {
 		const embedding = await openai.embeddings.create({
 			model: 'text-embedding-ada-002',
 			input: `${search}`,
@@ -17,7 +17,6 @@ export async function GET(req: Request) {
 
 		return embedding.data[0].embedding.slice(0, 384)
 	}
-
 	const requestBody = new URL(req.url)
 
 	try {
@@ -52,7 +51,7 @@ export async function GET(req: Request) {
 
 		const sortArray = sort.split('-')
 		const orderBy = { [sortArray[0] === 'popularity' ? 'voteCount' : sortArray[0]]: sortArray[1] }
-		let limit = INFINITE_SCROLL_PAGINATION_RESULTS
+		const limit = INFINITE_SCROLL_PAGINATION_RESULTS
 
 		if (search) {
 			if (searchOption === 'ai-search') {
@@ -66,7 +65,7 @@ export async function GET(req: Request) {
 
 				totalGames = queryResult.matches.length
 
-				const gamesNames = queryResult.matches.map((r) => r.metadata && r.metadata.name)
+				const gamesNames = queryResult.matches.map((r) => r.metadata?.name)
 
 				indexQuery = {
 					name: {
@@ -144,7 +143,10 @@ export async function GET(req: Request) {
 		}
 
 		return new Response(JSON.stringify({ games: games, totalGames }))
-	} catch (error: any) {
-		return new Response(error, { status: 500 })
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			return new Response(JSON.stringify({ error: error.message }), { status: 500 })
+		}
+		return new Response(JSON.stringify({ error: 'Unknown error' }), { status: 500 })
 	}
 }

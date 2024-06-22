@@ -2,14 +2,14 @@
 
 import { useOnClickOutside } from '@/hooks/use-on-click-outside'
 import { formatTimeToNow } from '@/lib/utils'
-import { CommentRequest } from '@/lib/validators/comment'
-import { Comment, CommentVote, User } from '@prisma/client'
+import type { CommentRequest } from '@/lib/validators/comment'
+import type { Comment, CommentVote, User } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import { MessageSquare } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { FC, useRef, useState } from 'react'
+import { type FC, useRef, useState } from 'react'
 import CommentVotes from '../CommentVotes'
 import { UserAvatar } from '../UserAvatar'
 import { Button } from '../ui/button'
@@ -43,7 +43,7 @@ const GameComment: FC<GameCommentProps> = ({ comment, votesAmt, currentVote, gam
 		mutationFn: async ({ gameId, text, replyToId }: CommentRequest) => {
 			const payload: CommentRequest = { gameId, text, replyToId }
 
-			const { data } = await axios.patch(`/api/comment`, payload)
+			const { data } = await axios.patch('/api/comment', payload)
 			return data
 		},
 

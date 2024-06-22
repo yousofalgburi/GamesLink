@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { signIn } from 'next-auth/react'
 import * as React from 'react'
-import { FC } from 'react'
+import type { FC } from 'react'
 import { Icons } from './Icons'
 import { useToast } from './ui/use-toast'
 

@@ -9,7 +9,7 @@ export async function PATCH(req: Request) {
 		const body = await req.json()
 
 		const { gameId: gameIdString, text, replyToId } = CommentValidator.parse(body)
-		const gameId = parseInt(gameIdString)
+		const gameId = Number(gameIdString)
 
 		const session = await getAuthSession()
 

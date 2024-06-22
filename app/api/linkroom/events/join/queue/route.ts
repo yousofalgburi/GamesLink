@@ -1,8 +1,7 @@
 import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { roomEventValidator } from '@/lib/validators/linkroom/events'
-import { ExtendedGame } from '@/types/db'
-import { User } from '@prisma/client'
+import type { User } from '@prisma/client'
 import { z } from 'zod'
 
 export async function GET(req: Request) {
@@ -19,7 +18,7 @@ export async function GET(req: Request) {
 			roomId: url.searchParams.get('roomId'),
 		})
 
-		let user = (await db.user.findUnique({
+		const user = (await db.user.findUnique({
 			where: {
 				id: userId,
 			},

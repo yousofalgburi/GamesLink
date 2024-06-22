@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 
 export default function LinkRoomQueue({ roomId, userId }: { roomId: string; userId: string }) {
 	const ws = useMemo(() => {
-		return new WebSocket(`ws://localhost:8000`)
+		return new WebSocket('ws://localhost:8000')
 	}, [])
 
 	ws.onopen = () => {

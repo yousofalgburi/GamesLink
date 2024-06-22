@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { useToast } from '../ui/use-toast'
-import { Room, User } from '@prisma/client'
-import { UserInRoom } from '@/types/linkroom'
+import type { Room, User } from '@prisma/client'
+import type { UserInRoom } from '@/types/linkroom'
 import LinkRoomPlayers from './LinkRoomPlayers'
 import LowPlayersAvatar from '../LowPlayersAvatar'
 import LinkRoomHeader from './LinkRoomHeader'
@@ -30,8 +30,9 @@ export default function LinkRoom({
 
 	const wsRef = useRef<WebSocket | null>(null)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		const ws = new WebSocket(`ws://localhost:8000`)
+		const ws = new WebSocket('ws://localhost:8000')
 		wsRef.current = ws
 
 		ws.onopen = () => {
@@ -70,7 +71,6 @@ export default function LinkRoom({
 		return () => {
 			ws.close()
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [userId, roomId])
 
 	return (

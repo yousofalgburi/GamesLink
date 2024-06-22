@@ -57,7 +57,10 @@ export async function GET(req: Request) {
 		})
 
 		return new Response(JSON.stringify({ friends, friendRequests: friendRequestsData }))
-	} catch (error: any) {
-		return new Response(error, { status: 500 })
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			return new Response(JSON.stringify({ message: 'Error fetching friends', error: error.message }), { status: 500 })
+		}
+		return new Response(JSON.stringify({ message: 'Error fetching friends', error: 'Unknown error' }), { status: 500 })
 	}
 }

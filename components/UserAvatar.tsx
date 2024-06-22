@@ -1,6 +1,6 @@
 import { Icons } from '@/components/Icons'
-import { User } from '@prisma/client'
-import { AvatarProps } from '@radix-ui/react-avatar'
+import type { User } from '@prisma/client'
+import type { AvatarProps } from '@radix-ui/react-avatar'
 import Image from 'next/image'
 import { Avatar, AvatarFallback } from './ui/avatar'
 

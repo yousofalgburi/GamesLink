@@ -2,9 +2,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel'
-import { UserInRoom } from '@/types/linkroom'
+import type { UserInRoom } from '@/types/linkroom'
 import GameCard from '../GameCard'
-import { Room } from '@prisma/client'
+import type { Room } from '@prisma/client'
 import { UserAvatar } from '../UserAvatar'
 
 export default function LinkRoomPlayers({
@@ -18,8 +18,8 @@ export default function LinkRoomPlayers({
 }) {
 	return (
 		<>
-			{usersInRoom.map((user, index) => (
-				<Card key={index}>
+			{usersInRoom.map((user) => (
+				<Card key={user.id}>
 					<CardHeader>
 						<CardTitle>
 							<div className='flex items-center gap-2'>
@@ -40,29 +40,28 @@ export default function LinkRoomPlayers({
 
 								<Carousel>
 									<CarouselContent>
-										{user?.games &&
-											user.games.map((game, index) => {
-												const votesAmt = game.votes.reduce((acc, vote) => {
-													if (vote.type === 'UP') return acc + 1
-													if (vote.type === 'DOWN') return acc - 1
-													return acc
-												}, 0)
+										{user.games.map((game) => {
+											const votesAmt = game.votes.reduce((acc, vote) => {
+												if (vote.type === 'UP') return acc + 1
+												if (vote.type === 'DOWN') return acc - 1
+												return acc
+											}, 0)
 
-												const currentVote = game.votes.find((vote) => vote.userId === userId)
+											const currentVote = game.votes.find((vote) => vote.userId === userId)
 
-												return (
-													<CarouselItem key={index} className='flex basis-full gap-2 lg:basis-1/2'>
-														<GameCard
-															className='h-[28rem]'
-															nowidth={true}
-															key={index}
-															votesAmt={votesAmt}
-															currentVote={currentVote}
-															game={game}
-														/>
-													</CarouselItem>
-												)
-											})}
+											return (
+												<CarouselItem key={game.id} className='flex basis-full gap-2 lg:basis-1/2'>
+													<GameCard
+														className='h-[28rem]'
+														nowidth={true}
+														key={game.id}
+														votesAmt={votesAmt}
+														currentVote={currentVote}
+														game={game}
+													/>
+												</CarouselItem>
+											)
+										})}
 									</CarouselContent>
 
 									<CarouselPrevious />

@@ -1,11 +1,11 @@
-/* eslint-disable @next/next/no-img-element */
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { SteamGame, Vote } from '@prisma/client'
+import type { SteamGame, Vote } from '@prisma/client'
 import Link from 'next/link'
-import { Ref, forwardRef } from 'react'
+import { type Ref, forwardRef } from 'react'
 import GamePostVoteClient from './game-vote/GameVoteClient'
 import { Badge } from './ui/badge'
+import Image from 'next/image'
 
 type PartialVote = Pick<Vote, 'type'>
 
@@ -23,8 +23,8 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 		<Card className={cn(`${nowidth ? '' : 'min-w-64'}`, className, 'max-h-[35rem] overflow-auto')} key={game.id} ref={ref}>
 			<Link href={`/game/${game.id}`}>
 				<CardHeader className='m-0 p-0'>
-					<img
-						alt={`${game.name} image`}
+					<Image
+						alt={game.name}
 						className='w-full rounded-t-lg bg-cover object-cover'
 						height='400'
 						width='200'
@@ -41,8 +41,8 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 							<label className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
 								Genres:
 							</label>
-							{game.genres.map((genre, index) => (
-								<Badge key={index}>{genre}</Badge>
+							{game.genres.map((genre) => (
+								<Badge key={genre}>{genre}</Badge>
 							))}
 						</div>
 					)}
@@ -52,8 +52,8 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 							<label className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
 								Categories:
 							</label>
-							{game.categories.map((category, index) => (
-								<Badge key={index}>{category}</Badge>
+							{game.categories.map((category) => (
+								<Badge key={category}>{category}</Badge>
 							))}
 						</div>
 					)}
