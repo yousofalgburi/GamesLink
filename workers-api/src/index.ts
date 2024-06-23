@@ -38,31 +38,31 @@ export default {
 			},
 		})
 		const existingAppIdSet = new Set(existingAppIds.map((app) => app.appId))
+		const newApps: Game[] = []
+		const maxGames = 500
+		let currentGames = 0
 
-		const chunkSize = 500
-		for (let i = 0; i < apps.length; i += chunkSize) {
-			const appsChunk = apps.slice(i, i + chunkSize)
-			const newApps: Game[] = []
+		for (const app of apps) {
+			if (!existingAppIdSet.has(app.appid.toString())) {
+				newApps.push({
+					appId: app.appid.toString(),
+					name: app.name || '',
+					loaded: false,
+					loadedDate: null,
+					createdAt: new Date(),
+				})
+				currentGames++
 
-			for (const app of appsChunk) {
-				if (!existingAppIdSet.has(app.appid.toString())) {
-					newApps.push({
-						appId: app.appid.toString(),
-						name: app.name || '',
-						loaded: false,
-						loadedDate: null,
-						createdAt: new Date(),
-					})
+				if (currentGames >= maxGames) {
+					break
 				}
 			}
-
-			if (newApps.length > 0) {
-				await db.game.createMany({
-					data: newApps,
-					skipDuplicates: true,
-				})
-			}
 		}
+
+		await db.game.createMany({
+			data: newApps,
+			skipDuplicates: true,
+		})
 
 		console.log('Successfully synced games')
 	},
