@@ -39,7 +39,7 @@ export default {
 		})
 		const existingAppIdSet = new Set(existingAppIds.map((app) => app.appId))
 		const newApps: Game[] = []
-		const maxGames = 500
+		const maxGames = 10000
 		let currentGames = 0
 
 		for (const app of apps) {
