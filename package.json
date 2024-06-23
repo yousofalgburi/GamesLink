@@ -9,9 +9,14 @@
 		"lint": "next lint",
 		"postinstall": "prisma generate",
 		"test": "jest",
-		"test:watch": "jest --watch"
+		"test:watch": "jest --watch",
+		"deploy:workers": "wrangler deploy",
+		"dev:workers": "wrangler dev --test-scheduled",
+		"start:workers": "wrangler dev --test-scheduled",
+		"cf-typegen:workers": "wrangler types"
 	},
 	"dependencies": {
+		"@cloudflare/workers-types": "^4.20240620.0",
 		"@headlessui/react": "^2.1.0",
 		"@heroicons/react": "^2.1.4",
 		"@hookform/resolvers": "^3.6.0",
@@ -53,6 +58,7 @@
 		"tailwindcss-animate": "^1.0.7",
 		"ts-node": "^10.9.2",
 		"uuid": "^10.0.0",
+		"wrangler": "^3.61.0",
 		"zod": "^3.23.8"
 	},
 	"devDependencies": {
