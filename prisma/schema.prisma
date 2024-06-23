@@ -159,8 +159,8 @@ model Room {
 
 // NEW SCHEMAS
 model Game {
-  appId      String    @id
-  name       String    @unique
+  appId      String    @id @unique
+  name       String
   loaded     Boolean   @default(false)
   loadedDate DateTime?
   createdAt  DateTime  @default(now())

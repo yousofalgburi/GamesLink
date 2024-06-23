@@ -28,7 +28,7 @@ export default {
 			},
 		}).$extends(withAccelerate())
 
-		const response = await fetch('http://api.steampowered.com/ISteamApps/GetAppList/v0002/?key=STEAMKEY&format=json')
+		const response = await fetch('https://api.steampowered.com/ISteamApps/GetAppList/v2')
 		const data = await response.json()
 		const apps = data.applist.apps
 
@@ -44,7 +44,7 @@ export default {
 				await db.game.create({
 					data: {
 						appId: app.appid.toString(),
-						name: app.name,
+						name: app.name || '',
 						loaded: false,
 						loadedDate: new Date(),
 					},

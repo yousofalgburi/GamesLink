@@ -10,6 +10,7 @@
 		"postinstall": "prisma generate",
 		"test": "jest",
 		"test:watch": "jest --watch",
+		"deploy:datanase": "npx prisma generate && npx prisma migrate dev",
 		"deploy:workers": "wrangler deploy",
 		"dev:workers": "wrangler dev --test-scheduled",
 		"start:workers": "wrangler dev --test-scheduled",
