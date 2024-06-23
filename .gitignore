@@ -39,5 +39,6 @@ next-env.d.ts
 
 # other
 public/helpers
+wrangler.toml
 .wrangler
 .dev.vars
