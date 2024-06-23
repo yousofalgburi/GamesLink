@@ -15,7 +15,7 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import { PrismaClient } from '@prisma/client/edge'
+import { type Game, PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 
 export default {
@@ -39,20 +39,29 @@ export default {
 		})
 		const existingAppIdSet = new Set(existingAppIds.map((app) => app.appId))
 
-		const newApps = apps
-			.filter((app) => !existingAppIdSet.has(app.appid.toString()))
-			.map((app) => ({
-				appId: app.appid.toString(),
-				name: app.name || '',
-				loaded: false,
-				loadedDate: new Date(),
-			}))
+		const chunkSize = 500
+		for (let i = 0; i < apps.length; i += chunkSize) {
+			const appsChunk = apps.slice(i, i + chunkSize)
+			const newApps: Game[] = []
 
-		if (newApps.length > 0) {
-			await db.game.createMany({
-				data: newApps,
-				skipDuplicates: true,
-			})
+			for (const app of appsChunk) {
+				if (!existingAppIdSet.has(app.appid.toString())) {
+					newApps.push({
+						appId: app.appid.toString(),
+						name: app.name || '',
+						loaded: false,
+						loadedDate: null,
+						createdAt: new Date(),
+					})
+				}
+			}
+
+			if (newApps.length > 0) {
+				await db.game.createMany({
+					data: newApps,
+					skipDuplicates: true,
+				})
+			}
 		}
 
 		console.log('Successfully synced games')
