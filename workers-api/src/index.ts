@@ -39,17 +39,20 @@ export default {
 		})
 		const existingAppIdSet = new Set(existingAppIds.map((app) => app.appId))
 
-		for (const app of apps) {
-			if (!existingAppIdSet.has(app.appid.toString())) {
-				await db.game.create({
-					data: {
-						appId: app.appid.toString(),
-						name: app.name || '',
-						loaded: false,
-						loadedDate: new Date(),
-					},
-				})
-			}
+		const newApps = apps
+			.filter((app) => !existingAppIdSet.has(app.appid.toString()))
+			.map((app) => ({
+				appId: app.appid.toString(),
+				name: app.name || '',
+				loaded: false,
+				loadedDate: new Date(),
+			}))
+
+		if (newApps.length > 0) {
+			await db.game.createMany({
+				data: newApps,
+				skipDuplicates: true,
+			})
 		}
 
 		console.log('Successfully synced games')
