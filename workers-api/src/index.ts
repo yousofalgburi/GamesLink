@@ -17,7 +17,6 @@
 
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
-import { nanoid } from 'nanoid'
 
 export default {
 	async scheduled(event, env, ctx): Promise<void> {
@@ -29,15 +28,30 @@ export default {
 			},
 		}).$extends(withAccelerate())
 
-		await db.game.create({
-			data: {
-				appId: nanoid(10),
-				name: 'test',
-				loaded: false,
-				loadedDate: new Date(),
+		const response = await fetch('http://api.steampowered.com/ISteamApps/GetAppList/v0002/?key=STEAMKEY&format=json')
+		const data = await response.json()
+		const apps = data.applist.apps
+
+		const existingAppIds = await db.game.findMany({
+			select: {
+				appId: true,
 			},
 		})
+		const existingAppIdSet = new Set(existingAppIds.map((app) => app.appId))
 
-		console.log('trigger fired')
+		for (const app of apps) {
+			if (!existingAppIdSet.has(app.appid.toString())) {
+				await db.game.create({
+					data: {
+						appId: app.appid.toString(),
+						name: app.name,
+						loaded: false,
+						loadedDate: new Date(),
+					},
+				})
+			}
+		}
+
+		console.log('Successfully synced games')
 	},
 }
