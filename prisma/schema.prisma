@@ -156,3 +156,12 @@ model Room {
   members      User[]   @relation("RoomMembers")
   createdAt    DateTime @default(now())
 }
+
+// NEW SCHEMAS
+model Game {
+  appId      String    @id
+  name       String    @unique
+  loaded     Boolean   @default(false)
+  loadedDate DateTime?
+  createdAt  DateTime  @default(now())
+}
