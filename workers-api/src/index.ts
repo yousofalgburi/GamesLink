@@ -15,19 +15,29 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-export default {
-	// The scheduled handler is invoked at the interval set in our wrangler.toml's
-	// [[triggers]] configuration.
-	async scheduled(event, env, ctx): Promise<void> {
-		// A Cron Trigger can make requests to other endpoints on the Internet,
-		// publish to a Queue, query a D1 Database, and much more.
-		//
-		// We'll keep it simple and make an API call to a Cloudflare API:
-		const resp = await fetch('https://api.cloudflare.com/client/v4/ips')
-		const wasSuccessful = resp.ok ? 'success' : 'fail'
+import { PrismaClient } from '@prisma/client/edge'
+import { withAccelerate } from '@prisma/extension-accelerate'
+import { nanoid } from 'nanoid'
 
-		// You could store this result in KV, write to a D1 Database, or publish to a Queue.
-		// In this template, we'll just log the result:
-		console.log(`trigger fired at ${event.cron}: ${wasSuccessful}`)
+export default {
+	async scheduled(event, env, ctx): Promise<void> {
+		const db = new PrismaClient({
+			datasources: {
+				db: {
+					url: env.DATABASE_URL,
+				},
+			},
+		}).$extends(withAccelerate())
+
+		await db.game.create({
+			data: {
+				appId: nanoid(10),
+				name: 'test',
+				loaded: false,
+				loadedDate: new Date(),
+			},
+		})
+
+		console.log('trigger fired')
 	},
 }
