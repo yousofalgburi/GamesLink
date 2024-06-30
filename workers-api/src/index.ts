@@ -4,8 +4,10 @@ import { withAccelerate } from '@prisma/extension-accelerate'
 export default {
 	async scheduled(controller, env: Env, ctx): Promise<void> {
 		switch (controller.cron) {
-			case '* * * * *':
+			case '0 0 * * *':
 				await syncGames(env)
+				break
+			case '* * * * *':
 				await processGames(env)
 				break
 		}
