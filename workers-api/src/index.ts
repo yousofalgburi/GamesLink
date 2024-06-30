@@ -2,13 +2,14 @@ import { type Game, PrismaClient, type Prisma } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 
 export default {
-	async scheduled(event, env, ctx): Promise<void> {
-		const cronName = event.cron
-		if (cronName === 'sync-games') {
-			await syncGames(env)
-		} else if (cronName === 'process-games') {
-			await processGames(env)
+	async scheduled(controller, env: Env, ctx): Promise<void> {
+		switch (controller.cron) {
+			case '* * * * *':
+				await syncGames(env)
+				await processGames(env)
+				break
 		}
+		console.log('Cron job completed')
 	},
 }
 
