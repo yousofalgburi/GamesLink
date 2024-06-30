@@ -1,167 +1,375 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.Text
+    session_state     String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
+    @@unique([provider, providerAccountId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  votes         Vote[]
-  credits       Int       @default(5)
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    votes         Vote[]
+    credits       Int       @default(5)
 
-  username String? @unique
+    username String? @unique
 
-  image       String?
-  accounts    Account[]
-  sessions    Session[]
-  Comment     Comment[]
-  CommentVote CommentVote[]
+    image       String?
+    accounts    Account[]
+    sessions    Session[]
+    Comment     Comment[]
+    CommentVote CommentVote[]
 
-  sentRequests     FriendRequest[] @relation("requestFrom")
-  receivedRequests FriendRequest[] @relation("requestTo")
+    sentRequests     FriendRequest[] @relation("requestFrom")
+    receivedRequests FriendRequest[] @relation("requestTo")
 
-  rooms Room[] @relation("RoomMembers")
+    rooms Room[] @relation("RoomMembers")
 }
 
 model SteamGame {
-  id               Int       @id @default(autoincrement())
-  steamAppId       String    @unique
-  name             String    @db.VarChar(255)
-  shortDescription String    @db.VarChar(1000)
-  headerImage      String    @db.VarChar(1000)
-  requiredAge      Int
-  isFree           Boolean
-  releaseDate      DateTime?
-  developers       String[]
-  categories       String[]
-  genres           String[]
+    id               Int       @id @default(autoincrement())
+    steamAppId       String    @unique
+    name             String    @db.VarChar(255)
+    shortDescription String    @db.VarChar(1000)
+    headerImage      String    @db.VarChar(1000)
+    requiredAge      Int
+    isFree           Boolean
+    releaseDate      DateTime?
+    developers       String[]
+    categories       String[]
+    genres           String[]
 
-  comments  Comment[]
-  votes     Vote[]
-  voteCount Int       @default(0)
+    comments  Comment[]
+    votes     Vote[]
+    voteCount Int       @default(0)
 
-  @@index([name, categories, genres])
+    @@index([name, categories, genres])
 }
 
 enum VoteType {
-  UP
-  DOWN
+    UP
+    DOWN
 }
 
 model Vote {
-  user   User      @relation(fields: [userId], references: [id])
-  userId String
-  game   SteamGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  gameId Int
-  type   VoteType
+    user   User      @relation(fields: [userId], references: [id])
+    userId String
+    game   SteamGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    gameId Int
+    type   VoteType
 
-  @@id([userId, gameId])
+    @@id([userId, gameId])
 }
 
 model Comment {
-  id        String    @id @default(cuid())
-  text      String
-  createdAt DateTime  @default(now())
-  author    User      @relation(fields: [authorId], references: [id])
-  authorId  String
-  game      SteamGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  gameId    Int
+    id        String    @id @default(cuid())
+    text      String
+    createdAt DateTime  @default(now())
+    author    User      @relation(fields: [authorId], references: [id])
+    authorId  String
+    game      SteamGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    gameId    Int
 
-  replyToId String?
-  replyTo   Comment?  @relation("ReplyTo", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  replies   Comment[] @relation("ReplyTo")
+    replyToId String?
+    replyTo   Comment?  @relation("ReplyTo", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    replies   Comment[] @relation("ReplyTo")
 
-  votes     CommentVote[]
-  voteCount Int           @default(0)
-  commentId String?
+    votes     CommentVote[]
+    voteCount Int           @default(0)
+    commentId String?
 }
 
 model CommentVote {
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  commentId String
-  type      VoteType
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
+    comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    commentId String
+    type      VoteType
 
-  @@id([userId, commentId])
+    @@id([userId, commentId])
 }
 
 enum FriendRequestStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
+    PENDING
+    ACCEPTED
+    REJECTED
 }
 
 model FriendRequest {
-  id         String              @id @default(cuid())
-  fromUserId String
-  toUserId   String
-  status     FriendRequestStatus @default(PENDING)
-  createdAt  DateTime            @default(now())
+    id         String              @id @default(cuid())
+    fromUserId String
+    toUserId   String
+    status     FriendRequestStatus @default(PENDING)
+    createdAt  DateTime            @default(now())
 
-  requestFrom User @relation("requestFrom", fields: [fromUserId], references: [id])
-  requestTo   User @relation("requestTo", fields: [toUserId], references: [id])
+    requestFrom User @relation("requestFrom", fields: [fromUserId], references: [id])
+    requestTo   User @relation("requestTo", fields: [toUserId], references: [id])
 }
 
 model Friendship {
-  id       String @id @default(cuid())
-  userId   String
-  friendId String
+    id       String @id @default(cuid())
+    userId   String
+    friendId String
 
-  @@unique([userId, friendId])
-  @@index([friendId])
+    @@unique([userId, friendId])
+    @@index([friendId])
 }
 
 model Room {
-  id           String   @id @default(cuid())
-  hostId       String
-  roomId       String   @unique
-  isActive     Boolean  @default(true)
-  isPublic     Boolean  @default(true)
-  queuedUsers  String[]
-  allowedUsers String[]
-  members      User[]   @relation("RoomMembers")
-  createdAt    DateTime @default(now())
+    id           String   @id @default(cuid())
+    hostId       String
+    roomId       String   @unique
+    isActive     Boolean  @default(true)
+    isPublic     Boolean  @default(true)
+    queuedUsers  String[]
+    allowedUsers String[]
+    members      User[]   @relation("RoomMembers")
+    createdAt    DateTime @default(now())
 }
 
 // NEW SCHEMAS
 model Game {
-  appId      String    @id @unique
-  name       String
-  loaded     Boolean   @default(false)
-  loadedDate DateTime?
-  createdAt  DateTime  @default(now())
+    appId      String    @id @unique
+    name       String
+    loaded     Boolean   @default(false)
+    loadedDate DateTime?
+    createdAt  DateTime  @default(now())
+}
+
+model ProcessedGame {
+    id                  Int                 @id @default(autoincrement())
+    appId               String              @unique
+    name                String
+    type                String?
+    requiredAge         Int
+    isFree              Boolean
+    dlc                 Int[]
+    detailedDescription String              @db.Text
+    aboutTheGame        String              @db.Text
+    shortDescription    String
+    supportedLanguages  String
+    reviews             String?             @db.Text
+    headerImage         String
+    capsuleImage        String
+    capsuleImagev5      String
+    website             String?
+    developers          String[]
+    publishers          String[]
+    platforms           Platform            @relation(fields: [platformId], references: [id])
+    pcRequirements      PcRequirements?
+    macRequirements     MacRequirements?
+    linuxRequirements   LinuxRequirements?
+    recommendations     Int?
+    releaseDate         ReleaseDate?
+    supportInfo         SupportInfo?
+    background          String
+    backgroundRaw       String
+    contentDescriptors  ContentDescriptors?
+    createdAt           DateTime            @default(now())
+    updatedAt           DateTime            @updatedAt
+
+    categories    GameCategory[]
+    genres        GameGenre[]
+    screenshots   Screenshot[]
+    movies        Movie[]
+    achievements  Achievement[]
+    ratings       Rating[]
+    priceOverview PriceOverview?
+    packageGroups PackageGroup[]
+    packages      Int[]
+
+    additionalData Json
+    platformId     Int
+}
+
+model Platform {
+    id            Int             @id @default(autoincrement())
+    windows       Boolean
+    mac           Boolean
+    linux         Boolean
+    ProcessedGame ProcessedGame[]
+}
+
+model PcRequirements {
+    id          Int           @id @default(autoincrement())
+    gameId      Int           @unique
+    game        ProcessedGame @relation(fields: [gameId], references: [id])
+    minimum     String        @db.Text
+    recommended String?       @db.Text
+}
+
+model MacRequirements {
+    id          Int           @id @default(autoincrement())
+    gameId      Int           @unique
+    game        ProcessedGame @relation(fields: [gameId], references: [id])
+    minimum     String        @db.Text
+    recommended String?       @db.Text
+}
+
+model LinuxRequirements {
+    id          Int           @id @default(autoincrement())
+    gameId      Int           @unique
+    game        ProcessedGame @relation(fields: [gameId], references: [id])
+    minimum     String        @db.Text
+    recommended String?       @db.Text
+}
+
+model ReleaseDate {
+    id         Int           @id @default(autoincrement())
+    gameId     Int           @unique
+    game       ProcessedGame @relation(fields: [gameId], references: [id])
+    comingSoon Boolean
+    date       String
+}
+
+model SupportInfo {
+    id     Int           @id @default(autoincrement())
+    gameId Int           @unique
+    game   ProcessedGame @relation(fields: [gameId], references: [id])
+    url    String?
+    email  String?
+}
+
+model ContentDescriptors {
+    id     Int           @id @default(autoincrement())
+    gameId Int           @unique
+    game   ProcessedGame @relation(fields: [gameId], references: [id])
+    ids    Int[]
+    notes  String?
+}
+
+model PriceOverview {
+    id               Int           @id @default(autoincrement())
+    gameId           Int           @unique
+    game             ProcessedGame @relation(fields: [gameId], references: [id])
+    currency         String
+    initial          Int
+    final            Int
+    discountPercent  Int
+    initialFormatted String
+    finalFormatted   String
+}
+
+model PackageGroup {
+    id                      Int           @id @default(autoincrement())
+    gameId                  Int
+    game                    ProcessedGame @relation(fields: [gameId], references: [id])
+    name                    String
+    title                   String
+    description             String?
+    selectionText           String
+    saveText                String?
+    displayType             Int
+    isRecurringSubscription String
+    subs                    Sub[]
+}
+
+model Sub {
+    id                       Int          @id @default(autoincrement())
+    packageGroupId           Int
+    packageGroup             PackageGroup @relation(fields: [packageGroupId], references: [id])
+    packageid                Int
+    percentSavingsText       String?
+    percentSavings           Int
+    optionText               String
+    optionDescription        String?
+    canGetFreeLicense        String
+    isFreeLicense            Boolean
+    priceInCentsWithDiscount Int
+}
+
+model GameCategory {
+    id          Int           @id @default(autoincrement())
+    gameId      Int
+    game        ProcessedGame @relation(fields: [gameId], references: [id])
+    description String
+
+    @@unique([gameId, id])
+}
+
+model GameGenre {
+    id          Int           @id @default(autoincrement())
+    gameId      Int
+    game        ProcessedGame @relation(fields: [gameId], references: [id])
+    description String
+
+    @@unique([gameId, id])
+}
+
+model Screenshot {
+    id            Int           @id @default(autoincrement())
+    gameId        Int
+    game          ProcessedGame @relation(fields: [gameId], references: [id])
+    pathThumbnail String
+    pathFull      String
+
+    @@unique([gameId, id])
+}
+
+model Movie {
+    id        Int           @id @default(autoincrement())
+    gameId    Int
+    game      ProcessedGame @relation(fields: [gameId], references: [id])
+    name      String
+    thumbnail String
+    webm      Json
+    mp4       Json
+    highlight Boolean
+
+    @@unique([gameId, id])
+}
+
+model Achievement {
+    id     Int           @id @default(autoincrement())
+    gameId Int
+    game   ProcessedGame @relation(fields: [gameId], references: [id])
+    name   String
+    path   String
+
+    @@unique([gameId, name])
+}
+
+model Rating {
+    id              Int           @id @default(autoincrement())
+    gameId          Int
+    game            ProcessedGame @relation(fields: [gameId], references: [id])
+    source          String
+    ratingGenerated String
+    rating          String
+    requiredAge     String
+    banned          String
+    useAgeGate      String
+    descriptors     String?
+
+    @@unique([gameId, source])
 }
