@@ -10,8 +10,7 @@ export async function GET(req, res) {
 	})
 
 	if (!game) {
-		console.log('No unprocessed games found')
-		return
+		return Response.json({ message: 'No unprocessed games found' })
 	}
 
 	try {
@@ -19,8 +18,7 @@ export async function GET(req, res) {
 		const gameData = response.data
 
 		if (!gameData || !gameData[game.appId].success) {
-			console.log(`No data found for game ${game.appId}`)
-			return
+			return Response.json({ message: `No data found for game ${game.appId}` })
 		}
 
 		const data = gameData[game.appId]?.data
@@ -30,8 +28,7 @@ export async function GET(req, res) {
 				where: { appId: game.appId },
 				data: { loaded: true, loadedDate: new Date() },
 			})
-			console.log('proccessed empty game')
-			return
+			return Response.json({ message: 'proccessed empty game' })
 		}
 
 		const processedGame: Prisma.ProcessedGameCreateInput = {
@@ -188,8 +185,8 @@ export async function GET(req, res) {
 			data: { loaded: true, loadedDate: new Date() },
 		})
 
-		return Response.json({ message: 'Game processed' }, { status: 200 })
+		return Response.json({ message: 'Game processed' })
 	} catch (error: unknown) {
-		return Response.json({ message: `Error processing game ${game.appId}:` }, { status: 500 })
+		return Response.json({ message: `Error processing game ${game.appId}:` })
 	}
 }
