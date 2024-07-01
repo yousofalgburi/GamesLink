@@ -16,7 +16,7 @@ export async function POST(req, res) {
 		const response = await axios.get(`https://store.steampowered.com/api/appdetails?appids=${game.appId}`)
 		const data = response.data[game.appId]?.data
 
-		if (!data || !data.success) {
+		if (!data) {
 			await db.game.update({
 				where: { appId: game.appId },
 				data: { loaded: true, loadedDate: new Date() },
