@@ -188,8 +188,8 @@ export async function GET(req, res) {
 			data: { loaded: true, loadedDate: new Date() },
 		})
 
-		console.log(`Processed game ${game.appId}`)
+		return new Response('Game processed', { status: 200 })
 	} catch (error: unknown) {
-		console.error(`Error processing game ${game.appId}:`, JSON.stringify(error, null, 2))
+		return new Response(`Error processing game ${game.appId}:`, { status: 500 })
 	}
 }
