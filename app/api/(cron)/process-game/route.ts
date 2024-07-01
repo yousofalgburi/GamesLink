@@ -1,7 +1,7 @@
 import { db } from '@/lib/db'
 import axios from 'axios'
 
-export async function GET(req, res) {
+export async function POST(req, res) {
 	const game = await db.game.findFirst({
 		where: {
 			loaded: false,
