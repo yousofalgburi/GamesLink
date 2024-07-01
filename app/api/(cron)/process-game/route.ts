@@ -1,5 +1,4 @@
 import { db } from '@/lib/db'
-import type { Prisma } from '@prisma/client'
 import axios from 'axios'
 
 export async function GET(req, res) {
@@ -25,7 +24,7 @@ export async function GET(req, res) {
 			return Response.json({ message: `No data found for game ${game.appId}` })
 		}
 
-		const processedGame: Prisma.ProcessedGameCreateInput = {
+		const processedGame = {
 			appId: game.appId,
 			name: data.name,
 			type: data.type,
@@ -167,7 +166,7 @@ export async function GET(req, res) {
 		}
 
 		if (Object.keys(additionalData).length > 0) {
-			processedGame.additionalData = additionalData as Prisma.InputJsonValue
+			processedGame.additionalData = additionalData
 		}
 
 		await db.processedGame.create({
