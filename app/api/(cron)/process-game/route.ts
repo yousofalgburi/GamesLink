@@ -15,20 +15,14 @@ export async function GET(req, res) {
 
 	try {
 		const response = await axios.get(`https://store.steampowered.com/api/appdetails?appids=${game.appId}`)
-		const gameData = response.data
+		const data = response.data[game.appId]?.data
 
-		if (!gameData || !gameData[game.appId].success) {
-			return Response.json({ message: `No data found for game ${game.appId}` })
-		}
-
-		const data = gameData[game.appId]?.data
-
-		if (!data) {
+		if (!data || !data.success) {
 			await db.game.update({
 				where: { appId: game.appId },
 				data: { loaded: true, loadedDate: new Date() },
 			})
-			return Response.json({ message: 'proccessed empty game' })
+			return Response.json({ message: `No data found for game ${game.appId}` })
 		}
 
 		const processedGame: Prisma.ProcessedGameCreateInput = {
