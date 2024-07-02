@@ -82,11 +82,13 @@ enum VoteType {
 }
 
 model Vote {
-    user   User      @relation(fields: [userId], references: [id])
-    userId String
-    game   SteamGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    gameId Int
-    type   VoteType
+    user              User             @relation(fields: [userId], references: [id])
+    userId            String
+    game              SteamGame        @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    gameId            Int
+    type              VoteType
+    GameInteraction   GameInteraction? @relation(fields: [gameInteractionId], references: [id])
+    gameInteractionId Int?
 
     @@id([userId, gameId])
 }
@@ -104,9 +106,11 @@ model Comment {
     replyTo   Comment?  @relation("ReplyTo", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
     replies   Comment[] @relation("ReplyTo")
 
-    votes     CommentVote[]
-    voteCount Int           @default(0)
-    commentId String?
+    votes             CommentVote[]
+    voteCount         Int              @default(0)
+    commentId         String?
+    GameInteraction   GameInteraction? @relation(fields: [gameInteractionId], references: [id])
+    gameInteractionId Int?
 }
 
 model CommentVote {
@@ -164,6 +168,14 @@ model Game {
     loaded     Boolean   @default(false)
     loadedDate DateTime?
     createdAt  DateTime  @default(now())
+}
+
+model GameInteraction {
+    id        Int       @id @default(autoincrement())
+    appId     String    @unique
+    voteCount Int       @default(0)
+    votes     Vote[]
+    comments  Comment[]
 }
 
 model ProcessedGame {

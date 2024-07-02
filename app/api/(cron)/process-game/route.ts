@@ -154,7 +154,7 @@ export async function POST(req, res) {
 							description: group.description || '',
 							selectionText: group.selection_text || '',
 							saveText: group.save_text || '',
-							displayType: group.display_type || 0,
+							displayType: Number.parseInt(group.display_type || '0', 10),
 							isRecurringSubscription: group.is_recurring_subscription || '',
 							subs: {
 								create:

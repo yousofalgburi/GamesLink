@@ -15,6 +15,9 @@ const nextConfig = {
 			{
 				hostname: 'buy.thewitcher.com',
 			},
+			{
+				hostname: 'shared.akamai.steamstatic.com',
+			},
 		],
 	},
 }

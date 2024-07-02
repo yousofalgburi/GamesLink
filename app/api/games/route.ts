@@ -1,9 +1,26 @@
 import { INFINITE_SCROLL_PAGINATION_RESULTS } from '@/config'
 import { db } from '@/lib/db'
 import index from '@/lib/pinecone'
-import type { SteamGame } from '@prisma/client'
+import type { Comment, Vote } from '@prisma/client'
 import OpenAI from 'openai'
 import { z } from 'zod'
+
+type SteamGameView = {
+	id: number
+	steamAppId: string
+	name: string
+	shortDescription: string
+	headerImage: string
+	requiredAge: number
+	isFree: boolean
+	releaseDate: Date | null
+	developers: string[]
+	categories: string[]
+	genres: string[]
+	voteCount: number
+	votes: Vote[]
+	comments: Comment[]
+}
 
 export async function GET(req: Request) {
 	const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -20,7 +37,7 @@ export async function GET(req: Request) {
 	const requestBody = new URL(req.url)
 
 	try {
-		let games: SteamGame[] = []
+		let games: SteamGameView[] = []
 		let totalGames = 0
 		let indexQuery = {}
 
@@ -83,24 +100,44 @@ export async function GET(req: Request) {
 			}
 		}
 
-		games = await db.steamGame.findMany({
-			include: {
-				votes: true,
+		const processedGames = await db.processedGame.findMany({
+			select: {
+				id: true,
+				appId: true,
+				name: true,
+				shortDescription: true,
+				headerImage: true,
+				requiredAge: true,
+				isFree: true,
+				releaseDate: true,
+				developers: true,
+				categories: { select: { description: true } },
+				genres: { select: { description: true } },
+				ratings: { select: { id: true } },
 			},
 			where: {
 				AND: [
+					{ type: 'game', requiredAge: { equals: 0 } },
 					indexQuery,
 					genresArray.length
 						? {
 								genres: {
-									hasEvery: genresArray,
+									some: {
+										description: {
+											in: genresArray,
+										},
+									},
 								},
 							}
 						: {},
 					categoriesArray.length
 						? {
 								categories: {
-									hasEvery: categoriesArray,
+									some: {
+										description: {
+											in: categoriesArray,
+										},
+									},
 								},
 							}
 						: {},
@@ -108,32 +145,44 @@ export async function GET(req: Request) {
 			},
 			take: search && searchOption === 'ai-search' ? undefined : limit,
 			skip: search && searchOption === 'ai-search' ? undefined : (page - 1) * limit,
-			orderBy: [
-				{
-					...orderBy,
-				},
-				{
-					id: 'desc',
-				},
-			],
+			orderBy:
+				sortArray[0] !== 'popularity'
+					? [
+							{
+								...orderBy,
+							},
+							{
+								id: 'desc',
+							},
+						]
+					: undefined,
 		})
 
 		if (!search || searchOption === 'smart-text') {
-			totalGames = await db.steamGame.count({
+			totalGames = await db.processedGame.count({
 				where: {
 					AND: [
+						{ type: 'game', requiredAge: { equals: 0 } },
 						indexQuery,
 						genresArray.length
 							? {
 									genres: {
-										hasEvery: genresArray,
+										some: {
+											description: {
+												in: genresArray,
+											},
+										},
 									},
 								}
 							: {},
 						categoriesArray.length
 							? {
 									categories: {
-										hasEvery: categoriesArray,
+										some: {
+											description: {
+												in: categoriesArray,
+											},
+										},
 									},
 								}
 							: {},
@@ -142,8 +191,54 @@ export async function GET(req: Request) {
 			})
 		}
 
+		const gameInteractions = await db.gameInteraction.findMany({
+			where: {
+				appId: {
+					in: processedGames.map((game) => game.appId),
+				},
+			},
+			include: {
+				votes: true,
+				comments: true,
+			},
+			orderBy:
+				sortArray[0] === 'popularity'
+					? [
+							{
+								...orderBy,
+							},
+							{
+								id: 'desc',
+							},
+						]
+					: undefined,
+		})
+
+		const gameInteractionMap = new Map(gameInteractions.map((gi) => [gi.appId, gi]))
+
+		games = processedGames.map((game) => {
+			const interaction = gameInteractionMap.get(game.appId) || { voteCount: 0, votes: [], comments: [] }
+			return {
+				id: game.id,
+				steamAppId: game.appId,
+				name: game.name,
+				shortDescription: game.shortDescription,
+				headerImage: game.headerImage,
+				requiredAge: game.requiredAge,
+				isFree: game.isFree,
+				releaseDate: game.releaseDate?.date ? new Date(game.releaseDate.date) : null,
+				developers: game.developers,
+				categories: game.categories.map((c) => c.description),
+				genres: game.genres.map((g) => g.description),
+				voteCount: interaction.voteCount,
+				votes: interaction.votes,
+				comments: interaction.comments,
+			}
+		})
+
 		return new Response(JSON.stringify({ games: games, totalGames }))
 	} catch (error: unknown) {
+		console.log(error)
 		if (error instanceof Error) {
 			return new Response(JSON.stringify({ error: error.message }), { status: 500 })
 		}
