@@ -32,103 +32,111 @@ export async function POST(req, res) {
 
 			const processedGame = {
 				appId: game.appId,
-				name: data.name,
-				type: data.type,
+				name: data.name || '',
+				type: data.type || '',
 				requiredAge: Number.parseInt(data.required_age, 10) || 0,
-				isFree: data.is_free,
+				isFree: !!data.is_free,
 				dlc: data.dlc || [],
-				detailedDescription: data.detailed_description,
-				aboutTheGame: data.about_the_game,
-				shortDescription: data.short_description,
-				supportedLanguages: data.supported_languages,
-				reviews: data.reviews,
-				headerImage: data.header_image,
-				capsuleImage: data.capsule_image,
-				capsuleImagev5: data.capsule_imagev5,
-				website: data.website,
-				developers: data.developers,
-				publishers: data.publishers,
-				background: data.background,
-				backgroundRaw: data.background_raw,
-				recommendations: data.recommendations?.total,
+				detailedDescription: data.detailed_description || '',
+				aboutTheGame: data.about_the_game || '',
+				shortDescription: data.short_description || '',
+				supportedLanguages: data.supported_languages || '',
+				reviews: data.reviews || null,
+				headerImage: data.header_image || '',
+				capsuleImage: data.capsule_image || '',
+				capsuleImagev5: data.capsule_imagev5 || '',
+				website: data.website || '',
+				developers: data.developers || [],
+				publishers: data.publishers || [],
+				background: data.background || '',
+				backgroundRaw: data.background_raw || '',
+				recommendations: data.recommendations?.total || null,
 				platforms: {
 					create: {
-						windows: data.platforms.windows,
-						mac: data.platforms.mac,
-						linux: data.platforms.linux,
+						windows: !!data.platforms?.windows,
+						mac: !!data.platforms?.mac,
+						linux: !!data.platforms?.linux,
 					},
 				},
-				releaseDate: {
-					create: {
-						comingSoon: data.release_date.coming_soon,
-						date: data.release_date.date,
-					},
-				},
+				releaseDate: data.release_date
+					? {
+							create: {
+								comingSoon: !!data.release_date.coming_soon,
+								date: data.release_date.date || null,
+							},
+						}
+					: undefined,
 				supportInfo: data.support_info
 					? {
 							create: {
-								url: data.support_info.url,
-								email: data.support_info.email,
+								url: data.support_info.url || '',
+								email: data.support_info.email || '',
 							},
 						}
 					: undefined,
 				contentDescriptors: data.content_descriptors
 					? {
 							create: {
-								ids: data.content_descriptors.ids,
-								notes: data.content_descriptors.notes,
+								ids: data.content_descriptors.ids || [],
+								notes: data.content_descriptors.notes || null,
 							},
 						}
 					: undefined,
 				categories: {
 					create:
 						data.categories?.map((category) => ({
-							description: category.description,
+							description: category.description || '',
 						})) || [],
 				},
 				genres: {
 					create:
 						data.genres?.map((genre) => ({
-							description: genre.description,
+							description: genre.description || '',
 						})) || [],
 				},
 				screenshots: {
 					create:
 						data.screenshots?.map((screenshot) => ({
-							pathThumbnail: screenshot.path_thumbnail,
-							pathFull: screenshot.path_full,
+							pathThumbnail: screenshot.path_thumbnail || '',
+							pathFull: screenshot.path_full || '',
 						})) || [],
 				},
 				movies: {
 					create:
 						data.movies?.map((movie) => ({
-							name: movie.name,
-							thumbnail: movie.thumbnail,
-							webm: movie.webm,
-							mp4: movie.mp4,
-							highlight: movie.highlight,
+							name: movie.name || '',
+							thumbnail: movie.thumbnail || '',
+							webm: movie.webm || {},
+							mp4: movie.mp4 || {},
+							highlight: !!movie.highlight,
 						})) || [],
 				},
 				achievements: {
 					create:
 						data.achievements?.highlighted?.map((achievement) => ({
-							name: achievement.name,
-							path: achievement.path,
+							name: achievement.name || '',
+							path: achievement.path || '',
 						})) || [],
 				},
 				priceOverview: data.price_overview
 					? {
 							create: {
-								currency: data.price_overview.currency,
-								initial: data.price_overview.initial,
-								final: data.price_overview.final,
-								discountPercent: data.price_overview.discount_percent,
-								initialFormatted: data.price_overview.initial_formatted,
-								finalFormatted: data.price_overview.final_formatted,
+								currency: data.price_overview.currency || '',
+								initial: data.price_overview.initial || 0,
+								final: data.price_overview.final || 0,
+								discountPercent: data.price_overview.discount_percent || 0,
+								initialFormatted: data.price_overview.initial_formatted || '',
+								finalFormatted: data.price_overview.final_formatted || '',
 							},
 						}
 					: undefined,
 				additionalData: {},
+			}
+
+			for (const key of Object.keys(processedGame)) {
+				if (processedGame[key] === undefined) {
+					delete processedGame[key]
+				}
 			}
 
 			const knownFields = new Set([
