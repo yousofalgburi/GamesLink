@@ -208,8 +208,12 @@ model ProcessedGame {
     packageGroups PackageGroup[]
     packages      Int[]
 
-    additionalData Json
-    platformId     Int
+    platformId        Int
+    legalNotice       String?
+    controllerSupport String?
+    fullgame          Json?
+    steamAppid        Int?
+    additionalData    Json?
 }
 
 model Platform {

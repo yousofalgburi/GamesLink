@@ -1,7 +1,7 @@
 import { db } from '@/lib/db'
 import axios from 'axios'
 
-export const maxDuration = 30
+export const maxDuration = 25
 
 export async function POST(req, res) {
 	const startTime = Date.now()
@@ -130,6 +130,48 @@ export async function POST(req, res) {
 							},
 						}
 					: undefined,
+				ratings: {
+					// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+					create: Object.entries(data.ratings || {}).map(([source, ratingData]: [string, any]) => ({
+						source,
+						ratingGenerated: ratingData?.rating_generated || '',
+						rating: ratingData?.rating || '',
+						requiredAge: ratingData?.required_age || '',
+						banned: ratingData?.banned || '',
+						useAgeGate: ratingData?.use_age_gate || '',
+						descriptors: ratingData?.descriptors ? JSON.stringify(ratingData.descriptors) : null,
+					})),
+				},
+				legalNotice: data.legal_notice || null,
+				controllerSupport: data.controller_support || null,
+				fullgame: data.fullgame ? JSON.stringify(data.fullgame) : null,
+				steamAppid: data.steam_appid || null,
+				packageGroups: {
+					create:
+						data.package_groups?.map((group) => ({
+							name: group.name || '',
+							title: group.title || '',
+							description: group.description || '',
+							selectionText: group.selection_text || '',
+							saveText: group.save_text || '',
+							displayType: group.display_type || 0,
+							isRecurringSubscription: group.is_recurring_subscription || '',
+							subs: {
+								create:
+									group.subs?.map((sub) => ({
+										packageid: sub.packageid || 0,
+										percentSavingsText: sub.percent_savings_text || '',
+										percentSavings: sub.percent_savings || 0,
+										optionText: sub.option_text || '',
+										optionDescription: sub.option_description || '',
+										canGetFreeLicense: sub.can_get_free_license || '',
+										isFreeLicense: !!sub.is_free_license,
+										priceInCentsWithDiscount: sub.price_in_cents_with_discount || 0,
+									})) || [],
+							},
+						})) || [],
+				},
+				packages: data.packages || [],
 				additionalData: {},
 			}
 
@@ -181,6 +223,13 @@ export async function POST(req, res) {
 				'pc_requirements',
 				'mac_requirements',
 				'linux_requirements',
+				'legal_notice',
+				'controller_support',
+				'fullgame',
+				'steam_appid',
+				'package_groups',
+				'packages',
+				'ratings',
 			])
 
 			const additionalData = {}
