@@ -171,13 +171,13 @@ export async function POST(req, res) {
 							},
 						})) || [],
 				},
-				packages: data.packages || [],
+				packages: data.packages || undefined,
 				demos: {
 					create:
 						data.demos?.map((demo) => ({
 							appid: demo.appid || 0,
 							description: demo.description || '',
-						})) || [],
+						})) || undefined,
 				},
 				metacritic: data.metacritic
 					? {
