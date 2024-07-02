@@ -1,7 +1,7 @@
 import { db } from '@/lib/db'
 import axios from 'axios'
 
-export const maxDuration = 60
+export const maxDuration = 29
 
 export async function POST(req, res) {
 	const startTime = Date.now()
