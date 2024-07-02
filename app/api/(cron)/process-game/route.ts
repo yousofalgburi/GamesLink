@@ -136,6 +136,15 @@ export async function POST(req, res) {
 			for (const key of Object.keys(processedGame)) {
 				if (processedGame[key] === undefined) {
 					delete processedGame[key]
+				} else if (typeof processedGame[key] === 'object' && processedGame[key] !== null) {
+					for (const subKey of Object.keys(processedGame[key])) {
+						if (processedGame[key][subKey] === undefined) {
+							delete processedGame[key][subKey]
+						}
+					}
+					if (Object.keys(processedGame[key]).length === 0) {
+						delete processedGame[key]
+					}
 				}
 			}
 
