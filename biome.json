@@ -7,17 +7,18 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true
-		}
+		},
+		"ignore": ["./node_modules", "./.next"]
 	},
 	"formatter": {
 		"enabled": true,
 		"formatWithErrors": false,
-		"ignore": [],
 		"attributePosition": "auto",
 		"indentStyle": "tab",
 		"indentWidth": 4,
 		"lineWidth": 150,
-		"lineEnding": "lf"
+		"lineEnding": "lf",
+		"ignore": ["./node_modules", "./.next"]
 	},
 	"javascript": {
 		"formatter": {

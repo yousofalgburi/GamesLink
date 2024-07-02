@@ -1,26 +1,9 @@
 import { INFINITE_SCROLL_PAGINATION_RESULTS } from '@/config'
 import { db } from '@/lib/db'
 import index from '@/lib/pinecone'
-import type { Comment, Vote } from '@prisma/client'
+import type { GameView } from '@/types/db'
 import OpenAI from 'openai'
 import { z } from 'zod'
-
-type SteamGameView = {
-	id: number
-	steamAppId: string
-	name: string
-	shortDescription: string
-	headerImage: string
-	requiredAge: number
-	isFree: boolean
-	releaseDate: Date | null
-	developers: string[]
-	categories: string[]
-	genres: string[]
-	voteCount: number
-	votes: Vote[]
-	comments: Comment[]
-}
 
 export async function GET(req: Request) {
 	const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -37,7 +20,7 @@ export async function GET(req: Request) {
 	const requestBody = new URL(req.url)
 
 	try {
-		let games: SteamGameView[] = []
+		let games: GameView[] = []
 		let totalGames = 0
 		let indexQuery = {}
 
