@@ -144,7 +144,7 @@ export async function POST(req, res) {
 				},
 				legalNotice: data.legal_notice || null,
 				controllerSupport: data.controller_support || null,
-				fullgame: data.fullgame ? JSON.stringify(data.fullgame) : null,
+				fullgame: JSON.stringify(data.fullgame) ?? null,
 				steamAppid: data.steam_appid || null,
 				packageGroups: {
 					create:
