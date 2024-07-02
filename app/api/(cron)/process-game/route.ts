@@ -230,6 +230,7 @@ export async function POST(req, res) {
 				'package_groups',
 				'packages',
 				'ratings',
+				'recommendations',
 			])
 
 			const additionalData = {}
