@@ -358,6 +358,16 @@ CREATE TABLE "Rating" (
 );
 
 -- CreateTable
+CREATE TABLE "Demo" (
+    "id" SERIAL NOT NULL,
+    "appid" INTEGER NOT NULL,
+    "description" TEXT,
+    "gameId" INTEGER NOT NULL,
+
+    CONSTRAINT "Demo_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "_RoomMembers" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
@@ -431,6 +441,9 @@ CREATE UNIQUE INDEX "Movie_gameId_id_key" ON "Movie"("gameId", "id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Rating_gameId_source_key" ON "Rating"("gameId", "source");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Demo_gameId_appid_key" ON "Demo"("gameId", "appid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_RoomMembers_AB_unique" ON "_RoomMembers"("A", "B");
@@ -518,6 +531,9 @@ ALTER TABLE "Achievement" ADD CONSTRAINT "Achievement_gameId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "Rating" ADD CONSTRAINT "Rating_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "ProcessedGame"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Demo" ADD CONSTRAINT "Demo_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "ProcessedGame"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_RoomMembers" ADD CONSTRAINT "_RoomMembers_A_fkey" FOREIGN KEY ("A") REFERENCES "Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;
