@@ -184,7 +184,7 @@ export async function POST(req, res) {
 
 			gamesProcessed++
 		} catch (error: unknown) {
-			console.error(`Error processing game ${game.appId}:`, error)
+			console.error(`Error processing game ${game.appId}:`, JSON.stringify(error))
 			await db.game.update({
 				where: { appId: game.appId },
 				data: { loaded: true, loadedDate: new Date(), error: String(error) },
@@ -192,5 +192,6 @@ export async function POST(req, res) {
 			gamesProcessed++
 		}
 	}
+
 	return Response.json({ message: `Processed ${gamesProcessed} games` })
 }
