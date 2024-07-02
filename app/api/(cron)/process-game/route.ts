@@ -62,12 +62,14 @@ export async function POST(req, res) {
 						date: data.release_date.date,
 					},
 				},
-				supportInfo: {
-					create: {
-						url: data.support_info?.url,
-						email: data.support_info?.email,
-					},
-				},
+				supportInfo: data.support_info
+					? {
+							create: {
+								url: data.support_info.url,
+								email: data.support_info.email,
+							},
+						}
+					: undefined,
 				contentDescriptors: data.content_descriptors
 					? {
 							create: {
@@ -184,7 +186,10 @@ export async function POST(req, res) {
 
 			gamesProcessed++
 		} catch (error: unknown) {
-			console.error(`Error processing game ${game.appId}:`, JSON.stringify(error))
+			console.error(`Error processing game ${game.appId}:`, error)
+			if (error instanceof Error) {
+				console.error(error.stack)
+			}
 			break
 		}
 	}
