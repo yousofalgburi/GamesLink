@@ -62,7 +62,7 @@ export async function POST(req, res) {
 					? {
 							create: {
 								comingSoon: !!data.release_date.coming_soon,
-								date: data.release_date.date || null,
+								date: data.release_date.date ?? '',
 							},
 						}
 					: undefined,
