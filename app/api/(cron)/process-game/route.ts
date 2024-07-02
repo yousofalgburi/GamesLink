@@ -32,7 +32,7 @@ export async function POST(req, res) {
 				appId: game.appId,
 				name: data.name,
 				type: data.type,
-				requiredAge: data.required_age,
+				requiredAge: Number.parseInt(data.required_age, 10) || 0,
 				isFree: data.is_free,
 				dlc: data.dlc || [],
 				detailedDescription: data.detailed_description,
