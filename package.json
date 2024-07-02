@@ -10,14 +10,9 @@
 		"postinstall": "prisma generate",
 		"test": "jest",
 		"test:watch": "jest --watch",
-		"deploy:database": "npx prisma generate && npx prisma migrate dev",
-		"deploy:workers": "wrangler deploy",
-		"dev:workers": "wrangler dev --test-scheduled",
-		"start:workers": "wrangler dev --test-scheduled",
-		"cf-typegen:workers": "wrangler types"
+		"deploy:database": "npx prisma generate && npx prisma migrate dev"
 	},
 	"dependencies": {
-		"@cloudflare/workers-types": "^4.20240620.0",
 		"@headlessui/react": "^2.1.0",
 		"@heroicons/react": "^2.1.4",
 		"@hookform/resolvers": "^3.6.0",

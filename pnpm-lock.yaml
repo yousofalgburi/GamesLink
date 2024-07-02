@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@cloudflare/workers-types':
-        specifier: ^4.20240620.0
-        version: 4.20240620.0
       '@headlessui/react':
         specifier: ^2.1.0
         version: 2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4612,7 +4609,8 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20240610.1':
     optional: true
 
-  '@cloudflare/workers-types@4.20240620.0': {}
+  '@cloudflare/workers-types@4.20240620.0':
+    optional: true
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:

@@ -1,15 +1,7 @@
-import { type Game, PrismaClient } from '@prisma/client/edge'
-import { withAccelerate } from '@prisma/extension-accelerate'
+import { db } from '@/lib/db'
+import type { Game } from '@prisma/client'
 
-export async function syncGames(env): Promise<void> {
-	const db = new PrismaClient({
-		datasources: {
-			db: {
-				url: env.DATABASE_URL,
-			},
-		},
-	}).$extends(withAccelerate())
-
+export async function POST(req, res) {
 	const response = await fetch('https://api.steampowered.com/ISteamApps/GetAppList/v2')
 	const data = await response.json()
 	const apps = data.applist.apps
@@ -47,4 +39,6 @@ export async function syncGames(env): Promise<void> {
 	})
 
 	console.log('Successfully synced games')
+
+	return Response.json({ message: `Synced ${newApps.length} games` })
 }
