@@ -1,9 +1,11 @@
 import { db } from '@/lib/db'
 import axios from 'axios'
 
+export const maxDuration = 60
+
 export async function POST(req, res) {
 	const startTime = Date.now()
-	const timeLimit = 9000
+	const timeLimit = maxDuration * 1000
 	let gamesProcessed = 0
 
 	while (Date.now() - startTime < timeLimit) {
