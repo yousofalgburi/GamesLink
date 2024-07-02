@@ -207,6 +207,7 @@ model ProcessedGame {
     priceOverview PriceOverview?
     packageGroups PackageGroup[]
     packages      Int[]
+    demos         Demo[]
 
     platformId        Int
     legalNotice       String?
@@ -374,4 +375,14 @@ model Rating {
     descriptors     String?
 
     @@unique([gameId, source])
+}
+
+model Demo {
+    id          Int           @id @default(autoincrement())
+    appid       Int
+    description String?
+    game        ProcessedGame @relation(fields: [gameId], references: [id])
+    gameId      Int
+
+    @@unique([gameId, appid])
 }
