@@ -172,6 +172,22 @@ export async function POST(req, res) {
 						})) || [],
 				},
 				packages: data.packages || [],
+				demos: {
+					create:
+						data.demos?.map((demo) => ({
+							appid: demo.appid || 0,
+							description: demo.description || '',
+						})) || [],
+				},
+				metacritic: data.metacritic
+					? {
+							create: {
+								url: data.metacritic.url || null,
+								score: data.metacritic.score || null,
+							},
+						}
+					: undefined,
+				extUserAccountNotice: data.ext_user_account_notice || null,
 				additionalData: {},
 			}
 
@@ -231,6 +247,9 @@ export async function POST(req, res) {
 				'packages',
 				'ratings',
 				'recommendations',
+				'demos',
+				'metacritic',
+				'ext_user_account_notice',
 			])
 
 			const additionalData = {}

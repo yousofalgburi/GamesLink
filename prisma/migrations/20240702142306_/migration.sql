@@ -166,6 +166,7 @@ CREATE TABLE "ProcessedGame" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "packages" INTEGER[],
+    "extUserAccountNotice" TEXT,
     "platformId" INTEGER NOT NULL,
     "legalNotice" TEXT,
     "controllerSupport" TEXT,
@@ -368,6 +369,16 @@ CREATE TABLE "Demo" (
 );
 
 -- CreateTable
+CREATE TABLE "Metacritic" (
+    "id" SERIAL NOT NULL,
+    "url" TEXT,
+    "score" INTEGER,
+    "gameId" INTEGER NOT NULL,
+
+    CONSTRAINT "Metacritic_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "_RoomMembers" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
@@ -444,6 +455,9 @@ CREATE UNIQUE INDEX "Rating_gameId_source_key" ON "Rating"("gameId", "source");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Demo_gameId_appid_key" ON "Demo"("gameId", "appid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Metacritic_gameId_key" ON "Metacritic"("gameId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_RoomMembers_AB_unique" ON "_RoomMembers"("A", "B");
@@ -534,6 +548,9 @@ ALTER TABLE "Rating" ADD CONSTRAINT "Rating_gameId_fkey" FOREIGN KEY ("gameId") 
 
 -- AddForeignKey
 ALTER TABLE "Demo" ADD CONSTRAINT "Demo_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "ProcessedGame"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Metacritic" ADD CONSTRAINT "Metacritic_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "ProcessedGame"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_RoomMembers" ADD CONSTRAINT "_RoomMembers_A_fkey" FOREIGN KEY ("A") REFERENCES "Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;

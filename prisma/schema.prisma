@@ -198,16 +198,18 @@ model ProcessedGame {
     createdAt           DateTime            @default(now())
     updatedAt           DateTime            @updatedAt
 
-    categories    GameCategory[]
-    genres        GameGenre[]
-    screenshots   Screenshot[]
-    movies        Movie[]
-    achievements  Achievement[]
-    ratings       Rating[]
-    priceOverview PriceOverview?
-    packageGroups PackageGroup[]
-    packages      Int[]
-    demos         Demo[]
+    categories           GameCategory[]
+    genres               GameGenre[]
+    screenshots          Screenshot[]
+    movies               Movie[]
+    achievements         Achievement[]
+    ratings              Rating[]
+    priceOverview        PriceOverview?
+    packageGroups        PackageGroup[]
+    packages             Int[]
+    demos                Demo[]
+    metacritic           Metacritic?
+    extUserAccountNotice String?
 
     platformId        Int
     legalNotice       String?
@@ -385,4 +387,12 @@ model Demo {
     gameId      Int
 
     @@unique([gameId, appid])
+}
+
+model Metacritic {
+    id     Int           @id @default(autoincrement())
+    url    String?
+    score  Int?
+    game   ProcessedGame @relation(fields: [gameId], references: [id])
+    gameId Int           @unique
 }
