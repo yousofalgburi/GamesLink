@@ -6,6 +6,7 @@ import type { UserInRoom } from '@/types/linkroom'
 import GameCard from '../GameCard'
 import type { Room } from '@prisma/client'
 import { UserAvatar } from '../UserAvatar'
+import type { VoteType } from '@/constants/enums'
 
 export default function LinkRoomPlayers({
 	usersInRoom,
@@ -56,7 +57,7 @@ export default function LinkRoomPlayers({
 														nowidth={true}
 														key={game.id}
 														votesAmt={votesAmt}
-														currentVote={currentVote}
+														currentVote={currentVote?.type as VoteType}
 														game={game}
 													/>
 												</CarouselItem>
