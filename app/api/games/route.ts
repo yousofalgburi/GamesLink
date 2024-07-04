@@ -199,7 +199,7 @@ export async function GET(req: Request) {
 				requiredAge: game.requiredAge,
 				isFree: game.isFree,
 				releaseDate: game.releaseDate?.date ? new Date(game.releaseDate.date) : null,
-				developers: game.developers,
+				developers: game.developers.split(','),
 				categories: game.categories.map((c) => c.description),
 				genres: game.genres.map((g) => g.description),
 				voteCount: interaction.voteCount,

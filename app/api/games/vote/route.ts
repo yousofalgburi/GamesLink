@@ -100,7 +100,7 @@ export async function PATCH(req: Request) {
 							requiredAge: processedGame.requiredAge,
 							isFree: processedGame.isFree,
 							releaseDate: processedGame.releaseDate?.date ? new Date(processedGame.releaseDate.date) : undefined,
-							developers: processedGame.developers.join(','),
+							developers: processedGame.developers,
 							categories: processedGame.categories.map((c) => c.description).join(','),
 							genres: processedGame.genres.map((g) => g.description).join(','),
 						}
@@ -147,7 +147,7 @@ export async function PATCH(req: Request) {
 						requiredAge: processedGame.requiredAge,
 						isFree: processedGame.isFree,
 						releaseDate: processedGame.releaseDate?.date ? new Date(processedGame.releaseDate.date) : undefined,
-						developers: processedGame.developers.join(','),
+						developers: processedGame.developers,
 						categories: processedGame.categories.map((c) => c.description).join(','),
 						genres: processedGame.genres.map((g) => g.description).join(','),
 					}
@@ -190,7 +190,7 @@ export async function PATCH(req: Request) {
 					requiredAge: processedGame.requiredAge,
 					isFree: processedGame.isFree,
 					releaseDate: processedGame.releaseDate?.date ? new Date(processedGame.releaseDate.date) : undefined,
-					developers: processedGame.developers.join(','),
+					developers: processedGame.developers,
 					categories: processedGame.categories.map((c) => c.description).join(','),
 					genres: processedGame.genres.map((g) => g.description).join(','),
 				}

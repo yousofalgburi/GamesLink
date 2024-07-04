@@ -1,3 +1,4 @@
+import { friendRequestStatus } from '@/constants/enums'
 import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { UsernameValidator } from '@/lib/validators/username'
@@ -54,6 +55,7 @@ export async function POST(req: Request) {
 			data: {
 				toUserId: username.id,
 				fromUserId: session.user.id,
+				status: friendRequestStatus.PENDING,
 			},
 		})
 

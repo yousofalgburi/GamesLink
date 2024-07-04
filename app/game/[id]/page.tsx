@@ -146,7 +146,7 @@ export default async function Page({ params: { id } }: PageProps) {
 											{index === array.length - 1 ? '' : ', '}
 										</span>
 									))}
-									{game?.developers.map((developer) => (
+									{game?.developers.split(',').map((developer) => (
 										<span key={developer}>
 											{developer}
 											{game?.developers.length - 1 ? '' : ', '}
