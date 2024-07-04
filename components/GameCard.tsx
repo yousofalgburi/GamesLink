@@ -7,14 +7,13 @@ import GamePostVoteClient from './game-vote/GameVoteClient'
 import { Badge } from './ui/badge'
 import Image from 'next/image'
 import type { GameView } from '@/types/db'
-
-type PartialVote = Pick<Vote, 'type'>
+import type { VoteType } from '@/constants/enums'
 
 interface GameCardProps {
 	game: GameView
 	ref?: Ref<HTMLDivElement>
 	votesAmt: number
-	currentVote?: PartialVote
+	currentVote?: VoteType
 	className?: string
 	nowidth?: boolean
 }
@@ -62,7 +61,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 			</Link>
 
 			<CardFooter className='justify-end'>
-				<GamePostVoteClient gameId={game.steamAppId.toString()} initialVotesAmt={_votesAmt} initialVote={_currentVote?.type} />
+				<GamePostVoteClient gameId={game.steamAppId.toString()} initialVotesAmt={_votesAmt} initialVote={_currentVote} />
 			</CardFooter>
 		</Card>
 	)
