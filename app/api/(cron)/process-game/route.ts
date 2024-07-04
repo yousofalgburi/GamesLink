@@ -173,11 +173,12 @@ export async function POST(req, res) {
 				},
 				packages: JSON.stringify(data.packages || []),
 				demos: {
-					create:
-						data.demos?.map((demo) => ({
-							appid: demo.appid || 0,
-							description: demo.description || '',
-						})) || [],
+					create: data.demos
+						? Array.from(new Set(data.demos.map((demo) => demo.appid))).map((appid) => ({
+								appid: Number.parseInt(appid as string, 10) || 0,
+								description: data.demos.find((demo) => demo.appid === appid).description || '',
+							}))
+						: [],
 				},
 				metacritic: data.metacritic
 					? {
