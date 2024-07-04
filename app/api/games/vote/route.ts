@@ -9,7 +9,7 @@ const CACHE_AFTER_UPVOTES = 1
 
 export async function PATCH(req: Request) {
 	const updateVoteCount = async (gameId: number) => {
-		const gameInteraction = await db.gameInteraction.findUnique({
+		const gameInteraction = await db.gameInteraction.findFirst({
 			where: { appId: gameId.toString() },
 			include: { votes: true },
 		})
@@ -24,7 +24,7 @@ export async function PATCH(req: Request) {
 			return acc
 		}, 0)
 
-		await db.gameInteraction.update({
+		await db.gameInteraction.updateMany({
 			where: { appId: gameId.toString() },
 			data: { voteCount: votesAmt },
 		})
@@ -44,7 +44,7 @@ export async function PATCH(req: Request) {
 			return new Response('Unauthorized', { status: 401 })
 		}
 
-		let gameInteraction = await db.gameInteraction.findUnique({
+		let gameInteraction = await db.gameInteraction.findFirst({
 			where: {
 				appId: gameId.toString(),
 			},
