@@ -3,7 +3,6 @@
 import { useCustomToasts } from '@/hooks/use-custom-toasts'
 import type { GameVoteRequest } from '@/lib/validators/vote'
 import { usePrevious } from '@mantine/hooks'
-import type { VoteType } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
 import { useEffect, useState } from 'react'
@@ -13,6 +12,7 @@ import { toast } from '../ui/use-toast'
 import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { VoteType } from '@/constants/enums'
 
 interface GameVoteClientProps {
 	gameId: string
@@ -35,7 +35,7 @@ const GameVoteClient = ({ gameId, initialVotesAmt, initialVote }: GameVoteClient
 	const { mutate: vote, isPending: isLoading } = useMutation({
 		mutationFn: async (type: VoteType) => {
 			if (!session?.user) {
-				if (type === 'UP') setVotesAmt((prev) => prev - 1)
+				if (type === VoteType.UP) setVotesAmt((prev) => prev - 1)
 				else setVotesAmt((prev) => prev + 1)
 				setCurrentVote(prevVote)
 				return loginToast()
@@ -49,7 +49,7 @@ const GameVoteClient = ({ gameId, initialVotesAmt, initialVote }: GameVoteClient
 			await axios.patch('/api/games/vote', payload)
 		},
 		onError: (err, voteType) => {
-			if (voteType === 'UP') setVotesAmt((prev) => prev - 1)
+			if (voteType === VoteType.UP) setVotesAmt((prev) => prev - 1)
 			else setVotesAmt((prev) => prev + 1)
 
 			setCurrentVote(prevVote)
@@ -69,12 +69,12 @@ const GameVoteClient = ({ gameId, initialVotesAmt, initialVote }: GameVoteClient
 		onMutate: (type: VoteType) => {
 			if (currentVote === type) {
 				setCurrentVote(undefined)
-				if (type === 'UP') setVotesAmt((prev) => prev - 1)
-				else if (type === 'DOWN') setVotesAmt((prev) => prev + 1)
+				if (type === VoteType.UP) setVotesAmt((prev) => prev - 1)
+				else if (type === VoteType.DOWN) setVotesAmt((prev) => prev + 1)
 			} else {
 				setCurrentVote(type)
-				if (type === 'UP') setVotesAmt((prev) => prev + (currentVote ? 2 : 1))
-				else if (type === 'DOWN') setVotesAmt((prev) => prev - (currentVote ? 2 : 1))
+				if (type === VoteType.UP) setVotesAmt((prev) => prev + (currentVote ? 2 : 1))
+				else if (type === VoteType.DOWN) setVotesAmt((prev) => prev - (currentVote ? 2 : 1))
 			}
 
 			router.refresh()
@@ -83,10 +83,10 @@ const GameVoteClient = ({ gameId, initialVotesAmt, initialVote }: GameVoteClient
 
 	return (
 		<div className='flex items-center gap-4'>
-			<Button onClick={() => !isLoading && vote('UP')} variant='ghost' aria-label='upvote'>
+			<Button onClick={() => !isLoading && vote(VoteType.UP)} variant='ghost' aria-label='upvote'>
 				<ThumbsUp
 					className={cn('h-5 w-5 text-zinc-700', {
-						'fill-emerald-500 text-emerald-500': currentVote === 'UP',
+						'fill-emerald-500 text-emerald-500': currentVote === VoteType.UP,
 					})}
 				/>
 			</Button>
@@ -94,16 +94,16 @@ const GameVoteClient = ({ gameId, initialVotesAmt, initialVote }: GameVoteClient
 			<label className='text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>{votesAmt}</label>
 
 			<Button
-				onClick={() => !isLoading && vote('DOWN')}
+				onClick={() => !isLoading && vote(VoteType.DOWN)}
 				className={cn({
-					'text-emerald-500': currentVote === 'DOWN',
+					'text-emerald-500': currentVote === VoteType.DOWN,
 				})}
 				variant='ghost'
 				aria-label='downvote'
 			>
 				<ThumbsDown
 					className={cn('h-5 w-5 text-zinc-700', {
-						'fill-red-500 text-red-500': currentVote === 'DOWN',
+						'fill-red-500 text-red-500': currentVote === VoteType.DOWN,
 					})}
 				/>
 			</Button>
