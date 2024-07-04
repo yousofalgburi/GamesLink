@@ -13,6 +13,7 @@ import GameCard from './GameCard'
 import { Button } from './ui/button'
 import { toast } from './ui/use-toast'
 import HiddenAuth from './HiddenAuth'
+import type { VoteType } from '@/constants/enums'
 
 export default function RecommendedGames() {
 	const [fetchOnce, setFetchOnce] = useState(false)
@@ -107,7 +108,13 @@ export default function RecommendedGames() {
 
 							return (
 								<CarouselItem key={game.id} className='md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5'>
-									<GameCard className='h-[40rem]' key={game.id} votesAmt={votesAmt} currentVote={currentVote} game={game} />
+									<GameCard
+										className='h-[40rem]'
+										key={game.id}
+										votesAmt={votesAmt}
+										currentVote={currentVote?.type as VoteType}
+										game={game}
+									/>
 								</CarouselItem>
 							)
 						})}
