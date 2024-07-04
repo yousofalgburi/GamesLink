@@ -1,7 +1,7 @@
 import GameCard from '@/components/GameCard'
 import RecommendedGames from '@/components/RecommendedGames'
+import type { VoteType } from '@/constants/enums'
 import { getAuthSession } from '@/lib/auth'
-import { db } from '@/lib/db'
 import type { ExtendedGame } from '@/types/db'
 
 export default async function Page() {
@@ -51,7 +51,7 @@ export default async function Page() {
 
 						const currentVote = game.votes.find((vote) => vote.userId === session?.user.id)
 
-						return <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote} game={game} />
+						return <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote?.type as VoteType} game={game} />
 					})}
 				</div>
 			</div>
