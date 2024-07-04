@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react'
 import GameCard from './GameCard'
 import { toast } from './ui/use-toast'
 import HiddenAuth from './HiddenAuth'
+import type { VoteType } from '@/constants/enums'
 
 export default function SimilarGames({ gameId }: { gameId: string }) {
 	const [fetchOnce, setFetchOnce] = useState(false)
@@ -105,7 +106,13 @@ export default function SimilarGames({ gameId }: { gameId: string }) {
 
 							return (
 								<CarouselItem key={game.id} className='md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5'>
-									<GameCard className='h-[40rem]' key={game.id} votesAmt={votesAmt} currentVote={currentVote} game={game} />
+									<GameCard
+										className='h-[40rem]'
+										key={game.id}
+										votesAmt={votesAmt}
+										currentVote={currentVote?.type as VoteType}
+										game={game}
+									/>
 								</CarouselItem>
 							)
 						})}
