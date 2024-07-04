@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import type { VoteType } from '@/constants/enums'
 import type { ExtendedGame } from '@/types/db'
 import { useIntersection } from '@mantine/hooks'
 import axios from 'axios'
@@ -350,10 +351,12 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 							const currentVote = game.votes.find((vote) => vote.userId === session?.user.id)
 
 							if (index === games.length - 1) {
-								return <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote} ref={ref} game={game} />
+								return (
+									<GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote?.type as VoteType} ref={ref} game={game} />
+								)
 							}
 
-							return <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote} game={game} />
+							return <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote?.type as VoteType} game={game} />
 						})}
 					</div>
 				</div>
