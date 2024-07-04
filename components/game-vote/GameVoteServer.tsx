@@ -3,6 +3,7 @@ import type { ProcessedGame, GameInteraction, Vote } from '@prisma/client'
 import { notFound } from 'next/navigation'
 import GameVoteClient from './GameVoteClient'
 import { db } from '@/lib/db'
+import type { VoteType } from '@/constants/enums'
 
 interface GameVoteServerProps {
 	gameId: string
@@ -37,7 +38,7 @@ const GameVoteServer = async ({ gameId, initialVotesAmt, initialVote, getData }:
 		_currentVote = initialVote
 	}
 
-	return <GameVoteClient gameId={gameId} initialVotesAmt={_votesAmt} initialVote={_currentVote} />
+	return <GameVoteClient gameId={gameId} initialVotesAmt={_votesAmt} initialVote={_currentVote as VoteType} />
 }
 
 export default GameVoteServer
