@@ -138,7 +138,7 @@ model Game {
 
 model GameInteraction {
     id        Int       @id @default(autoincrement())
-    appId     String    @unique
+    appId     String
     voteCount Int       @default(0)
     votes     Vote[]
     comments  Comment[]
