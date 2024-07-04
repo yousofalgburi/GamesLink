@@ -37,40 +37,40 @@ export default async function Page({ params: { id } }: PageProps) {
 		return redirect(`/link-room/queue/${id}`)
 	}
 
-	const roomUsersWithGames = await Promise.all(
-		roomUsers.members.map(async (user) => {
-			const games = await db.steamGame.findMany({
-				where: {
-					votes: {
-						some: {
-							userId: user.id,
-						},
-					},
-				},
-				include: {
-					votes: {
-						where: {
-							userId: user.id,
-						},
-					},
-				},
-				orderBy: {
-					voteCount: 'desc',
-				},
-			})
+	// const roomUsersWithGames = await Promise.all(
+	// 	roomUsers.members.map(async (user) => {
+	// 		const games = await db.steamGame.findMany({
+	// 			where: {
+	// 				votes: {
+	// 					some: {
+	// 						userId: user.id,
+	// 					},
+	// 				},
+	// 			},
+	// 			include: {
+	// 				votes: {
+	// 					where: {
+	// 						userId: user.id,
+	// 					},
+	// 				},
+	// 			},
+	// 			orderBy: {
+	// 				voteCount: 'desc',
+	// 			},
+	// 		})
 
-			return {
-				...user,
-				games,
-			}
-		}),
-	)
+	// 		return {
+	// 			...user,
+	// 			games,
+	// 		}
+	// 	}),
+	// )
 
 	const { members, ...roomDetails } = roomUsers
 
 	return (
 		<div className='container mx-auto py-12'>
-			<LinkRoom roomId={id} userId={session?.user.id} roomDetails={roomDetails} roomUsers={roomUsersWithGames} />
+			<LinkRoom roomId={id} userId={session?.user.id} roomDetails={roomDetails} roomUsers={[]} />
 		</div>
 	)
 }

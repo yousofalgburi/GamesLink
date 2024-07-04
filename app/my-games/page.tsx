@@ -6,32 +6,32 @@ import type { ExtendedGame } from '@/types/db'
 
 export default async function Page() {
 	const session = await getAuthSession()
-	let games: ExtendedGame[] = []
+	const games: ExtendedGame[] = []
 
-	// Check user logged in
-	if (session?.user) {
-		games = (await db.steamGame.findMany({
-			where: {
-				votes: {
-					some: {
-						userId: session.user.id,
-					},
-				},
-			},
-			include: {
-				votes: {
-					where: {
-						userId: session.user.id,
-					},
-				},
-			},
-			orderBy: {
-				voteCount: 'desc',
-			},
-		})) as ExtendedGame[]
-	} else {
-		games = []
-	}
+	// // Check user logged in
+	// if (session?.user) {
+	// 	games = (await db.steamGame.findMany({
+	// 		where: {
+	// 			votes: {
+	// 				some: {
+	// 					userId: session.user.id,
+	// 				},
+	// 			},
+	// 		},
+	// 		include: {
+	// 			votes: {
+	// 				where: {
+	// 					userId: session.user.id,
+	// 				},
+	// 			},
+	// 		},
+	// 		orderBy: {
+	// 			voteCount: 'desc',
+	// 		},
+	// 	})) as ExtendedGame[]
+	// } else {
+	// 	games = []
+	// }
 
 	return (
 		<div className='mx-auto flex min-h-[90vh] flex-col gap-10 px-16 py-6'>
