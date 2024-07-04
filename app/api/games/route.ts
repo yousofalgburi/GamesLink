@@ -184,17 +184,6 @@ export async function GET(req: Request) {
 				votes: true,
 				comments: true,
 			},
-			orderBy:
-				sortArray[0] === 'popularity'
-					? [
-							{
-								...orderBy,
-							},
-							{
-								id: 'desc',
-							},
-						]
-					: undefined,
 		})
 
 		const gameInteractionMap = new Map(gameInteractions.map((gi) => [gi.appId, gi]))
@@ -218,6 +207,10 @@ export async function GET(req: Request) {
 				comments: interaction.comments,
 			}
 		})
+
+		if (sortArray[0] === 'popularity') {
+			games.sort((a, b) => (sortArray[1] === 'desc' ? b.voteCount - a.voteCount : a.voteCount - b.voteCount))
+		}
 
 		return new Response(JSON.stringify({ games: games, totalGames }))
 	} catch (error: unknown) {

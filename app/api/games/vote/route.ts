@@ -8,24 +8,24 @@ import type { CachedGame } from '@/types/redis'
 const CACHE_AFTER_UPVOTES = 1
 
 export async function PATCH(req: Request) {
-	const updatVoteCount = async (gameId: number) => {
-		const updatedGame = await db.steamGame.findUnique({
-			where: { id: gameId },
+	const updateVoteCount = async (gameId: number) => {
+		const gameInteraction = await db.gameInteraction.findUnique({
+			where: { appId: gameId.toString() },
 			include: { votes: true },
 		})
 
-		if (!updatedGame) {
+		if (!gameInteraction) {
 			return 0
 		}
 
-		const votesAmt = updatedGame.votes.reduce((acc, vote) => {
+		const votesAmt = gameInteraction.votes.reduce((acc, vote) => {
 			if (vote.type === 'UP') return acc + 1
 			if (vote.type === 'DOWN') return acc - 1
 			return acc
 		}, 0)
 
-		await db.steamGame.update({
-			where: { id: gameId },
+		await db.gameInteraction.update({
+			where: { appId: gameId.toString() },
 			data: { voteCount: votesAmt },
 		})
 
@@ -44,26 +44,27 @@ export async function PATCH(req: Request) {
 			return new Response('Unauthorized', { status: 401 })
 		}
 
+		let gameInteraction = await db.gameInteraction.findUnique({
+			where: {
+				appId: gameId.toString(),
+			},
+		})
+
+		if (!gameInteraction) {
+			gameInteraction = await db.gameInteraction.create({
+				data: {
+					appId: gameId.toString(),
+				},
+			})
+		}
+
 		// check if user has already voted on this game
 		const existingVote = await db.vote.findFirst({
 			where: {
 				userId: session.user.id,
-				gameId,
+				gameId: gameInteraction.id,
 			},
 		})
-
-		const game = await db.steamGame.findUnique({
-			where: {
-				id: gameId,
-			},
-			include: {
-				votes: true,
-			},
-		})
-
-		if (!game) {
-			return new Response('Post not found', { status: 404 })
-		}
 
 		if (existingVote) {
 			// if vote type is the same as existing vote, delete the vote
@@ -71,30 +72,41 @@ export async function PATCH(req: Request) {
 				await db.vote.delete({
 					where: {
 						userId_gameId: {
-							gameId,
+							gameId: gameInteraction.id,
 							userId: session.user.id,
 						},
 					},
 				})
 
-				const votesAmt = await updatVoteCount(gameId)
+				const votesAmt = await updateVoteCount(gameId)
 
 				if (votesAmt >= CACHE_AFTER_UPVOTES) {
-					const cachePayload: CachedGame = {
-						id: game.id.toString(),
-						steamAppId: game.steamAppId,
-						name: game.name,
-						shortDescription: game.shortDescription,
-						headerImage: game.headerImage,
-						requiredAge: game.requiredAge,
-						isFree: game.isFree,
-						releaseDate: game.releaseDate ?? undefined,
-						developers: game.developers.join(','),
-						categories: game.categories.join(','),
-						genres: game.genres.join(','),
-					}
+					const processedGame = await db.processedGame.findUnique({
+						where: { appId: gameId.toString() },
+						include: {
+							releaseDate: true,
+							categories: true,
+							genres: true,
+						},
+					})
 
-					await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
+					if (processedGame) {
+						const cachePayload: CachedGame = {
+							id: processedGame.id.toString(),
+							steamAppId: processedGame.appId,
+							name: processedGame.name,
+							shortDescription: processedGame.shortDescription,
+							headerImage: processedGame.headerImage,
+							requiredAge: processedGame.requiredAge,
+							isFree: processedGame.isFree,
+							releaseDate: processedGame.releaseDate?.date ? new Date(processedGame.releaseDate.date) : undefined,
+							developers: processedGame.developers.join(','),
+							categories: processedGame.categories.map((c) => c.description).join(','),
+							genres: processedGame.genres.map((g) => g.description).join(','),
+						}
+
+						await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
+					}
 				}
 
 				return new Response('OK')
@@ -104,7 +116,7 @@ export async function PATCH(req: Request) {
 			await db.vote.update({
 				where: {
 					userId_gameId: {
-						gameId,
+						gameId: gameInteraction.id,
 						userId: session.user.id,
 					},
 				},
@@ -113,24 +125,35 @@ export async function PATCH(req: Request) {
 				},
 			})
 
-			const votesAmt = await updatVoteCount(gameId)
+			const votesAmt = await updateVoteCount(gameId)
 
 			if (votesAmt >= CACHE_AFTER_UPVOTES) {
-				const cachePayload: CachedGame = {
-					id: game.id.toString(),
-					steamAppId: game.steamAppId,
-					name: game.name,
-					shortDescription: game.shortDescription,
-					headerImage: game.headerImage,
-					requiredAge: game.requiredAge,
-					isFree: game.isFree,
-					releaseDate: game.releaseDate ?? undefined,
-					developers: game.developers.join(','),
-					categories: game.categories.join(','),
-					genres: game.genres.join(','),
-				}
+				const processedGame = await db.processedGame.findUnique({
+					where: { appId: gameId.toString() },
+					include: {
+						releaseDate: true,
+						categories: true,
+						genres: true,
+					},
+				})
 
-				await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
+				if (processedGame) {
+					const cachePayload: CachedGame = {
+						id: processedGame.id.toString(),
+						steamAppId: processedGame.appId,
+						name: processedGame.name,
+						shortDescription: processedGame.shortDescription,
+						headerImage: processedGame.headerImage,
+						requiredAge: processedGame.requiredAge,
+						isFree: processedGame.isFree,
+						releaseDate: processedGame.releaseDate?.date ? new Date(processedGame.releaseDate.date) : undefined,
+						developers: processedGame.developers.join(','),
+						categories: processedGame.categories.map((c) => c.description).join(','),
+						genres: processedGame.genres.map((g) => g.description).join(','),
+					}
+
+					await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
+				}
 			}
 
 			return new Response('OK')
@@ -141,33 +164,45 @@ export async function PATCH(req: Request) {
 			data: {
 				type: voteType,
 				userId: session.user.id,
-				gameId,
+				gameId: gameInteraction.id,
 			},
 		})
 
-		const votesAmt = await updatVoteCount(gameId)
+		const votesAmt = await updateVoteCount(gameId)
 
 		if (votesAmt >= CACHE_AFTER_UPVOTES) {
-			const cachePayload: CachedGame = {
-				id: game.id.toString(),
-				steamAppId: game.steamAppId,
-				name: game.name,
-				shortDescription: game.shortDescription,
-				headerImage: game.headerImage,
-				requiredAge: game.requiredAge,
-				isFree: game.isFree,
-				releaseDate: game.releaseDate ?? undefined,
-				developers: game.developers.join(','),
-				categories: game.categories.join(','),
-				genres: game.genres.join(','),
-			}
+			const processedGame = await db.processedGame.findUnique({
+				where: { appId: gameId.toString() },
+				include: {
+					releaseDate: true,
+					categories: true,
+					genres: true,
+				},
+			})
 
-			await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
+			if (processedGame) {
+				const cachePayload: CachedGame = {
+					id: processedGame.id.toString(),
+					steamAppId: processedGame.appId,
+					name: processedGame.name,
+					shortDescription: processedGame.shortDescription,
+					headerImage: processedGame.headerImage,
+					requiredAge: processedGame.requiredAge,
+					isFree: processedGame.isFree,
+					releaseDate: processedGame.releaseDate?.date ? new Date(processedGame.releaseDate.date) : undefined,
+					developers: processedGame.developers.join(','),
+					categories: processedGame.categories.map((c) => c.description).join(','),
+					genres: processedGame.genres.map((g) => g.description).join(','),
+				}
+
+				await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
+			}
 		}
 
 		return new Response('OK')
 	} catch (error) {
-		error
+		console.log(error)
+
 		if (error instanceof z.ZodError) {
 			return new Response(error.message, { status: 400 })
 		}

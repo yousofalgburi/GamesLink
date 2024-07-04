@@ -1,10 +1,11 @@
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+    provider = "sqlite"
+    url      = "file:./dev.db"
 }
 
 model Account {
@@ -13,12 +14,12 @@ model Account {
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? @db.Text
-    access_token      String? @db.Text
+    refresh_token     String?
+    access_token      String?
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String? @db.Text
+    id_token          String?
     session_state     String?
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -56,17 +57,12 @@ model User {
     rooms Room[] @relation("RoomMembers")
 }
 
-enum VoteType {
-    UP
-    DOWN
-}
-
 model Vote {
     user            User             @relation(fields: [userId], references: [id])
     userId          String
     GameInteraction GameInteraction? @relation(fields: [gameId], references: [id])
     gameId          Int
-    type            VoteType
+    type            String
 
     @@id([userId, gameId])
 }
@@ -90,27 +86,21 @@ model Comment {
 }
 
 model CommentVote {
-    user      User     @relation(fields: [userId], references: [id])
+    user      User    @relation(fields: [userId], references: [id])
     userId    String
-    comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
     commentId String
-    type      VoteType
+    type      String
 
     @@id([userId, commentId])
 }
 
-enum FriendRequestStatus {
-    PENDING
-    ACCEPTED
-    REJECTED
-}
-
 model FriendRequest {
-    id         String              @id @default(cuid())
+    id         String   @id @default(cuid())
     fromUserId String
     toUserId   String
-    status     FriendRequestStatus @default(PENDING)
-    createdAt  DateTime            @default(now())
+    status     String
+    createdAt  DateTime @default(now())
 
     requestFrom User @relation("requestFrom", fields: [fromUserId], references: [id])
     requestTo   User @relation("requestTo", fields: [toUserId], references: [id])
@@ -131,8 +121,8 @@ model Room {
     roomId       String   @unique
     isActive     Boolean  @default(true)
     isPublic     Boolean  @default(true)
-    queuedUsers  String[]
-    allowedUsers String[]
+    queuedUsers  String
+    allowedUsers String
     members      User[]   @relation("RoomMembers")
     createdAt    DateTime @default(now())
 }
@@ -161,18 +151,18 @@ model ProcessedGame {
     type                String?
     requiredAge         Int
     isFree              Boolean
-    dlc                 Int[]
-    detailedDescription String              @db.Text
-    aboutTheGame        String              @db.Text
+    dlc                 String
+    detailedDescription String
+    aboutTheGame        String
     shortDescription    String
     supportedLanguages  String
-    reviews             String?             @db.Text
+    reviews             String?
     headerImage         String
     capsuleImage        String
     capsuleImagev5      String
     website             String?
-    developers          String[]
-    publishers          String[]
+    developers          String
+    publishers          String
     platforms           Platform            @relation(fields: [platformId], references: [id])
     pcRequirements      PcRequirements?
     macRequirements     MacRequirements?
@@ -194,7 +184,7 @@ model ProcessedGame {
     ratings              Rating[]
     priceOverview        PriceOverview?
     packageGroups        PackageGroup[]
-    packages             Int[]
+    packages             String
     demos                Demo[]
     metacritic           Metacritic?
     extUserAccountNotice String?
@@ -202,9 +192,9 @@ model ProcessedGame {
     platformId        Int
     legalNotice       String?
     controllerSupport String?
-    fullgame          Json?
+    fullgame          String?
     steamAppid        Int?
-    additionalData    Json?
+    additionalData    String?
 }
 
 model Platform {
@@ -219,24 +209,24 @@ model PcRequirements {
     id          Int           @id @default(autoincrement())
     gameId      Int           @unique
     game        ProcessedGame @relation(fields: [gameId], references: [id])
-    minimum     String        @db.Text
-    recommended String?       @db.Text
+    minimum     String
+    recommended String?
 }
 
 model MacRequirements {
     id          Int           @id @default(autoincrement())
     gameId      Int           @unique
     game        ProcessedGame @relation(fields: [gameId], references: [id])
-    minimum     String        @db.Text
-    recommended String?       @db.Text
+    minimum     String
+    recommended String?
 }
 
 model LinuxRequirements {
     id          Int           @id @default(autoincrement())
     gameId      Int           @unique
     game        ProcessedGame @relation(fields: [gameId], references: [id])
-    minimum     String        @db.Text
-    recommended String?       @db.Text
+    minimum     String
+    recommended String?
 }
 
 model ReleaseDate {
@@ -259,7 +249,7 @@ model ContentDescriptors {
     id     Int           @id @default(autoincrement())
     gameId Int           @unique
     game   ProcessedGame @relation(fields: [gameId], references: [id])
-    ids    Int[]
+    ids    String
     notes  String?
 }
 
@@ -337,8 +327,8 @@ model Movie {
     game      ProcessedGame @relation(fields: [gameId], references: [id])
     name      String
     thumbnail String
-    webm      Json
-    mp4       Json
+    webm      String
+    mp4       String
     highlight Boolean
 
     @@unique([gameId, id])

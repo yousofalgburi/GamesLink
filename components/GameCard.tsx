@@ -1,16 +1,17 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import type { SteamGame, Vote } from '@prisma/client'
+import type { Vote } from '@prisma/client'
 import Link from 'next/link'
 import { type Ref, forwardRef } from 'react'
 import GamePostVoteClient from './game-vote/GameVoteClient'
 import { Badge } from './ui/badge'
 import Image from 'next/image'
+import type { GameView } from '@/types/db'
 
 type PartialVote = Pick<Vote, 'type'>
 
 interface GameCardProps {
-	game: SteamGame
+	game: GameView
 	ref?: Ref<HTMLDivElement>
 	votesAmt: number
 	currentVote?: PartialVote
@@ -21,7 +22,7 @@ interface GameCardProps {
 const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _votesAmt, currentVote: _currentVote, className, nowidth }, ref) => {
 	return (
 		<Card className={cn(`${nowidth ? '' : 'min-w-64'}`, className, 'max-h-[35rem] overflow-auto')} key={game.id} ref={ref}>
-			<Link href={`/game/${game.id}`}>
+			<Link href={`/game/${game.steamAppId}`}>
 				<CardHeader className='m-0 p-0'>
 					<Image
 						alt={game.name}
@@ -61,7 +62,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 			</Link>
 
 			<CardFooter className='justify-end'>
-				<GamePostVoteClient gameId={game.id.toString()} initialVotesAmt={_votesAmt} initialVote={_currentVote?.type} />
+				<GamePostVoteClient gameId={game.steamAppId.toString()} initialVotesAmt={_votesAmt} initialVote={_currentVote?.type} />
 			</CardFooter>
 		</Card>
 	)

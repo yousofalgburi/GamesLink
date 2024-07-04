@@ -36,7 +36,7 @@ export async function POST(req, res) {
 				type: data.type || '',
 				requiredAge: Number.parseInt(data.required_age, 10) || 0,
 				isFree: !!data.is_free,
-				dlc: data.dlc || [],
+				dlc: JSON.stringify(data.dlc || []),
 				detailedDescription: data.detailed_description || '',
 				aboutTheGame: data.about_the_game || '',
 				shortDescription: data.short_description || '',
@@ -46,8 +46,8 @@ export async function POST(req, res) {
 				capsuleImage: data.capsule_image || '',
 				capsuleImagev5: data.capsule_imagev5 || '',
 				website: data.website || '',
-				developers: data.developers || [],
-				publishers: data.publishers || [],
+				developers: JSON.stringify(data.developers || []),
+				publishers: JSON.stringify(data.publishers || []),
 				background: data.background || '',
 				backgroundRaw: data.background_raw || '',
 				recommendations: data.recommendations?.total || null,
@@ -77,7 +77,7 @@ export async function POST(req, res) {
 				contentDescriptors: data.content_descriptors
 					? {
 							create: {
-								ids: data.content_descriptors.ids || [],
+								ids: JSON.stringify(data.content_descriptors.ids || []),
 								notes: data.content_descriptors.notes || null,
 							},
 						}
@@ -106,8 +106,8 @@ export async function POST(req, res) {
 						data.movies?.map((movie) => ({
 							name: movie.name || '',
 							thumbnail: movie.thumbnail || '',
-							webm: movie.webm || {},
-							mp4: movie.mp4 || {},
+							webm: JSON.stringify(movie.webm || {}),
+							mp4: JSON.stringify(movie.mp4 || {}),
 							highlight: !!movie.highlight,
 						})) || [],
 				},
@@ -171,13 +171,13 @@ export async function POST(req, res) {
 							},
 						})) || [],
 				},
-				packages: data.packages || undefined,
+				packages: JSON.stringify(data.packages || []),
 				demos: {
 					create:
 						data.demos?.map((demo) => ({
 							appid: demo.appid || 0,
 							description: demo.description || '',
-						})) || undefined,
+						})) || [],
 				},
 				metacritic: data.metacritic
 					? {
@@ -188,23 +188,23 @@ export async function POST(req, res) {
 						}
 					: undefined,
 				extUserAccountNotice: data.ext_user_account_notice || null,
-				additionalData: {},
+				additionalData: JSON.stringify({}),
 			}
 
-			for (const key of Object.keys(processedGame)) {
-				if (processedGame[key] === undefined) {
-					delete processedGame[key]
-				} else if (typeof processedGame[key] === 'object' && processedGame[key] !== null) {
-					for (const subKey of Object.keys(processedGame[key])) {
-						if (processedGame[key][subKey] === undefined) {
-							delete processedGame[key][subKey]
-						}
-					}
-					if (Object.keys(processedGame[key]).length === 0) {
-						delete processedGame[key]
-					}
-				}
-			}
+			// for (const key of Object.keys(processedGame)) {
+			// 	if (processedGame[key] === undefined) {
+			// 		delete processedGame[key]
+			// 	} else if (typeof processedGame[key] === 'object' && processedGame[key] !== null) {
+			// 		for (const subKey of Object.keys(processedGame[key])) {
+			// 			if (processedGame[key][subKey] === undefined) {
+			// 				delete processedGame[key][subKey]
+			// 			}
+			// 		}
+			// 		if (Object.keys(processedGame[key]).length === 0) {
+			// 			delete processedGame[key]
+			// 		}
+			// 	}
+			// }
 
 			const knownFields = new Set([
 				'appId',
@@ -260,7 +260,7 @@ export async function POST(req, res) {
 			}
 
 			if (Object.keys(additionalData).length > 0) {
-				processedGame.additionalData = additionalData
+				processedGame.additionalData = JSON.stringify(additionalData)
 			}
 
 			await db.processedGame.create({

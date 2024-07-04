@@ -1,13 +1,14 @@
 import { getAuthSession } from '@/lib/auth'
-import type { SteamGame, Vote } from '@prisma/client'
+import type { ProcessedGame, GameInteraction, Vote } from '@prisma/client'
 import { notFound } from 'next/navigation'
 import GameVoteClient from './GameVoteClient'
+import { db } from '@/lib/db'
 
 interface GameVoteServerProps {
 	gameId: string
 	initialVotesAmt?: number
 	initialVote?: Vote['type'] | null
-	getData?: () => Promise<(SteamGame & { votes: Vote[] }) | null>
+	getData?: () => Promise<{ game: ProcessedGame | null; gameInteraction: GameInteraction | null }>
 }
 
 const GameVoteServer = async ({ gameId, initialVotesAmt, initialVote, getData }: GameVoteServerProps) => {
@@ -17,16 +18,20 @@ const GameVoteServer = async ({ gameId, initialVotesAmt, initialVote, getData }:
 	let _currentVote: Vote['type'] | null | undefined = undefined
 
 	if (getData) {
-		const post = await getData()
-		if (!post) return notFound()
+		const { game, gameInteraction } = await getData()
+		if (!game) return notFound()
 
-		_votesAmt = post.votes.reduce((acc, vote) => {
-			if (vote.type === 'UP') return acc + 1
-			if (vote.type === 'DOWN') return acc - 1
-			return acc
-		}, 0)
+		_votesAmt = gameInteraction?.voteCount ?? 0
 
-		_currentVote = post.votes.find((vote) => vote.userId === session?.user?.id)?.type
+		if (gameInteraction && session?.user?.id) {
+			const userVote = await db.vote.findFirst({
+				where: {
+					gameId: gameInteraction.id,
+					userId: session.user.id,
+				},
+			})
+			_currentVote = userVote?.type
+		}
 	} else {
 		_votesAmt = initialVotesAmt ?? 0
 		_currentVote = initialVote

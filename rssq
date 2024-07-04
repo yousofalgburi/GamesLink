@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?><rss version="2.0" xml:base="https://scout.wisc.edu/news" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:og="http://ogp.me/ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:sioct="http://rdfs.org/sioc/types#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <channel>
+    <title></title>
+    <link>https://scout.wisc.edu/news</link>
+    <description></description>
+    <language>en</language>
+     <atom:link href="https://scout.wisc.edu/news/rss" rel="self" type="application/rss+xml" />
+      <item>
+    <title>ATE Central Releases Latest Impacts Book</title>
+    <link>https://scout.wisc.edu/node/5916</link>
+    <description>&lt;div class=&quot;field field-name-body field-type-text-with-summary field-label-hidden&quot;&gt;&lt;div class=&quot;field-items&quot;&gt;&lt;div class=&quot;field-item even&quot; property=&quot;content:encoded&quot;&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif; font-size: small;&quot;&gt;We are excited to announce the release of the ATE Impacts 2022-2023 book. Copies can be ordered online through the &lt;a href=&quot;http://ateimpacts.net/bookrequest&quot;&gt;ATE Impacts website&lt;/a&gt;, and&lt;a href=&quot;/sites/all/modules/pubdlcnt/pubdlcnt.php?fid=3470&quot;&gt; digital copies of the book can be accessed there&lt;/a&gt; as well. The digital copies are viewable across all devices.&lt;/span&gt;&lt;br style=&quot;font-family: Arial, Helvetica, sans-serif; font-size: small;&quot; /&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description>
+     <pubDate>Thu, 28 Jul 2022 16:12:41 +0000</pubDate>
+ <dc:creator>mawhye</dc:creator>
+ <guid isPermaLink="false">5916 at https://scout.wisc.edu</guid>
+  </item>
+  <item>
+    <title>Metavus 1.0 Released</title>
+    <link>https://scout.wisc.edu/node/5915</link>
+    <description>&lt;div class=&quot;field field-name-body field-type-text-with-summary field-label-hidden&quot;&gt;&lt;div class=&quot;field-items&quot;&gt;&lt;div class=&quot;field-item even&quot; property=&quot;content:encoded&quot;&gt;&lt;div class=&quot;views-row views-row-1 views-row-odd views-row-first contextual-links-region&quot; style=&quot;outline: none; position: relative; overflow: hidden; margin-bottom: 40px; color: rgb(118, 118, 118); font-family: Arial, Helvetica, &amp;quot;Nimbus Sans L&amp;quot;, sans-serif;&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description>
+     <pubDate>Thu, 28 Jul 2022 15:41:44 +0000</pubDate>
+ <dc:creator>mawhye</dc:creator>
+ <guid isPermaLink="false">5915 at https://scout.wisc.edu</guid>
+  </item>
+  <item>
+    <title>CWIS version 4.1.1 released</title>
+    <link>https://scout.wisc.edu/node/4906</link>
+    <description>&lt;div class=&quot;field field-name-body field-type-text-with-summary field-label-hidden&quot;&gt;&lt;div class=&quot;field-items&quot;&gt;&lt;div class=&quot;field-item even&quot; property=&quot;content:encoded&quot;&gt;&lt;div&gt;
+	CWIS version 4.1.1 has been released and is now available for download on the Scout site.&lt;/div&gt;
+&lt;div&gt;
+	 &lt;/div&gt;
+&lt;div&gt;
+	This is a maintenance release, focusing primarily on bug fixes, robustness, and increased PHP and MySQL/MariaDB compatibility.  More specific detail about additions and fixes can be found on the Change Log page.&lt;/div&gt;
+&lt;div&gt;
+	 &lt;/div&gt;
+&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description>
+     <pubDate>Mon, 21 May 2018 18:31:15 +0000</pubDate>
+ <dc:creator>jbehrman</dc:creator>
+ <guid isPermaLink="false">4906 at https://scout.wisc.edu</guid>
+  </item>
+  <item>
+    <title>CWIS 4.1.0 Released </title>
+    <link>https://scout.wisc.edu/node/4870</link>
+    <description>&lt;div class=&quot;field field-name-body field-type-text-with-summary field-label-hidden&quot;&gt;&lt;div class=&quot;field-items&quot;&gt;&lt;div class=&quot;field-item even&quot; property=&quot;content:encoded&quot;&gt;&lt;div&gt;
+&lt;div&gt;
+		CWIS version 4.1.0 has been released and is now available for download on the Scout Site.&lt;/div&gt;
+&lt;div&gt;
+		 &lt;/div&gt;
+&lt;div&gt;
+		A few highlights of this new release:&lt;/div&gt;
+&lt;div&gt;
+		- CWIS should now be fully WCAG 2.0 AA compliant for accessibility when using the default interface.&lt;/div&gt;
+&lt;div&gt;
+		- Emails generated via rules can now be held for approval before being sent, and there is a browsable log of outgoing emails.&lt;/div&gt;
+&lt;div&gt;
+		- All help pages are now managed by the Pages plugin and are editable via the plugin&#039;s WYSIWYG interface.&lt;/div&gt;
+&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description>
+     <pubDate>Fri, 09 Feb 2018 16:08:58 +0000</pubDate>
+ <dc:creator>jbehrman</dc:creator>
+ <guid isPermaLink="false">4870 at https://scout.wisc.edu</guid>
+  </item>
+  <item>
+    <title>CWIS version 4.0.1 Released</title>
+    <link>https://scout.wisc.edu/node/4845</link>
+    <description>&lt;div class=&quot;field field-name-body field-type-text-with-summary field-label-hidden&quot;&gt;&lt;div class=&quot;field-items&quot;&gt;&lt;div class=&quot;field-item even&quot; property=&quot;content:encoded&quot;&gt;&lt;p&gt;CWIS version 4.0.1 has been released, and is now available for download on the Scout Site.&lt;/p&gt;
+&lt;p&gt;	This is a maintenance release, with bug fixes and increased compatibility with a wider range of LAMP environments, but there have been a few improvements and additions:&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description>
+     <pubDate>Mon, 18 Sep 2017 17:22:46 +0000</pubDate>
+ <dc:creator>jbehrman</dc:creator>
+ <guid isPermaLink="false">4845 at https://scout.wisc.edu</guid>
+  </item>
+  <item>
+    <title>CWIS 4.0.0 Released</title>
+    <link>https://scout.wisc.edu/node/4817</link>
+    <description>&lt;div class=&quot;field field-name-body field-type-text-with-summary field-label-hidden&quot;&gt;&lt;div class=&quot;field-items&quot;&gt;&lt;div class=&quot;field-item even&quot; property=&quot;content:encoded&quot;&gt;&lt;p&gt;CWIS version 4.0.0 has been released, and is now available for &lt;a href=&quot;https://scout.wisc.edu:443/cwis/downloads&quot;&gt;download&lt;/a&gt; on the Scout Site.&lt;/p&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description>
+     <pubDate>Mon, 05 Jun 2017 15:29:17 +0000</pubDate>
+ <dc:creator>creigel</dc:creator>
+ <guid isPermaLink="false">4817 at https://scout.wisc.edu</guid>
+  </item>
+  <item>
+    <title>CWIS 3.9.1 Beta Released</title>
+    <link>https://scout.wisc.edu/node/4761</link>
+    <description>&lt;div class=&quot;field field-name-body field-type-text-with-summary field-label-hidden&quot;&gt;&lt;div class=&quot;field-items&quot;&gt;&lt;div class=&quot;field-item even&quot; property=&quot;content:encoded&quot;&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;CWIS beta version 3.9.1 has been released, and is now available for &lt;a href=&quot;https://scout.wisc.edu:443/cwis/downloads&quot;&gt;&lt;span class=&quot;s2&quot;&gt;download&lt;/span&gt;&lt;/a&gt;. &lt;/span&gt;While primarily a bug fix and maintenance release as we get ready for 4.0.0, there are a few enhancements worth noting.&lt;/p&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description>
+     <pubDate>Fri, 26 Aug 2016 19:54:17 +0000</pubDate>
+ <dc:creator>creigel</dc:creator>
+ <guid isPermaLink="false">4761 at https://scout.wisc.edu</guid>
+  </item>
+  <item>
+    <title>CWIS 3.9.0 Beta Released</title>
+    <link>https://scout.wisc.edu/node/4721</link>
+    <description>&lt;div class=&quot;field field-name-body field-type-text-with-summary field-label-hidden&quot;&gt;&lt;div class=&quot;field-items&quot;&gt;&lt;div class=&quot;field-item even&quot; property=&quot;content:encoded&quot;&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica;&quot;&gt;CWIS beta version 3.9.0 has been released, and is now available for &lt;/span&gt;&lt;a href=&quot;https://scout.wisc.edu:443/cwis/downloads&quot; style=&quot;font-family: Helvetica;&quot;&gt;download&lt;/a&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica;&quot;&gt;.  &lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica;&quot;&gt;This is a beta release, leading up to CWIS 4.0.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description>
+     <pubDate>Fri, 20 May 2016 05:00:00 +0000</pubDate>
+ <dc:creator>ealmasy</dc:creator>
+ <guid isPermaLink="false">4721 at https://scout.wisc.edu</guid>
+  </item>
+  <item>
+    <title>CWIS 3.2.0 Released</title>
+    <link>https://scout.wisc.edu/node/4647</link>
+    <description>&lt;div class=&quot;field field-name-body field-type-text-with-summary field-label-hidden&quot;&gt;&lt;div class=&quot;field-items&quot;&gt;&lt;div class=&quot;field-item even&quot; property=&quot;content:encoded&quot;&gt;&lt;p&gt;CWIS version 3.2.0 has been released, and is now available for &lt;a href=&quot;https://scout.wisc.edu:443/cwis/downloads&quot;&gt;download&lt;/a&gt;! This release contains a &lt;b&gt;lot&lt;/b&gt; of new functionality and improvements in performance and SEO (Search Engine Optimization).&lt;/p&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description>
+     <pubDate>Fri, 12 Jun 2015 18:19:09 +0000</pubDate>
+ <dc:creator>cdixon</dc:creator>
+ <guid isPermaLink="false">4647 at https://scout.wisc.edu</guid>
+  </item>
+  <item>
+    <title>CWIS 3.1.1 Released</title>
+    <link>https://scout.wisc.edu/node/4598</link>
+    <description>&lt;div class=&quot;field field-name-body field-type-text-with-summary field-label-hidden&quot;&gt;&lt;div class=&quot;field-items&quot;&gt;&lt;div class=&quot;field-item even&quot; property=&quot;content:encoded&quot;&gt;&lt;div&gt;
+	CWIS version 3.1.1 has been released, and is now available for download on the Scout site. This is primarily a bug fix release, but it does introduce experimental support for SASS (SCSS), which can make CSS for custom interfaces much easier to write and maintain.&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description>
+     <pubDate>Tue, 02 Dec 2014 17:46:28 +0000</pubDate>
+ <dc:creator>cdixon</dc:creator>
+ <guid isPermaLink="false">4598 at https://scout.wisc.edu</guid>
+  </item>
+  </channel>
+</rss>

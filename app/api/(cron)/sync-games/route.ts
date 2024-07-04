@@ -35,7 +35,6 @@ export async function POST(req, res) {
 
 	await db.game.createMany({
 		data: newApps,
-		skipDuplicates: true,
 	})
 
 	console.log('Successfully synced games')

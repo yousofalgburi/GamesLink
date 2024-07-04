@@ -8,7 +8,7 @@ import { db } from '@/lib/db'
 import { redis } from '@/lib/redis'
 import { cn } from '@/lib/utils'
 import type { CachedGame } from '@/types/redis'
-import type { SteamGame } from '@prisma/client'
+import type { GameCategory, GameGenre, ProcessedGame, ReleaseDate } from '@prisma/client'
 import { CalendarHeartIcon, ChevronLeft, DollarSignIcon, ExternalLinkIcon, ShieldIcon, UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -28,12 +28,23 @@ export const fetchCache = 'force-no-store'
 export default async function Page({ params: { id } }: PageProps) {
 	const cachedGame = (await redis.hgetall(`game:${id}`)) as CachedGame
 
-	let game: SteamGame | null = null
+	let game:
+		| (ProcessedGame & {
+				genres: GameGenre[]
+				categories: GameCategory[]
+				releaseDate: ReleaseDate | null
+		  })
+		| null = null
 
 	if (!cachedGame) {
-		game = await db.steamGame.findFirst({
+		game = await db.processedGame.findFirst({
 			where: {
 				id: Number(id),
+			},
+			include: {
+				genres: true,
+				categories: true,
+				releaseDate: true,
 			},
 		})
 	}
@@ -76,7 +87,7 @@ export default async function Page({ params: { id } }: PageProps) {
 							{game?.genres.length && (
 								<div className='flex flex-wrap gap-1 pt-3'>
 									{game?.genres.map((genre) => (
-										<Badge key={genre}>{genre}</Badge>
+										<Badge key={genre.id}>{genre.description}</Badge>
 									))}
 								</div>
 							)}
@@ -95,7 +106,7 @@ export default async function Page({ params: { id } }: PageProps) {
 							{game?.genres.length && (
 								<div className='flex flex-wrap gap-1 pt-3'>
 									{game?.categories.map((category) => (
-										<Badge key={category}>{category}</Badge>
+										<Badge key={category.id}>{category.description}</Badge>
 									))}
 								</div>
 							)}
@@ -110,7 +121,7 @@ export default async function Page({ params: { id } }: PageProps) {
 											? new Date(cachedGame.releaseDate).toLocaleDateString()
 											: 'Unknown'
 										: game?.releaseDate
-											? game?.releaseDate.toLocaleDateString()
+											? game?.releaseDate.date
 											: 'Unknown'}
 								</span>
 							</div>
@@ -147,30 +158,33 @@ export default async function Page({ params: { id } }: PageProps) {
 						<div className='flex items-center justify-between'>
 							<Link
 								className='inline-flex items-center rounded-full bg-gray-100 px-3 py-2 text-sm font-medium text-gray-800'
-								href={`https://store.steampowered.com/app/${game?.steamAppId ?? cachedGame.steamAppId}`}
+								href={`https://store.steampowered.com/app/${game?.steamAppid ?? cachedGame.steamAppId}`}
 								rel='noopener noreferrer'
 								target='_blank'
 							>
 								<ExternalLinkIcon className='mr-2 h-5 w-5 text-gray-500 dark:text-gray-400' />
 								View on Steam
 							</Link>
-							<Suspense fallback={<GameVoteShell />}>
+							{/* <Suspense fallback={<GameVoteShell />}>
 								<GameVoteServer
 									gameId={id}
 									getData={async () => {
-										const game = await db.steamGame.findFirst({
+										const game = await db.processedGame.findFirst({
 											where: {
 												id: Number(id),
 											},
-											include: {
-												votes: true,
+										})
+
+										const gameInteraction = await db.gameInteraction.findUnique({
+											where: {
+												appId: game?.appId ?? '',
 											},
 										})
 
-										return game
+										return { game, gameInteraction }
 									}}
 								/>
-							</Suspense>
+							</Suspense> */}
 						</div>
 					</div>
 				</div>

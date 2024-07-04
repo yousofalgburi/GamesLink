@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import type { ExtendedGame } from '@/types/db'
+import type { ProcessedGame, GameGenre, GameCategory } from '@prisma/client'
 import { z } from 'zod'
 
 export async function POST(req: Request) {
@@ -15,29 +15,29 @@ export async function POST(req: Request) {
 	try {
 		const { gameId } = z.object({ gameId: z.string() }).parse(body)
 
-		const givenGame = (await db.steamGame.findUnique({
-			where: { id: Number(gameId) },
-			include: { votes: true },
-		})) as ExtendedGame | null
+		const givenGame = await db.processedGame.findUnique({
+			where: { appId: gameId },
+			include: { genres: true, categories: true },
+		})
 
 		if (!givenGame) {
 			return new Response(JSON.stringify({ error: 'Game not found' }), { status: 404 })
 		}
 
-		const allGames = (await db.steamGame.findMany({
-			where: { id: { not: Number(gameId) } },
-			include: { votes: true },
-		})) as ExtendedGame[]
+		const allGames = await db.processedGame.findMany({
+			where: { appId: { not: gameId } },
+			include: { genres: true, categories: true },
+		})
 
 		const givenGameProfile = new Set([
-			...givenGame.genres.map((genre) => `genre:${genre}`),
-			...givenGame.categories.map((category) => `category:${category}`),
+			...givenGame.genres.map((genre) => `genre:${genre.description}`),
+			...givenGame.categories.map((category) => `category:${category.description}`),
 		])
 
 		const gameScores = allGames.map((game) => {
 			const gameProfile = new Set([
-				...game.genres.map((genre) => `genre:${genre}`),
-				...game.categories.map((category) => `category:${category}`),
+				...game.genres.map((genre) => `genre:${genre.description}`),
+				...game.categories.map((category) => `category:${category.description}`),
 			])
 			const similarity = calculateJaccardSimilarity(givenGameProfile, gameProfile)
 			return { game, similarity }

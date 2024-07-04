@@ -162,31 +162,21 @@ export default function Friends({ session }: { session: Session | null }) {
 		},
 	})
 
-	useEffect(() => {
-		const getFriends = async () => {
-			if (!session) return
+	const getFriends = async () => {
+		if (!session) return
 
-			try {
-				const { data } = await axios.get('/api/friends')
-				setFriends(data.friends)
-				setFriendRequest(data.friendRequests)
-			} catch (error) {
-				console.log(error)
-			}
+		try {
+			const { data } = await axios.get('/api/friends')
+			setFriends(data.friends)
+			setFriendRequest(data.friendRequests)
+		} catch (error) {
+			console.log(error)
 		}
-
-		getFriends()
-
-		const interval = setInterval(async () => {
-			getFriends()
-		}, 10000)
-
-		return () => clearInterval(interval)
-	}, [session, setFriends])
+	}
 
 	return (
 		<Sheet>
-			<SheetTrigger asChild>
+			<SheetTrigger onClick={getFriends} asChild>
 				<Users className='cursor-pointer' />
 			</SheetTrigger>
 			<SheetContent>
