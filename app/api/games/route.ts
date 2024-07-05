@@ -77,7 +77,7 @@ export async function GET(req: Request) {
 
 				indexQuery = {
 					AND: searchWords.map((word) => ({
-						OR: [{ name: { contains: word, mode: 'insensitive' } }, { shortDescription: { contains: word, mode: 'insensitive' } }],
+						OR: [{ name: { contains: word } }, { shortDescription: { contains: word } }],
 					})),
 				}
 			}

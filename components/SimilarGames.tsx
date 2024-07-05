@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react'
 import GameCard from './GameCard'
 import { toast } from './ui/use-toast'
 import HiddenAuth from './HiddenAuth'
-import type { VoteType } from '@/constants/enums'
+import { VoteType } from '@/constants/enums'
 
 export default function SimilarGames({ gameId }: { gameId: string }) {
 	const [fetchOnce, setFetchOnce] = useState(false)
@@ -97,8 +97,8 @@ export default function SimilarGames({ gameId }: { gameId: string }) {
 
 						{games?.map((game) => {
 							const votesAmt = game.votes.reduce((acc, vote) => {
-								if (vote.type === 'UP') return acc + 1
-								if (vote.type === 'DOWN') return acc - 1
+								if (vote.type === VoteType.UP) return acc + 1
+								if (vote.type === VoteType.DOWN) return acc - 1
 								return acc
 							}, 0)
 

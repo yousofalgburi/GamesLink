@@ -5,6 +5,6 @@ export enum friendRequestStatus {
 }
 
 export enum VoteType {
-	UP = 'up',
-	DOWN = 'down',
+	UP = 'UP',
+	DOWN = 'DOWN',
 }

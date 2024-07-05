@@ -1,6 +1,6 @@
 import GameCard from '@/components/GameCard'
 import RecommendedGames from '@/components/RecommendedGames'
-import type { VoteType } from '@/constants/enums'
+import { VoteType } from '@/constants/enums'
 import { getAuthSession } from '@/lib/auth'
 import type { ExtendedGame } from '@/types/db'
 
@@ -44,8 +44,8 @@ export default async function Page() {
 				<div className='grid auto-rows-fr grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
 					{games.map((game, index) => {
 						const votesAmt = game.votes.reduce((acc, vote) => {
-							if (vote.type === 'UP') return acc + 1
-							if (vote.type === 'DOWN') return acc - 1
+							if (vote.type === VoteType.UP) return acc + 1
+							if (vote.type === VoteType.DOWN) return acc - 1
 							return acc
 						}, 0)
 

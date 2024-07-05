@@ -4,6 +4,7 @@ import { GameVoteValidator } from '@/lib/validators/vote'
 import { z } from 'zod'
 import { redis } from '@/lib/redis'
 import type { CachedGame } from '@/types/redis'
+import { VoteType } from '@/constants/enums'
 
 const CACHE_AFTER_UPVOTES = 1
 
@@ -19,8 +20,8 @@ export async function PATCH(req: Request) {
 		}
 
 		const votesAmt = gameInteraction.votes.reduce((acc, vote) => {
-			if (vote.type === 'UP') return acc + 1
-			if (vote.type === 'DOWN') return acc - 1
+			if (vote.type === VoteType.UP) return acc + 1
+			if (vote.type === VoteType.DOWN) return acc - 1
 			return acc
 		}, 0)
 

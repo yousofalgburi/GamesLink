@@ -1,3 +1,4 @@
+import { VoteType } from '@/constants/enums'
 import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { CommentVoteValidator } from '@/lib/validators/vote'
@@ -16,8 +17,8 @@ export async function PATCH(req: Request) {
 		}
 
 		const votesAmt = updatedComment.votes.reduce((acc, vote) => {
-			if (vote.type === 'UP') return acc + 1
-			if (vote.type === 'DOWN') return acc - 1
+			if (vote.type === VoteType.UP) return acc + 1
+			if (vote.type === VoteType.DOWN) return acc - 1
 			return acc
 		}, 0)
 

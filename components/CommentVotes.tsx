@@ -86,7 +86,7 @@ const CommentVotes: FC<CommentVotesProps> = ({ commentId, votesAmt: _votesAmt, c
 			<Button onClick={() => vote(VoteType.UP)} size='sm' variant='ghost' aria-label='upvote'>
 				<ThumbsUp
 					className={cn('h-5 w-5', {
-						'fill-emerald-500 text-emerald-500': currentVote?.type === 'UP',
+						'fill-emerald-500 text-emerald-500': currentVote?.type === VoteType.UP,
 					})}
 				/>
 			</Button>
@@ -99,14 +99,14 @@ const CommentVotes: FC<CommentVotesProps> = ({ commentId, votesAmt: _votesAmt, c
 				onClick={() => vote(VoteType.DOWN)}
 				size='sm'
 				className={cn({
-					'text-emerald-500': currentVote?.type === 'DOWN',
+					'text-emerald-500': currentVote?.type === VoteType.DOWN,
 				})}
 				variant='ghost'
 				aria-label='downvote'
 			>
 				<ThumbsDown
 					className={cn('h-5 w-5', {
-						'fill-red-500 text-red-500': currentVote?.type === 'DOWN',
+						'fill-red-500 text-red-500': currentVote?.type === VoteType.DOWN,
 					})}
 				/>
 			</Button>

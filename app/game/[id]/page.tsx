@@ -39,7 +39,7 @@ export default async function Page({ params: { id } }: PageProps) {
 	if (!cachedGame) {
 		game = await db.processedGame.findFirst({
 			where: {
-				id: Number(id),
+				appId: id,
 			},
 			include: {
 				genres: true,
@@ -139,17 +139,11 @@ export default async function Page({ params: { id } }: PageProps) {
 								<UserIcon className='h-5 w-5 text-gray-500 dark:text-gray-400' />
 								<span>
 									Developer
-									{game?.developers.length ?? cachedGame.developers.split(',').length > 1 ? 's' : ''}:{' '}
-									{cachedGame?.developers.split(',').map((developer, index, array) => (
+									{JSON.parse(cachedGame?.developers ?? game?.developers).length > 1 ? 's' : ''}:{' '}
+									{JSON.parse(cachedGame?.developers ?? game?.developers).map((developer, index, array) => (
 										<span key={developer}>
 											{developer}
 											{index === array.length - 1 ? '' : ', '}
-										</span>
-									))}
-									{game?.developers.split(',').map((developer) => (
-										<span key={developer}>
-											{developer}
-											{game?.developers.length - 1 ? '' : ', '}
 										</span>
 									))}
 								</span>

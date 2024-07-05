@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import type { Comment, CommentVote, User } from '@prisma/client'
 import CreateComment from './CreateComment'
 import GameComment from './comments/GameComment'
+import { VoteType } from '@/constants/enums'
 
 type ExtendedComment = Comment & {
 	votes: CommentVote[]
@@ -55,8 +56,8 @@ const CommentsSection = async ({ gameId, orderBy }: CommentsSectionProps) => {
 					.filter((comment) => !comment.replyToId)
 					.map((topLevelComment) => {
 						const topLevelCommentVotesAmt = topLevelComment.votes.reduce((acc, vote) => {
-							if (vote.type === 'UP') return acc + 1
-							if (vote.type === 'DOWN') return acc - 1
+							if (vote.type === VoteType.UP) return acc + 1
+							if (vote.type === VoteType.DOWN) return acc - 1
 							return acc
 						}, 0)
 
@@ -78,8 +79,8 @@ const CommentsSection = async ({ gameId, orderBy }: CommentsSectionProps) => {
 									.sort((a, b) => b.votes.length - a.votes.length) // Sort replies by most liked
 									.map((reply) => {
 										const replyVotesAmt = reply.votes.reduce((acc, vote) => {
-											if (vote.type === 'UP') return acc + 1
-											if (vote.type === 'DOWN') return acc - 1
+											if (vote.type === VoteType.UP) return acc + 1
+											if (vote.type === VoteType.DOWN) return acc - 1
 											return acc
 										}, 0)
 

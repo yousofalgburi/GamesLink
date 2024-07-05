@@ -7,23 +7,23 @@ export async function POST(req, res) {
 	const startTime = Date.now()
 	const timeLimit = maxDuration * 1000 - 1000
 	let gamesProcessed = 0
+	const games = await db.game.findMany({
+		where: { loaded: false },
+		take: 100,
+	})
 
-	while (Date.now() - startTime < timeLimit) {
-		const game = await db.game.findFirst({
-			where: { loaded: false },
-		})
-
-		if (!game) {
+	while (Date.now() - startTime < timeLimit && gamesProcessed[gamesProcessed] !== undefined) {
+		if (!games[gamesProcessed]) {
 			break
 		}
 
 		try {
-			const response = await axios.get(`https://store.steampowered.com/api/appdetails?appids=${game.appId}`)
-			const data = response.data[game.appId]?.data
+			const response = await axios.get(`https://store.steampowered.com/api/appdetails?appids=${games[gamesProcessed].appId}`)
+			const data = response.data[games[gamesProcessed].appId]?.data
 
 			if (!data) {
 				await db.game.update({
-					where: { appId: game.appId },
+					where: { appId: games[gamesProcessed].appId },
 					data: { loaded: true, loadedDate: new Date() },
 				})
 				gamesProcessed++
@@ -31,7 +31,7 @@ export async function POST(req, res) {
 			}
 
 			const processedGame = {
-				appId: game.appId,
+				appId: games[gamesProcessed].appId,
 				name: data.name || '',
 				type: data.type || '',
 				requiredAge: Number.parseInt(data.required_age, 10) || 0,
@@ -269,13 +269,13 @@ export async function POST(req, res) {
 			})
 
 			await db.game.update({
-				where: { appId: game.appId },
+				where: { appId: games[gamesProcessed].appId },
 				data: { loaded: true, loadedDate: new Date() },
 			})
 
 			gamesProcessed++
 		} catch (error: unknown) {
-			console.error(`Error processing game ${game.appId}:`, error)
+			console.error(`Error processing game ${games[gamesProcessed].appId}:`, error)
 			if (error instanceof Error) {
 				console.error(error.stack)
 			}
