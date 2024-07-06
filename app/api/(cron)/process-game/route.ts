@@ -12,7 +12,7 @@ export async function POST(req, res) {
 		take: 100,
 	})
 
-	while (Date.now() - startTime < timeLimit && gamesProcessed[gamesProcessed] !== undefined) {
+	while (Date.now() - startTime < timeLimit && games[gamesProcessed] !== undefined) {
 		if (!games[gamesProcessed]) {
 			break
 		}
