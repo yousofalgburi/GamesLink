@@ -275,10 +275,24 @@ export async function POST(req, res) {
 
 			gamesProcessed++
 		} catch (error: unknown) {
+			if (error instanceof Error && 'response' in error && (error.response as { status?: number })?.status === 429) {
+				console.error(`Rate limit exceeded for game ${games[gamesProcessed].appId}:`, error)
+				await new Promise((resolve) => setTimeout(resolve, 1000))
+				continue
+			}
+
+			await db.game.update({
+				where: { appId: games[gamesProcessed].appId },
+				data: { loaded: true, loadedDate: new Date() },
+			})
+
+			gamesProcessed++
+
 			console.error(`Error processing game ${games[gamesProcessed].appId}:`, error)
 			if (error instanceof Error) {
 				console.error(error.stack)
 			}
+
 			break
 		}
 	}
