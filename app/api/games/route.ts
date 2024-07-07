@@ -78,7 +78,7 @@ export async function GET(req: Request) {
 
 				indexQuery = {
 					AND: searchWords.map((word) => ({
-						OR: [{ name: { contains: word, mode: 'insensitive' } }, { shortDescription: { contains: word, mode: 'insensitive' } }],
+						OR: [{ name: { contains: word } }, { shortDescription: { contains: word } }],
 					})),
 				}
 			}
@@ -144,6 +144,7 @@ export async function GET(req: Request) {
 			totalGames = await db.processedGame.count({
 				where: {
 					AND: [
+						{ type: 'game', requiredAge: { equals: 0 } },
 						indexQuery,
 						genresArray?.length
 							? {
