@@ -58,23 +58,23 @@ model User {
 }
 
 model Vote {
-    user            User             @relation(fields: [userId], references: [id])
-    userId          String
-    GameInteraction GameInteraction? @relation(fields: [gameId], references: [id])
-    gameId          Int
-    type            String
+    user   User          @relation(fields: [userId], references: [id])
+    userId String
+    game   ProcessedGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    gameId Int
+    type   String
 
     @@id([userId, gameId])
 }
 
 model Comment {
-    id              String           @id @default(cuid())
-    text            String
-    createdAt       DateTime         @default(now())
-    author          User             @relation(fields: [authorId], references: [id])
-    authorId        String
-    GameInteraction GameInteraction? @relation(fields: [gameId], references: [id])
-    gameId          Int
+    id        String        @id @default(cuid())
+    text      String
+    createdAt DateTime      @default(now())
+    author    User          @relation(fields: [authorId], references: [id])
+    authorId  String
+    game      ProcessedGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    gameId    Int
 
     replyToId String?
     replyTo   Comment?  @relation("ReplyTo", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -136,14 +136,6 @@ model Game {
     createdAt  DateTime  @default(now())
 }
 
-model GameInteraction {
-    id        Int       @id @default(autoincrement())
-    appId     String
-    voteCount Int       @default(0)
-    votes     Vote[]
-    comments  Comment[]
-}
-
 model ProcessedGame {
     id                  Int                 @id @default(autoincrement())
     appId               String              @unique
@@ -195,6 +187,11 @@ model ProcessedGame {
     fullgame          String?
     steamAppid        Int?
     additionalData    String?
+
+    // Added Values
+    voteCount Int       @default(0)
+    votes     Vote[]
+    comments  Comment[]
 }
 
 model Platform {
