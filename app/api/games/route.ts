@@ -1,6 +1,7 @@
 import { INFINITE_SCROLL_PAGINATION_RESULTS } from '@/config'
 import { db } from '@/lib/db'
 import index from '@/lib/pinecone'
+import type { ExtendedGame } from '@/types/db'
 import OpenAI from 'openai'
 import { z } from 'zod'
 
@@ -20,8 +21,7 @@ export async function GET(req: Request) {
 	const requestBody = new URL(req.url)
 
 	try {
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		let games: any = []
+		let games: ExtendedGame[] = []
 		let totalGames = 0
 		let indexQuery = {}
 
@@ -47,8 +47,8 @@ export async function GET(req: Request) {
 			return new Response(JSON.stringify({ games: [] }))
 		}
 
-		const genresArray = genres.length ? genres.split(',') : []
-		const categoriesArray = categories.length ? categories.split(',') : []
+		const genresArray = genres?.length ? genres.split(',') : []
+		const categoriesArray = categories?.length ? categories.split(',') : []
 
 		const sortArray = sort.split('-')
 		const orderBy = { [sortArray[0] === 'popularity' ? 'voteCount' : sortArray[0]]: sortArray[1] }
@@ -85,11 +85,24 @@ export async function GET(req: Request) {
 		}
 
 		games = await db.processedGame.findMany({
-			include: {
+			select: {
+				id: true,
+				steamAppid: true,
+				name: true,
+				shortDescription: true,
+				headerImage: true,
+				requiredAge: true,
+				isFree: true,
+				releaseDate: true,
+				developers: true,
+				categories: true,
+				genres: true,
+				voteCount: true,
 				votes: true,
 			},
 			where: {
 				AND: [
+					{ type: 'game', requiredAge: { equals: 0 } },
 					indexQuery,
 					genresArray.length
 						? {
@@ -132,7 +145,7 @@ export async function GET(req: Request) {
 				where: {
 					AND: [
 						indexQuery,
-						genresArray.length
+						genresArray?.length
 							? {
 									genres: {
 										some: {
@@ -143,7 +156,7 @@ export async function GET(req: Request) {
 									},
 								}
 							: {},
-						categoriesArray.length
+						categoriesArray?.length
 							? {
 									categories: {
 										some: {

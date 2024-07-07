@@ -4,28 +4,27 @@ import { GameVoteValidator } from '@/lib/validators/vote'
 import { z } from 'zod'
 import { redis } from '@/lib/redis'
 import type { CachedGame } from '@/types/redis'
-import { VoteType } from '@/constants/enums'
 
 const CACHE_AFTER_UPVOTES = 1
 
 export async function PATCH(req: Request) {
-	const updateVoteCount = async (gameId: number) => {
-		const gameInteraction = await db.gameInteraction.findFirst({
+	const updatVoteCount = async (gameId: number) => {
+		const updatedGame = await db.processedGame.findUnique({
 			where: { appId: gameId.toString() },
 			include: { votes: true },
 		})
 
-		if (!gameInteraction) {
+		if (!updatedGame) {
 			return 0
 		}
 
-		const votesAmt = gameInteraction.votes.reduce((acc, vote) => {
-			if (vote.type === VoteType.UP) return acc + 1
-			if (vote.type === VoteType.DOWN) return acc - 1
+		const votesAmt = updatedGame.votes.reduce((acc, vote) => {
+			if (vote.type === 'UP') return acc + 1
+			if (vote.type === 'DOWN') return acc - 1
 			return acc
 		}, 0)
 
-		await db.gameInteraction.updateMany({
+		await db.processedGame.update({
 			where: { appId: gameId.toString() },
 			data: { voteCount: votesAmt },
 		})
@@ -37,7 +36,7 @@ export async function PATCH(req: Request) {
 		const body = await req.json()
 
 		const { gameId: gameIdString, voteType } = GameVoteValidator.parse(body)
-		const gameId = Number(gameIdString)
+		const gameId = Number.parseInt(gameIdString)
 
 		const session = await getAuthSession()
 
@@ -45,27 +44,33 @@ export async function PATCH(req: Request) {
 			return new Response('Unauthorized', { status: 401 })
 		}
 
-		let gameInteraction = await db.gameInteraction.findFirst({
+		// check if user has already voted on this game
+		const game = await db.processedGame.findUnique({
 			where: {
 				appId: gameId.toString(),
 			},
+			include: {
+				releaseDate: true,
+				categories: true,
+				genres: true,
+				votes: true,
+			},
 		})
 
-		if (!gameInteraction) {
-			gameInteraction = await db.gameInteraction.create({
-				data: {
-					appId: gameId.toString(),
-				},
-			})
+		if (!game) {
+			return new Response('Game not found', { status: 404 })
 		}
 
-		// check if user has already voted on this game
 		const existingVote = await db.vote.findFirst({
 			where: {
 				userId: session.user.id,
-				gameId: gameInteraction.id,
+				gameId: game.id,
 			},
 		})
+
+		if (!game) {
+			return new Response('Game not found', { status: 404 })
+		}
 
 		if (existingVote) {
 			// if vote type is the same as existing vote, delete the vote
@@ -73,41 +78,30 @@ export async function PATCH(req: Request) {
 				await db.vote.delete({
 					where: {
 						userId_gameId: {
-							gameId: gameInteraction.id,
+							gameId: game.id,
 							userId: session.user.id,
 						},
 					},
 				})
 
-				const votesAmt = await updateVoteCount(gameId)
+				const votesAmt = await updatVoteCount(gameId)
 
 				if (votesAmt >= CACHE_AFTER_UPVOTES) {
-					const processedGame = await db.processedGame.findUnique({
-						where: { appId: gameId.toString() },
-						include: {
-							releaseDate: true,
-							categories: true,
-							genres: true,
-						},
-					})
-
-					if (processedGame) {
-						const cachePayload: CachedGame = {
-							id: processedGame.id.toString(),
-							steamAppId: processedGame.appId,
-							name: processedGame.name,
-							shortDescription: processedGame.shortDescription,
-							headerImage: processedGame.headerImage,
-							requiredAge: processedGame.requiredAge,
-							isFree: processedGame.isFree,
-							releaseDate: processedGame.releaseDate?.date ? new Date(processedGame.releaseDate.date) : undefined,
-							developers: processedGame.developers,
-							categories: processedGame.categories.map((c) => c.description).join(','),
-							genres: processedGame.genres.map((g) => g.description).join(','),
-						}
-
-						await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
+					const cachePayload: CachedGame = {
+						id: game.id.toString(),
+						steamAppId: game?.steamAppid?.toString() ?? '',
+						name: game.name,
+						shortDescription: game.shortDescription,
+						headerImage: game.headerImage,
+						requiredAge: game.requiredAge,
+						isFree: game.isFree,
+						releaseDate: game.releaseDate?.date ? new Date(game.releaseDate.date) : undefined,
+						developers: game.developers,
+						categories: game.categories.map((category) => category.description).join(','),
+						genres: game.genres.map((genre) => genre.description).join(','),
 					}
+
+					await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
 				}
 
 				return new Response('OK')
@@ -117,7 +111,7 @@ export async function PATCH(req: Request) {
 			await db.vote.update({
 				where: {
 					userId_gameId: {
-						gameId: gameInteraction.id,
+						gameId: game.id,
 						userId: session.user.id,
 					},
 				},
@@ -126,35 +120,24 @@ export async function PATCH(req: Request) {
 				},
 			})
 
-			const votesAmt = await updateVoteCount(gameId)
+			const votesAmt = await updatVoteCount(gameId)
 
 			if (votesAmt >= CACHE_AFTER_UPVOTES) {
-				const processedGame = await db.processedGame.findUnique({
-					where: { appId: gameId.toString() },
-					include: {
-						releaseDate: true,
-						categories: true,
-						genres: true,
-					},
-				})
-
-				if (processedGame) {
-					const cachePayload: CachedGame = {
-						id: processedGame.id.toString(),
-						steamAppId: processedGame.appId,
-						name: processedGame.name,
-						shortDescription: processedGame.shortDescription,
-						headerImage: processedGame.headerImage,
-						requiredAge: processedGame.requiredAge,
-						isFree: processedGame.isFree,
-						releaseDate: processedGame.releaseDate?.date ? new Date(processedGame.releaseDate.date) : undefined,
-						developers: processedGame.developers,
-						categories: processedGame.categories.map((c) => c.description).join(','),
-						genres: processedGame.genres.map((g) => g.description).join(','),
-					}
-
-					await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
+				const cachePayload: CachedGame = {
+					id: game.id.toString(),
+					steamAppId: game?.steamAppid?.toString() ?? '',
+					name: game.name,
+					shortDescription: game.shortDescription,
+					headerImage: game.headerImage,
+					requiredAge: game.requiredAge,
+					isFree: game.isFree,
+					releaseDate: game.releaseDate?.date ? new Date(game.releaseDate.date) : undefined,
+					developers: game.developers,
+					categories: game.categories.map((category) => category.description).join(','),
+					genres: game.genres.map((genre) => genre.description).join(','),
 				}
+
+				await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
 			}
 
 			return new Response('OK')
@@ -165,39 +148,28 @@ export async function PATCH(req: Request) {
 			data: {
 				type: voteType,
 				userId: session.user.id,
-				gameId: gameInteraction.id,
+				gameId: game.id,
 			},
 		})
 
-		const votesAmt = await updateVoteCount(gameId)
+		const votesAmt = await updatVoteCount(gameId)
 
 		if (votesAmt >= CACHE_AFTER_UPVOTES) {
-			const processedGame = await db.processedGame.findUnique({
-				where: { appId: gameId.toString() },
-				include: {
-					releaseDate: true,
-					categories: true,
-					genres: true,
-				},
-			})
-
-			if (processedGame) {
-				const cachePayload: CachedGame = {
-					id: processedGame.id.toString(),
-					steamAppId: processedGame.appId,
-					name: processedGame.name,
-					shortDescription: processedGame.shortDescription,
-					headerImage: processedGame.headerImage,
-					requiredAge: processedGame.requiredAge,
-					isFree: processedGame.isFree,
-					releaseDate: processedGame.releaseDate?.date ? new Date(processedGame.releaseDate.date) : undefined,
-					developers: processedGame.developers,
-					categories: processedGame.categories.map((c) => c.description).join(','),
-					genres: processedGame.genres.map((g) => g.description).join(','),
-				}
-
-				await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
+			const cachePayload: CachedGame = {
+				id: game.id.toString(),
+				steamAppId: game?.steamAppid?.toString() ?? '',
+				name: game.name,
+				shortDescription: game.shortDescription,
+				headerImage: game.headerImage,
+				requiredAge: game.requiredAge,
+				isFree: game.isFree,
+				releaseDate: game.releaseDate?.date ? new Date(game.releaseDate.date) : undefined,
+				developers: game.developers,
+				categories: game.categories.map((category) => category.description).join(','),
+				genres: game.genres.map((genre) => genre.description).join(','),
 			}
+
+			await redis.hset(`game:${gameId}`, cachePayload) // Store the game data as a hash
 		}
 
 		return new Response('OK')

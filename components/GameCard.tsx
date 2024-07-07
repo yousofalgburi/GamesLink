@@ -21,7 +21,7 @@ interface GameCardProps {
 const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _votesAmt, currentVote: _currentVote, className, nowidth }, ref) => {
 	return (
 		<Card className={cn(`${nowidth ? '' : 'min-w-64'}`, className, 'max-h-[35rem] overflow-auto')} key={game.id} ref={ref}>
-			<Link href={`/game/${game.steamAppId}`}>
+			<Link href={`/game/${game.steamAppid}`}>
 				<CardHeader className='m-0 p-0'>
 					<Image
 						alt={game.name}
@@ -42,7 +42,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 								Genres:
 							</label>
 							{game.genres.map((genre) => (
-								<Badge key={genre}>{genre}</Badge>
+								<Badge key={genre.id}>{genre.description}</Badge>
 							))}
 						</div>
 					)}
@@ -53,7 +53,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 								Categories:
 							</label>
 							{game.categories.map((category) => (
-								<Badge key={category}>{category}</Badge>
+								<Badge key={category.id}>{category.description}</Badge>
 							))}
 						</div>
 					)}
@@ -61,7 +61,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 			</Link>
 
 			<CardFooter className='justify-end'>
-				<GamePostVoteClient gameId={game.steamAppId.toString()} initialVotesAmt={_votesAmt} initialVote={_currentVote} />
+				<GamePostVoteClient gameId={game?.steamAppid?.toString() ?? ''} initialVotesAmt={_votesAmt} initialVote={_currentVote} />
 			</CardFooter>
 		</Card>
 	)

@@ -1,18 +1,17 @@
-import type { Vote, Comment } from '@prisma/client'
+import type { Vote, Comment, ReleaseDate, GameCategory } from '@prisma/client'
 
 export type GameView = {
 	id: number
-	steamAppId: string
+	steamAppid: number | null
 	name: string
 	shortDescription: string
 	headerImage: string
 	requiredAge: number
 	isFree: boolean
-	releaseDate: Date | null
-	developers: string[]
-	categories: string[]
-	genres: string[]
-	voteCount: number
+	releaseDate: ReleaseDate | null
+	developers: string
+	categories: GameCategory[]
+	genres: GameGenre[]
 }
 
 export type ExtendedGame = GameView & {
