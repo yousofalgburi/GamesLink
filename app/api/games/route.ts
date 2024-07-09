@@ -6,24 +6,11 @@ import OpenAI from 'openai'
 import { z } from 'zod'
 
 export async function GET(req: Request) {
-	const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
-	async function getSearchQueryEmbedding(search: string): Promise<number[]> {
-		const embedding = await openai.embeddings.create({
-			model: 'text-embedding-ada-002',
-			input: `${search}`,
-			encoding_format: 'float',
-		})
-
-		return embedding.data[0].embedding.slice(0, 384)
-	}
-
 	const requestBody = new URL(req.url)
 
 	try {
 		let games: ExtendedGame[] = []
 		let totalGames = 0
-		let indexQuery = {}
 
 		const { page, search, searchOption, genres, categories, sort } = z
 			.object({
@@ -43,46 +30,11 @@ export async function GET(req: Request) {
 				sort: requestBody.searchParams.get('sort') || 'popularity',
 			})
 
-		if (page > 1 && search !== '' && searchOption === 'ai-search') {
-			return new Response(JSON.stringify({ games: [] }))
-		}
-
 		const genresArray = genres?.length ? genres.split(',') : []
 		const categoriesArray = categories?.length ? categories.split(',') : []
-
 		const sortArray = sort.split('-')
-		const orderBy = { [sortArray[0] === 'popularity' ? 'voteCount' : sortArray[0]]: sortArray[1] }
 		const limit = INFINITE_SCROLL_PAGINATION_RESULTS
-
-		if (search) {
-			if (searchOption === 'ai-search') {
-				const queryEmbedding = await getSearchQueryEmbedding(search)
-
-				const queryResult = await index.query({
-					vector: queryEmbedding,
-					topK: 25,
-					includeMetadata: true,
-				})
-
-				totalGames = queryResult.matches.length
-
-				const gamesNames = queryResult.matches.map((r) => r.metadata?.name)
-
-				indexQuery = {
-					name: {
-						in: gamesNames,
-					},
-				}
-			} else if (searchOption === 'smart-text') {
-				const searchWords = search.split(' ')
-
-				indexQuery = {
-					AND: searchWords.map((word) => ({
-						OR: [{ name: { contains: word } }, { shortDescription: { contains: word } }],
-					})),
-				}
-			}
-		}
+		const searchWords = search.split(' ')
 
 		games = await db.processedGame.findMany({
 			select: {
@@ -101,9 +53,10 @@ export async function GET(req: Request) {
 				votes: true,
 			},
 			where: {
+				type: 'game',
+				requiredAge: 0,
+				name: search ? { contains: search } : undefined,
 				AND: [
-					{ type: 'game', requiredAge: { equals: 0 } },
-					indexQuery,
 					genresArray.length
 						? {
 								genres: {
@@ -128,50 +81,42 @@ export async function GET(req: Request) {
 						: {},
 				],
 			},
-			take: search && searchOption === 'ai-search' ? undefined : limit,
-			skip: search && searchOption === 'ai-search' ? undefined : (page - 1) * limit,
-			orderBy: [
-				{
-					...orderBy,
-				},
-				{
-					id: 'desc',
-				},
-			],
+			orderBy: [{ [sortArray[0] === 'popularity' ? 'voteCount' : sortArray[0]]: sortArray[1] }, { id: 'desc' }],
+			take: limit,
+			skip: (page - 1) * limit,
 		})
 
-		if (!search || searchOption === 'smart-text') {
-			totalGames = await db.processedGame.count({
-				where: {
-					AND: [
-						{ type: 'game', requiredAge: { equals: 0 } },
-						indexQuery,
-						genresArray?.length
-							? {
-									genres: {
-										some: {
-											description: {
-												in: genresArray,
-											},
+		totalGames = await db.processedGame.count({
+			where: {
+				type: 'game',
+				requiredAge: 0,
+				name: search ? { contains: search } : undefined,
+				AND: [
+					genresArray.length
+						? {
+								genres: {
+									some: {
+										description: {
+											in: genresArray,
 										},
 									},
-								}
-							: {},
-						categoriesArray?.length
-							? {
-									categories: {
-										some: {
-											description: {
-												in: categoriesArray,
-											},
+								},
+							}
+						: {},
+					categoriesArray.length
+						? {
+								categories: {
+									some: {
+										description: {
+											in: categoriesArray,
 										},
 									},
-								}
-							: {},
-					],
-				},
-			})
-		}
+								},
+							}
+						: {},
+				],
+			},
+		})
 
 		return new Response(JSON.stringify({ games: games, totalGames }))
 	} catch (error: unknown) {
