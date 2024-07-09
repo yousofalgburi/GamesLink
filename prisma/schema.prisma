@@ -192,6 +192,11 @@ model ProcessedGame {
     voteCount Int       @default(0)
     votes     Vote[]
     comments  Comment[]
+
+    @@index([name])
+    @@index([shortDescription])
+    @@index([type, requiredAge])
+    @@index([voteCount])
 }
 
 model Platform {
