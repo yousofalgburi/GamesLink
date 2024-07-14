@@ -193,10 +193,16 @@ model ProcessedGame {
     votes     Vote[]
     comments  Comment[]
 
-    @@index([type, voteCount])
-    @@index([name])
-    @@index([shortDescription])
-    @@index([voteCount])
+    @@index([type, voteCount, id]) // Supports type filtering and sorting by popularity
+    @@index([name]) // Supports fast text search on name
+    @@index([shortDescription]) // Supports fast text search on shortDescription
+    @@index([type, name]) // Supports combined type and name filtering
+    @@index([type, shortDescription]) // Supports combined type and shortDescription filtering
+    @@index([isFree, type, voteCount]) // Supports filtering by free games and sorting
+    @@index([requiredAge, type, voteCount]) // Supports age restriction filtering
+    @@index([createdAt, type, voteCount]) // Supports sorting by newest games
+    @@index([updatedAt, type, voteCount]) // Supports sorting by recently updated games
+    @@index([platformId])
 }
 
 model Platform {
@@ -302,6 +308,7 @@ model GameCategory {
     description String
 
     @@unique([gameId, id])
+    @@index([gameId, description])
 }
 
 model GameGenre {
@@ -311,6 +318,7 @@ model GameGenre {
     description String
 
     @@unique([gameId, id])
+    @@index([gameId, description])
 }
 
 model Screenshot {
