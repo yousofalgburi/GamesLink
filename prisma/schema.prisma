@@ -193,9 +193,9 @@ model ProcessedGame {
     votes     Vote[]
     comments  Comment[]
 
+    @@index([type, voteCount])
     @@index([name])
     @@index([shortDescription])
-    @@index([type, requiredAge])
     @@index([voteCount])
 }
 

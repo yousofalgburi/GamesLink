@@ -1,17 +1,11 @@
 import { INFINITE_SCROLL_PAGINATION_RESULTS } from '@/config'
 import { db } from '@/lib/db'
-import index from '@/lib/pinecone'
-import type { ExtendedGame } from '@/types/db'
-import OpenAI from 'openai'
+import type { Prisma } from '@prisma/client'
 import { z } from 'zod'
 
 export async function GET(req: Request) {
 	const requestBody = new URL(req.url)
-
 	try {
-		let games: ExtendedGame[] = []
-		let totalGames = 0
-
 		const { page, search, searchOption, genres, categories, sort } = z
 			.object({
 				page: z.number(),
@@ -36,87 +30,81 @@ export async function GET(req: Request) {
 		const limit = INFINITE_SCROLL_PAGINATION_RESULTS
 		const searchWords = search.split(' ')
 
-		games = await db.processedGame.findMany({
-			select: {
-				id: true,
-				steamAppid: true,
-				name: true,
-				shortDescription: true,
-				headerImage: true,
-				requiredAge: true,
-				isFree: true,
-				releaseDate: true,
-				developers: true,
-				categories: true,
-				genres: true,
-				voteCount: true,
-				votes: true,
-			},
-			where: {
-				type: 'game',
-				requiredAge: 0,
-				name: search ? { contains: search } : undefined,
-				AND: [
-					genresArray.length
-						? {
-								genres: {
-									some: {
-										description: {
-											in: genresArray,
-										},
-									},
-								},
-							}
-						: {},
-					categoriesArray.length
-						? {
-								categories: {
-									some: {
-										description: {
-											in: categoriesArray,
-										},
-									},
-								},
-							}
-						: {},
-				],
-			},
-			orderBy: [{ [sortArray[0] === 'popularity' ? 'voteCount' : sortArray[0]]: sortArray[1] }, { id: 'desc' }],
-			take: limit,
-			skip: (page - 1) * limit,
-		})
+		const whereCondition: Prisma.ProcessedGameWhereInput = {
+			type: 'game',
+			name: search ? { contains: search } : undefined,
+			genres: genresArray.length ? { some: { description: { in: genresArray } } } : undefined,
+			categories: categoriesArray.length ? { some: { description: { in: categoriesArray } } } : undefined,
+			NOT: [
+				{
+					categories: {
+						some: {
+							description: {
+								equals: 'Sex',
+							},
+						},
+					},
+				},
+				{
+					genres: {
+						some: {
+							description: {
+								equals: 'Sex',
+							},
+						},
+					},
+				},
+				{
+					shortDescription: {
+						contains: 'Nude',
+					},
+				},
+				{
+					name: {
+						contains: 'Nude',
+					},
+				},
+				{
+					OR: [
+						{ name: { contains: 'sex' } },
+						{ name: { contains: 'Sex' } },
+						{ name: { contains: 'NSFW' } },
+						{ name: { contains: 'nsfw' } },
+						{ name: { contains: 'porn' } },
+						{ name: { contains: 'Porn' } },
+						{ name: { contains: 'hentai' } },
+						{ name: { contains: 'Hentai' } },
+						{ name: { contains: 'nudity' } },
+						{ name: { contains: 'Nudity' } },
+					],
+				},
+			],
+		}
 
-		totalGames = await db.processedGame.count({
-			where: {
-				type: 'game',
-				requiredAge: 0,
-				name: search ? { contains: search } : undefined,
-				AND: [
-					genresArray.length
-						? {
-								genres: {
-									some: {
-										description: {
-											in: genresArray,
-										},
-									},
-								},
-							}
-						: {},
-					categoriesArray.length
-						? {
-								categories: {
-									some: {
-										description: {
-											in: categoriesArray,
-										},
-									},
-								},
-							}
-						: {},
-				],
-			},
-		})
+		const [games, totalGames] = await Promise.all([
+			db.processedGame.findMany({
+				where: whereCondition,
+				orderBy: [{ [sortArray[0] === 'popularity' ? 'voteCount' : sortArray[0]]: sortArray[1] }, { id: 'desc' }],
+				take: limit,
+				skip: (page - 1) * limit,
+				select: {
+					id: true,
+					steamAppid: true,
+					name: true,
+					shortDescription: true,
+					headerImage: true,
+					requiredAge: true,
+					isFree: true,
+					releaseDate: true,
+					developers: true,
+					genres: true,
+					categories: true,
+					voteCount: true,
+					votes: true,
+				},
+			}),
+			db.processedGame.count({ where: whereCondition }),
+		])
 
 		return new Response(JSON.stringify({ games: games, totalGames }))
 	} catch (error: unknown) {
