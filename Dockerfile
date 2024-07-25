@@ -15,10 +15,6 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
-# BUILD PRISMA
-RUN npm install -g prisma
-COPY prisma ./prisma
-RUN npx prisma generate
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -37,6 +33,11 @@ RUN \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
   else echo "Lockfile not found." && exit 1; \
   fi
+
+# BUILD PRISMA
+RUN npm install -g prisma
+COPY prisma ./prisma
+RUN npx prisma generate
 
 # Production image, copy all the files and run next
 FROM base AS runner
