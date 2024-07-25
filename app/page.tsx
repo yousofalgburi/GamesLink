@@ -27,7 +27,7 @@ export default function Page() {
 									<Github />
 								</a>
 							</div>
-							<h1 className='text-3xl font-bold sm:text-4xl md:text-5xl lg:text-6xl'>Discover Your Next Game</h1>
+							<h1 className='text-3xl font-bold sm:text-4xl md:text-5xl lg:text-6xl'>Discover Your Next Game 2</h1>
 							<p className='mt-3 text-lg text-gray-800 dark:text-gray-400'>Your place to find games to play with friends.</p>
 
 							<div className='mt-5 flex flex-col items-center gap-2 sm:flex-row sm:gap-3 lg:mt-8'>
