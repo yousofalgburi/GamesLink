@@ -23,7 +23,7 @@ export default function Page() {
 						<div className='flex flex-col items-center transition-all'>
 							<div className='relative mb-1 rounded-full px-3 py-1 text-sm leading-6 ring-1 ring-gray-900/10 hover:ring-gray-900/20'>
 								<a className='flex gap-2' target='_blank' rel='noreferrer' href='https://github.com/yousofalgburi/GamesLink'>
-									We are open source! 2
+									We are open source!
 									<Github />
 								</a>
 							</div>
