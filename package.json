@@ -8,7 +8,6 @@
 		"start": "next start",
 		"lint": "npx @biomejs/biome lint .",
 		"format": "npx @biomejs/biome format --write .",
-		"postinstall": "prisma generate",
 		"test": "jest",
 		"test:watch": "jest --watch",
 		"deploy:db": "npx prisma generate && npx prisma migrate dev"

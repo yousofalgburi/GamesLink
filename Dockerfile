@@ -35,7 +35,6 @@ RUN \
   fi
 
 # BUILD PRISMA
-RUN npm install -g prisma
 COPY prisma ./prisma
 RUN npx prisma generate
 
