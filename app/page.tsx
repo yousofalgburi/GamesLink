@@ -3,7 +3,7 @@ import { Github } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function Page() {
+export default async function Page() {
 	return (
 		<section className='flex min-h-[80vh] w-full items-center py-12 md:py-24 lg:min-h-[87.5vh] lg:items-start'>
 			<div className='container px-4 md:px-6'>

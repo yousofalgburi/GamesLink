@@ -137,56 +137,58 @@ model Game {
 }
 
 model ProcessedGame {
-    id                  Int                 @id @default(autoincrement())
-    appId               String              @unique
-    name                String
-    type                String?
-    requiredAge         Int
-    isFree              Boolean
-    dlc                 String
-    detailedDescription String
-    aboutTheGame        String
-    shortDescription    String
-    supportedLanguages  String
-    reviews             String?
-    headerImage         String
-    capsuleImage        String
-    capsuleImagev5      String
-    website             String?
-    developers          String
-    publishers          String
-    platforms           Platform            @relation(fields: [platformId], references: [id])
-    pcRequirements      PcRequirements?
-    macRequirements     MacRequirements?
-    linuxRequirements   LinuxRequirements?
-    recommendations     Int?
-    releaseDate         ReleaseDate?
-    supportInfo         SupportInfo?
-    background          String
-    backgroundRaw       String
-    contentDescriptors  ContentDescriptors?
-    createdAt           DateTime            @default(now())
-    updatedAt           DateTime            @updatedAt
-
-    categories           GameCategory[]
-    genres               GameGenre[]
-    screenshots          Screenshot[]
-    movies               Movie[]
-    achievements         Achievement[]
-    ratings              Rating[]
-    priceOverview        PriceOverview?
-    packageGroups        PackageGroup[]
+    id                   Int      @id @default(autoincrement())
+    appId                String   @unique
+    name                 String
+    type                 String?
+    requiredAge          Int
+    isFree               Boolean
+    dlc                  String
+    detailedDescription  String
+    aboutTheGame         String
+    shortDescription     String
+    supportedLanguages   String
+    reviews              String?
+    headerImage          String
+    capsuleImage         String
+    capsuleImagev5       String
+    website              String?
+    developers           String
+    publishers           String
+    recommendations      Int?
+    background           String
+    backgroundRaw        String
+    createdAt            DateTime @default(now())
+    updatedAt            DateTime @updatedAt
+    platformId           Int
+    legalNotice          String?
+    controllerSupport    String?
+    fullgame             String?
+    steamAppid           Int?
+    additionalData       String?
     packages             String
-    demos                Demo[]
-    metacritic           Metacritic?
     extUserAccountNotice String?
 
-    platformId        Int
-    legalNotice       String?
-    controllerSupport String?
-    fullgame          String?
-    steamAppid        Int?
-    additionalData    String?
+    pcRequirements    PcRequirements?
+    linuxRequirements LinuxRequirements?
+    macRequirements   MacRequirements?
+
+    releaseDate        ReleaseDate?
+    supportInfo        SupportInfo?
+    contentDescriptors ContentDescriptors?
+
+    priceOverview PriceOverview?
+    packageGroups PackageGroup[]
+
+    platforms    Platform       @relation(fields: [platformId], references: [id])
+    categories   GameCategory[]
+    genres       GameGenre[]
+    screenshots  Screenshot[]
+    movies       Movie[]
+    achievements Achievement[]
+    ratings      Rating[]
+    demos        Demo[]
+    metacritic   Metacritic?
 
     // Added Values
     voteCount Int       @default(0)
