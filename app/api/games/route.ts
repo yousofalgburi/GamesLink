@@ -67,14 +67,16 @@ export async function GET(req: Request) {
 
 		const whereClause = and(...conditions)
 
-		let orderByClause: SQL
+		let primaryOrderByClause: SQL
 		if (sortField === 'popularity') {
-			orderByClause = sortOrder === 'asc' ? asc(processedGames.voteCount) : desc(processedGames.voteCount)
+			primaryOrderByClause = sortOrder === 'asc' ? asc(processedGames.voteCount) : desc(processedGames.voteCount)
 		} else if (sortField === 'name') {
-			orderByClause = sortOrder === 'asc' ? asc(processedGames.name) : desc(processedGames.name)
+			primaryOrderByClause = sortOrder === 'asc' ? asc(processedGames.name) : desc(processedGames.name)
 		} else {
-			orderByClause = sortOrder === 'asc' ? asc(processedGames.releaseDate) : desc(processedGames.releaseDate)
+			primaryOrderByClause = sortOrder === 'asc' ? asc(processedGames.releaseDate) : desc(processedGames.releaseDate)
 		}
+
+		const secondaryOrderByClause = asc(processedGames.name)
 
 		const query = db
 			.select({
@@ -94,7 +96,7 @@ export async function GET(req: Request) {
 			})
 			.from(processedGames)
 			.where(whereClause)
-			.orderBy(orderByClause)
+			.orderBy(primaryOrderByClause, secondaryOrderByClause)
 			.limit(limit)
 			.offset(offset)
 
