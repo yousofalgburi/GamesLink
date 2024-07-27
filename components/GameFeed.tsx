@@ -138,7 +138,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 				categories: selectedCategories.join(','),
 				sort: sortOption,
 			}))
-		}, 300) // debounce the search query
+		}, 250) // debounce the search query
 
 		const params = new URLSearchParams(searchParamsURL)
 
@@ -342,21 +342,19 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 
 					<div className='grid auto-rows-fr grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
 						{games?.map((game, index) => {
-							const votesAmt = game.votes.reduce((acc, vote) => {
-								if (vote.type === VoteType.UP) return acc + 1
-								if (vote.type === VoteType.DOWN) return acc - 1
-								return acc
-							}, 0)
+							// const votesAmt = game.votes.reduce((acc, vote) => {
+							// 	if (vote.type === VoteType.UP) return acc + 1
+							// 	if (vote.type === VoteType.DOWN) return acc - 1
+							// 	return acc
+							// }, 0)
 
-							const currentVote = game.votes.find((vote) => vote.userId === session?.user.id)
+							// const currentVote = game.votes.find((vote) => vote.userId === session?.user.id)
 
 							if (index === games.length - 1) {
-								return (
-									<GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote?.type as VoteType} ref={ref} game={game} />
-								)
+								return <GameCard key={game.id} votesAmt={0} currentVote={VoteType.UP} ref={ref} game={game} />
 							}
 
-							return <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote?.type as VoteType} game={game} />
+							return <GameCard key={game.id} votesAmt={0} currentVote={VoteType.UP} game={game} />
 						})}
 					</div>
 				</div>
