@@ -10,8 +10,8 @@ export type GameView = {
 	isFree: boolean
 	releaseDate: ReleaseDate | null
 	developers: string
-	categories: GameCategory[]
-	genres: GameGenre[]
+	categories: string[]
+	genres: string[]
 }
 
 export type ExtendedGame = GameView & {
