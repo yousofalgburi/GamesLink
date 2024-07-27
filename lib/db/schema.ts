@@ -67,6 +67,7 @@ export const gameVotes = pgTable(
 	{
 		id: serial('id').primaryKey(),
 		gameId: integer('game_id').notNull().unique(),
+		userId: integer('user_id').notNull(),
 		voteType: voteType('vote_type'),
 	},
 	(table) => ({

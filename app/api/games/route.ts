@@ -1,11 +1,13 @@
 import { sql, and, or, desc, asc, type SQL, arrayContains, eq } from 'drizzle-orm'
-import { gameVotes, processedGames } from '@/lib/db/schema'
+import { gameVotes, processedGames, voteType } from '@/lib/db/schema'
 import { INFINITE_SCROLL_PAGINATION_RESULTS } from '@/config'
 import { z } from 'zod'
 import { db } from '@/lib/db/index'
+import { getServerSession } from 'next-auth'
 
 export async function GET(req: Request) {
 	const url = new URL(req.url)
+	const session = await getServerSession()
 
 	try {
 		const { page, search, searchOption, genres, categories, sort } = z
@@ -88,9 +90,9 @@ export async function GET(req: Request) {
 				genres: processedGames.genres,
 				categories: processedGames.categories,
 				voteCount: processedGames.voteCount,
+				voteType: gameVotes.voteType,
 			})
 			.from(processedGames)
-			.fullJoin(gameVotes, eq(processedGames.id, gameVotes.gameId))
 			.where(whereClause)
 			.orderBy(orderByClause)
 			.limit(limit)
@@ -100,6 +102,8 @@ export async function GET(req: Request) {
 
 		const countResult = await db.select({ count: sql<number>`count(*)` }).from(processedGames).where(whereClause)
 		const totalGames = countResult[0].count
+
+		// const userVote = await db.select().from(gameVotes).where(eq(gameVotes.userId, session?.user.id))
 
 		return new Response(JSON.stringify({ games, totalGames }), {
 			headers: { 'Content-Type': 'application/json' },
