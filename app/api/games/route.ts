@@ -1,5 +1,5 @@
-import { sql, and, or, desc, asc, type SQL, arrayContains } from 'drizzle-orm'
-import { processedGames } from '@/lib/db/schema'
+import { sql, and, or, desc, asc, type SQL, arrayContains, eq } from 'drizzle-orm'
+import { gameVotes, processedGames } from '@/lib/db/schema'
 import { INFINITE_SCROLL_PAGINATION_RESULTS } from '@/config'
 import { z } from 'zod'
 import { db } from '@/lib/db/index'
@@ -90,6 +90,7 @@ export async function GET(req: Request) {
 				voteCount: processedGames.voteCount,
 			})
 			.from(processedGames)
+			.fullJoin(gameVotes, eq(processedGames.id, gameVotes.gameId))
 			.where(whereClause)
 			.orderBy(orderByClause)
 			.limit(limit)

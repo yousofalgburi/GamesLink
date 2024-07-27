@@ -60,6 +60,26 @@ export const processedGames = pgTable(
 	}),
 )
 
+export const voteType = pgEnum('vote_type', ['UP', 'DOWN'])
+
+export const gameVotes = pgTable(
+	'game_votes',
+	{
+		id: serial('id').primaryKey(),
+		gameId: integer('game_id').notNull().unique(),
+		voteType: voteType('vote_type'),
+	},
+	(table) => ({
+		gameIdIdx: uniqueIndex('vote_game_id_idx').on(table.gameId),
+		gameIdFk: foreignKey({
+			columns: [table.gameId],
+			foreignColumns: [processedGames.id],
+		})
+			.onDelete('cascade')
+			.onUpdate('cascade'),
+	}),
+)
+
 export const pcRequirements = pgTable(
 	'pc_requirements',
 	{

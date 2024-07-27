@@ -43,6 +43,13 @@
       "when": 1722015445689,
       "tag": "0005_short_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1722047125669,
+      "tag": "0006_many_richard_fisk",
+      "breakpoints": true
     }
   ]
 }
