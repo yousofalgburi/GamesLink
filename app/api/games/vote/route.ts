@@ -85,6 +85,13 @@ export async function PATCH(req: Request) {
 
 		const votesAmt = await updateVoteCount(gameId)
 
+		await db
+			.update(processedGames)
+			.set({
+				voteCount: votesAmt,
+			})
+			.where(eq(processedGames.id, game.id))
+
 		if (votesAmt >= CACHE_AFTER_UPVOTES) {
 			const cachePayload: CachedGame = {
 				id: game.id.toString(),
