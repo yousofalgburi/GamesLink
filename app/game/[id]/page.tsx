@@ -6,7 +6,6 @@ import { db } from '@/lib/db/index'
 import { redis } from '@/lib/redis'
 import { cn } from '@/lib/utils'
 import type { CachedGame } from '@/types/redis'
-import type { GameCategory, GameGenre, ProcessedGame, ReleaseDate } from '@prisma/client'
 import { CalendarHeartIcon, ChevronLeft, DollarSignIcon, ExternalLinkIcon, ShieldIcon, UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -15,7 +14,6 @@ import { Suspense } from 'react'
 import SimilarGames from '@/components/SimilarGames'
 import { processedGames } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import type { GameView } from '@/types/db'
 
 interface PageProps {
 	params: {
