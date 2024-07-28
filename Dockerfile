@@ -31,6 +31,11 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
+# TEMP PRISMA
+RUN npm install -g prisma
+COPY prisma ./prisma
+RUN npx prisma generate
+
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
