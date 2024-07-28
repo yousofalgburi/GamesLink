@@ -32,7 +32,10 @@ export async function GET(req: Request) {
 
 		if (search) {
 			conditions.push(
-				sql`to_tsvector('english', ${processedGames.name} || ' ' || ${processedGames.shortDescription}) @@ plainto_tsquery('english', ${search})`,
+				sql`(
+                setweight(to_tsvector('english', ${processedGames.name}), 'A') ||
+                setweight(to_tsvector('english', ${processedGames.shortDescription}), 'B')
+              ) @@ plainto_tsquery('english', ${search})`,
 			)
 		}
 

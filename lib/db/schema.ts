@@ -51,7 +51,13 @@ export const processedGames = pgTable(
 		typeVoteCountIdIdx: index('type_vote_count_id_idx').on(table.type, table.voteCount, table.id),
 		isFreeTypeVoteCountIdx: index('is_free_type_vote_count_idx').on(table.isFree, table.type, table.voteCount),
 		requiredAgeTypeVoteCountIdx: index('required_age_type_vote_count_idx').on(table.requiredAge, table.type, table.voteCount),
-		searchVectorIdx: index('search_vector_idx').using('gin', sql`to_tsvector('english', ${table.name} || ' ' || ${table.shortDescription})`),
+		searchVectorIdx: index('search_vector_idx').using(
+			'gin',
+			sql`(
+              setweight(to_tsvector('english', ${table.name}), 'A') ||
+              setweight(to_tsvector('english', ${table.shortDescription}), 'B')
+            )`,
+		),
 
 		typeNameIdx: index('type_name_idx').on(table.type, table.name),
 		typeShortDescriptionIdx: index('type_short_description_idx').on(table.type, table.shortDescription),
