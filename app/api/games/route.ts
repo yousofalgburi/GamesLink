@@ -92,11 +92,11 @@ export async function GET(req: Request) {
 				genres: processedGames.genres,
 				categories: processedGames.categories,
 				voteCount: processedGames.voteCount,
-				voteType: gameVotes.voteType,
+				// voteType: gameVotes.voteType,
 			})
 			.from(processedGames)
 			.where(whereClause)
-			.orderBy(primaryOrderByClause, secondaryOrderByClause)
+			.orderBy(primaryOrderByClause)
 			.limit(limit)
 			.offset(offset)
 

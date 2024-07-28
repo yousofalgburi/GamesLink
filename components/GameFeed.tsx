@@ -138,7 +138,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 				categories: selectedCategories.join(','),
 				sort: sortOption,
 			}))
-		}, 250) // debounce the search query
+		}, 300) // debounce the search query
 
 		const params = new URLSearchParams(searchParamsURL)
 
