@@ -42,22 +42,14 @@ export default function LinkRoomPlayers({
 								<Carousel>
 									<CarouselContent>
 										{user.games.map((game) => {
-											const votesAmt = game.votes.reduce((acc, vote) => {
-												if (vote.type === VoteType.UP) return acc + 1
-												if (vote.type === VoteType.DOWN) return acc - 1
-												return acc
-											}, 0)
-
-											const currentVote = game.votes.find((vote) => vote.userId === userId)
-
 											return (
 												<CarouselItem key={game.id} className='flex basis-full gap-2 lg:basis-1/2'>
 													<GameCard
 														className='h-[28rem]'
 														nowidth={true}
 														key={game.id}
-														votesAmt={votesAmt}
-														currentVote={currentVote?.type as VoteType}
+														votesAmt={game.voteCount}
+														currentVote={game.voteType}
 														game={game}
 													/>
 												</CarouselItem>
