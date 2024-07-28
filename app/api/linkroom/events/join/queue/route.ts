@@ -1,4 +1,4 @@
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 import { db } from '@/lib/db'
 import { roomEventValidator } from '@/lib/validators/linkroom/events'
 import type { User } from '@prisma/client'
@@ -7,7 +7,7 @@ import { z } from 'zod'
 export async function GET(req: Request) {
 	return new Response(JSON.stringify({ user: {} }), { status: 201 })
 	// try {
-	// 	const session = await getAuthSession()
+	// 	const session = await auth()
 
 	// 	if (!session?.user) {
 	// 		return new Response('Unauthorized', { status: 401 })

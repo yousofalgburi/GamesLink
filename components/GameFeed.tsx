@@ -191,7 +191,6 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 					setGames((prevGames) => (prevGames ? [...prevGames, ...data.games] : data.games))
 				}
 
-				console.log(data.totalGames)
 				setTotalGames(data.totalGames)
 				setShouldFetchData(false)
 			}
@@ -224,6 +223,8 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 	const handleSearchOptionChange = (option: string) => {
 		setSearchOption(option)
 	}
+
+	// console.log(games)
 
 	return (
 		<div className='mx-auto min-h-[90vh] p-4 lg:px-16 lg:py-6'>

@@ -1,5 +1,5 @@
 import { VoteType } from '@/constants/enums'
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 import { db } from '@/lib/db'
 import { CommentVoteValidator } from '@/lib/validators/vote'
 import { z } from 'zod'
@@ -33,7 +33,7 @@ export async function PATCH(req: Request) {
 
 		const { commentId, voteType } = CommentVoteValidator.parse(body)
 
-		const session = await getAuthSession()
+		const session = await auth()
 
 		if (!session?.user) {
 			return new Response('Unauthorized', { status: 401 })

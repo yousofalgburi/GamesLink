@@ -1,11 +1,11 @@
 import GameCard from '@/components/GameCard'
 import RecommendedGames from '@/components/RecommendedGames'
 import { VoteType } from '@/constants/enums'
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 import type { ExtendedGame } from '@/types/db'
 
 export default async function Page() {
-	const session = await getAuthSession()
+	const session = await auth()
 	const games: ExtendedGame[] = []
 
 	// // Check user logged in
@@ -43,15 +43,7 @@ export default async function Page() {
 				<h1 className='pb-4 text-3xl font-bold'>Games ({games.length})</h1>
 				<div className='grid auto-rows-fr grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
 					{games.map((game, index) => {
-						const votesAmt = game.votes.reduce((acc, vote) => {
-							if (vote.type === VoteType.UP) return acc + 1
-							if (vote.type === VoteType.DOWN) return acc - 1
-							return acc
-						}, 0)
-
-						const currentVote = game.votes.find((vote) => vote.userId === session?.user.id)
-
-						return <GameCard key={game.id} votesAmt={votesAmt} currentVote={currentVote?.type as VoteType} game={game} />
+						return <GameCard key={game.id} votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
 					})}
 				</div>
 			</div>

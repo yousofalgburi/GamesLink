@@ -1,11 +1,11 @@
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 import { db } from '@/lib/db'
 import { UsernameValidator } from '@/lib/validators/username'
 import { z } from 'zod'
 
 export async function PATCH(req: Request) {
 	try {
-		const session = await getAuthSession()
+		const session = await auth()
 
 		if (!session?.user) {
 			return new Response('Unauthorized', { status: 401 })

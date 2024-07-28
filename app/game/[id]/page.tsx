@@ -1,10 +1,8 @@
 import CommentsSection from '@/components/CommentsSection'
-import GameVoteServer from '@/components/game-vote/GameVoteServer'
-import GameVoteShell from '@/components/game-vote/GameVoteShell'
 import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { db } from '@/lib/db'
+import { db } from '@/lib/db/index'
 import { redis } from '@/lib/redis'
 import { cn } from '@/lib/utils'
 import type { CachedGame } from '@/types/redis'
@@ -15,6 +13,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import SimilarGames from '@/components/SimilarGames'
+import { processedGames } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
+import type { GameView } from '@/types/db'
 
 interface PageProps {
 	params: {
@@ -28,26 +29,19 @@ export const fetchCache = 'force-no-store'
 export default async function Page({ params: { id } }: PageProps) {
 	const cachedGame = (await redis.hgetall(`game:${id}`)) as CachedGame
 
-	let game:
-		| (ProcessedGame & {
-				genres: GameGenre[]
-				categories: GameCategory[]
-				releaseDate: ReleaseDate | null
-		  })
-		| null = null
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	let game: any | null = null
 
 	if (!cachedGame) {
-		game = await db.processedGame.findFirst({
-			where: {
-				appId: id,
-			},
-			include: {
-				genres: true,
-				categories: true,
-				releaseDate: true,
-			},
-		})
+		const [dbGame] = await db
+			.select()
+			.from(processedGames)
+			.where(eq(processedGames.steamAppid, Number(id)))
+
+		game = dbGame
 	}
+
+	console.log(game)
 
 	if (!game && !cachedGame) return notFound()
 
@@ -87,7 +81,7 @@ export default async function Page({ params: { id } }: PageProps) {
 							{game?.genres.length && (
 								<div className='flex flex-wrap gap-1 pt-3'>
 									{game?.genres.map((genre) => (
-										<Badge key={genre.id}>{genre.description}</Badge>
+										<Badge key={genre}>{genre}</Badge>
 									))}
 								</div>
 							)}
@@ -103,10 +97,10 @@ export default async function Page({ params: { id } }: PageProps) {
 								</div>
 							)}
 
-							{game?.genres.length && (
+							{game?.categories.length && (
 								<div className='flex flex-wrap gap-1 pt-3'>
 									{game?.categories.map((category) => (
-										<Badge key={category.id}>{category.description}</Badge>
+										<Badge key={category}>{category}</Badge>
 									))}
 								</div>
 							)}
@@ -139,13 +133,14 @@ export default async function Page({ params: { id } }: PageProps) {
 								<UserIcon className='h-5 w-5 text-gray-500 dark:text-gray-400' />
 								<span>
 									Developer
-									{JSON.parse(cachedGame?.developers ?? game?.developers).length > 1 ? 's' : ''}:{' '}
-									{JSON.parse(cachedGame?.developers ?? game?.developers).map((developer, index, array) => (
-										<span key={developer}>
-											{developer}
-											{index === array.length - 1 ? '' : ', '}
-										</span>
-									))}
+									{cachedGame?.developers ?? (game?.developers?.length && game?.developers?.length > 1) ? 's' : ''}:{' '}
+									{cachedGame?.developers ??
+										game?.developers.map((developer, index, array) => (
+											<span key={developer}>
+												{developer}
+												{index === array.length - 1 ? '' : ', '}
+											</span>
+										))}
 								</span>
 							</div>
 						</div>

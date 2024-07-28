@@ -1,6 +1,6 @@
 import HiddenAuth from '@/components/HiddenAuth'
 import LinkRoom from '@/components/link-room/LinkRoom'
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 import { db } from '@/lib/db'
 import { notFound, redirect } from 'next/navigation'
 
@@ -16,7 +16,7 @@ interface PageProps {
 }
 
 export default async function Page({ params: { id } }: PageProps) {
-	const session = await getAuthSession()
+	const session = await auth()
 
 	if (!session?.user) {
 		return <HiddenAuth message='to be able to join a room.' />

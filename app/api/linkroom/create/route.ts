@@ -1,4 +1,4 @@
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 import { db } from '@/lib/db'
 import { LinkRoomValidator } from '@/lib/validators/linkroom/linkroom'
 import { z } from 'zod'
@@ -7,7 +7,7 @@ export async function POST(req: Request) {
 	return new Response(JSON.stringify({ roomId: '' }), { status: 201 })
 
 	// try {
-	// 	const session = await getAuthSession()
+	// 	const session = await auth()
 
 	// 	if (!session?.user) {
 	// 		return new Response('Unauthorized', { status: 401 })

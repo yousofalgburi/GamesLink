@@ -1,8 +1,8 @@
-import { getAuthSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { CommentValidator } from '@/lib/validators/comment'
 import { z } from 'zod'
 import words from 'profane-words'
+import { auth } from '@/auth'
 
 export async function PATCH(req: Request) {
 	try {
@@ -11,7 +11,7 @@ export async function PATCH(req: Request) {
 		const { gameId: gameIdString, text, replyToId } = CommentValidator.parse(body)
 		const gameId = Number(gameIdString)
 
-		const session = await getAuthSession()
+		const session = await auth()
 
 		if (!session?.user) {
 			return new Response('Unauthorized', { status: 401 })

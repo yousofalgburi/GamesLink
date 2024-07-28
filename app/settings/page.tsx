@@ -1,5 +1,5 @@
 import { UserNameForm } from '@/components/UserNameForm'
-import { authOptions, getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 
 export const metadata = {
@@ -8,9 +8,9 @@ export const metadata = {
 }
 
 export default async function SettingsPage() {
-	const session = await getAuthSession()
+	const session = await auth()
 
-	if (!session?.user) redirect(authOptions?.pages?.signIn || '/login')
+	if (!session?.user) redirect('/login')
 
 	return (
 		<div className='mx-auto max-w-4xl py-12'>

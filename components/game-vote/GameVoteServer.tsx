@@ -1,4 +1,4 @@
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 import type { ProcessedGame, Vote } from '@prisma/client'
 import { notFound } from 'next/navigation'
 import GameVoteClient from './GameVoteClient'
@@ -12,7 +12,7 @@ interface GameVoteServerProps {
 }
 
 const GameVoteServer = async ({ gameId, initialVotesAmt, initialVote, getData }: GameVoteServerProps) => {
-	const session = await getAuthSession()
+	const session = await auth()
 
 	let _votesAmt = 0
 	let _currentVote: VoteType | null | undefined = undefined

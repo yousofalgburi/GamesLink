@@ -1,4 +1,4 @@
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 import { db } from '@/lib/db'
 import type { Comment, CommentVote, User } from '@prisma/client'
 import CreateComment from './CreateComment'
@@ -23,7 +23,7 @@ interface CommentsSectionProps {
 }
 
 const CommentsSection = async ({ gameId, orderBy }: CommentsSectionProps) => {
-	const session = await getAuthSession()
+	const session = await auth()
 	const order = {
 		[orderBy]: 'desc',
 	}

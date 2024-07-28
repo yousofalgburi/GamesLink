@@ -1,5 +1,5 @@
 import LinkRoomQueue from '@/components/link-room/LinkRoomQueue'
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 
 export const metadata = {
 	title: 'Link Room Queue',
@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export default async function Page({ params: { id } }: PageProps) {
-	const session = await getAuthSession()
+	const session = await auth()
 
 	if (!session?.user) {
 		return null

@@ -1,16 +1,18 @@
 import GameFeed from '@/components/GameFeed'
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/auth'
 import type { ExtendedGame } from '@/types/db'
 import axios from 'axios'
 import { z } from 'zod'
+import { getGames } from '@/lib/db/queries/getGames'
 
 export default async function Page({
 	searchParams,
 }: {
 	searchParams: { [key: string]: string | string[] | undefined }
 }) {
-	const session = await getAuthSession()
-	let games: ExtendedGame[] = []
+	const session = await auth()
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	let games: any[] = []
 	let totalGames = 0
 
 	const searchParamsObj = z
@@ -31,13 +33,6 @@ export default async function Page({
 			sort: searchParams?.sort || 'popularity-desc',
 		})
 
-	let url = ''
-	if (process.env.NODE_ENV === 'development') {
-		url = 'http://localhost:3000'
-	} else {
-		url = 'https://gameslink.app'
-	}
-
 	searchParamsObj.genres = searchParamsObj.genres
 		.split(',')
 		.filter((genre) => genre !== '')
@@ -48,13 +43,11 @@ export default async function Page({
 		.filter((category) => category !== '')
 		.join(',')
 
-	const { data } = await axios.get(
-		`${url}/api/games?page=${searchParamsObj.page}&search=${searchParamsObj.search}&searchOption=${searchParamsObj.searchOption}&genres=${searchParamsObj.genres}&categories=${searchParamsObj.categories}&sort=${searchParamsObj.sort}`,
-	)
+	const result = await getGames(searchParamsObj, session)
 
-	if (data.games) {
-		games = data.games
-		totalGames = data.totalGames
+	if (result.games) {
+		games = result.games
+		totalGames = result.totalGames
 	}
 
 	return <GameFeed initGames={games} initTotalGames={totalGames} searchParamsObj={searchParamsObj} session={session} />
