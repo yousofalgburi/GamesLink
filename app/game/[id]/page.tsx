@@ -3,17 +3,17 @@ import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { db } from '@/lib/db/index'
-import { redis } from '@/lib/redis'
 import { cn } from '@/lib/utils'
 import type { CachedGame } from '@/types/redis'
 import { CalendarHeartIcon, ChevronLeft, DollarSignIcon, ExternalLinkIcon, ShieldIcon, UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Suspense } from 'react'
+import { cache, Suspense } from 'react'
 import SimilarGames from '@/components/SimilarGames'
 import { processedGames } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
+import { getRedisClient } from '@/lib/redis'
 
 interface PageProps {
 	params: {
@@ -25,10 +25,13 @@ export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
 export default async function Page({ params: { id } }: PageProps) {
-	const cachedGame = (await redis.hgetall(`game:${id}`)) as CachedGame
+	const redis = await getRedisClient()
+	const cachedGame = JSON.parse((await redis.get(`game:${id}`)) ?? '') as CachedGame
 
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	let game: any | null = null
+
+	console.log(cachedGame)
 
 	if (!cachedGame) {
 		const [dbGame] = await db

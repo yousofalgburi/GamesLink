@@ -1,10 +1,10 @@
 import { auth } from '@/auth'
 import { db } from '@/lib/db/index'
 import { GameVoteValidator } from '@/lib/validators/vote'
-import { redis } from '@/lib/redis'
 import type { CachedGame } from '@/types/redis'
 import { gameVotes, processedGames } from '@/lib/db/schema'
 import { and, eq } from 'drizzle-orm'
+import { getRedisClient } from '@/lib/redis'
 
 const CACHE_AFTER_UPVOTES = 1
 
@@ -48,16 +48,9 @@ export async function PATCH(req: Request) {
 
 		const [game] = await db.select().from(processedGames).where(eq(processedGames.steamAppid, gameId))
 
-		console.log('found game')
-
 		if (!game) {
 			return new Response('Game not found', { status: 404 })
 		}
-
-		console.log('searching for exisiting vote', {
-			userId: session.user.id,
-			gameId: game.id,
-		})
 
 		const [existingVote] = await db
 			.selectDistinct()
@@ -107,7 +100,8 @@ export async function PATCH(req: Request) {
 				genres: game.genres?.join(',') ?? '',
 			}
 
-			await redis.hset(`game:${gameId}`, cachePayload)
+			const redis = await getRedisClient()
+			await redis.set(`game:${gameId}`, JSON.stringify(cachePayload))
 		}
 
 		return new Response('OK')
