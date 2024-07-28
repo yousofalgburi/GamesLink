@@ -96,23 +96,9 @@ export default function SimilarGames({ gameId }: { gameId: string }) {
 						{isLoading && <Loader2 className='animate-spin' />}
 
 						{games?.map((game) => {
-							const votesAmt = game.votes.reduce((acc, vote) => {
-								if (vote.type === VoteType.UP) return acc + 1
-								if (vote.type === VoteType.DOWN) return acc - 1
-								return acc
-							}, 0)
-
-							const currentVote = game.votes.find((vote) => vote.userId === session?.user.id)
-
 							return (
 								<CarouselItem key={game.id} className='md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5'>
-									<GameCard
-										className='h-[40rem]'
-										key={game.id}
-										votesAmt={votesAmt}
-										currentVote={currentVote?.type as VoteType}
-										game={game}
-									/>
+									<GameCard className='h-[40rem]' key={game.id} votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
 								</CarouselItem>
 							)
 						})}
