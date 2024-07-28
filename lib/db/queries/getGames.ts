@@ -85,8 +85,6 @@ export const getGames = async (searchParams: searchParams, session?: Session | n
 			primaryOrderByClause = sortOrder === 'asc' ? asc(processedGames.releaseDate) : desc(processedGames.releaseDate)
 		}
 
-		const secondaryOrderByClause = sortOrder === 'asc' ? asc(processedGames.steamAppid) : desc(processedGames.steamAppid)
-
 		const query = db
 			.select({
 				id: processedGames.id,
@@ -106,7 +104,7 @@ export const getGames = async (searchParams: searchParams, session?: Session | n
 			.from(processedGames)
 			.leftJoin(gameVotes, and(eq(gameVotes.gameId, processedGames.id), eq(gameVotes.userId, session?.user?.id ?? '')))
 			.where(whereClause)
-			.orderBy(primaryOrderByClause, secondaryOrderByClause)
+			.orderBy(primaryOrderByClause)
 			.limit(limit)
 			.offset(offset)
 
