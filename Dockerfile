@@ -1,12 +1,9 @@
-FROM node:20-slim AS base
+FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    python3 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -18,17 +15,13 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
+
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# BUILD PRISMA
-COPY prisma ./prisma
-RUN npx prisma generate
-
-# Disable telemetry during the build
 ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN \
@@ -43,8 +36,6 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
-
-# Disable telemetry during runtime
 ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs
