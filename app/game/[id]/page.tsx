@@ -31,8 +31,6 @@ export default async function Page({ params: { id } }: PageProps) {
 
 	let game: GameView | null = null
 
-	console.log('cached game', cachedGame)
-
 	if (!cachedGame) {
 		const [dbGame] = await db
 			.select()
@@ -41,8 +39,6 @@ export default async function Page({ params: { id } }: PageProps) {
 
 		game = dbGame as GameView
 	}
-
-	console.log('game', game)
 
 	if (!game && !cachedGame) return notFound()
 
