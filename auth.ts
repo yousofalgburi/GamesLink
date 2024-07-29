@@ -12,9 +12,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 	session: {
 		strategy: 'jwt',
 	},
-	// pages: {
-	// 	signIn: '/sign-in',
-	// },
 	callbacks: {
 		async session({ token, session }) {
 			if (token) {
@@ -57,8 +54,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 				credits: 0,
 			}
 		},
-		// redirect() {
-		// 	return '/home'
-		// },
 	},
 })
