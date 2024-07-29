@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { db } from '@/lib/db/index'
 import type { Session } from 'next-auth'
 
-interface searchParams {
+interface SearchParams {
 	page: number
 	search: string
 	searchOption: string
@@ -14,78 +14,125 @@ interface searchParams {
 	sort: string
 }
 
-export const getGames = async (searchParams: searchParams, session?: Session | null) => {
+const searchParamsSchema = z.object({
+	page: z.coerce.number().int().positive().default(1),
+	search: z.string().default(''),
+	searchOption: z.string().default(''),
+	genres: z.string().default(''),
+	categories: z.string().default(''),
+	sort: z.string().default('popularity-desc'),
+})
+
+const exclusionKeywords = ['sex', 'nude', 'nsfw', 'porn', 'hentai', 'adult', 'furry', 'slave']
+
+export const getGames = async (searchParams: SearchParams, session?: Session | null) => {
+	const preparedQuery = db
+		.select({
+			id: processedGames.id,
+			steamAppid: processedGames.steamAppid,
+			name: processedGames.name,
+			shortDescription: processedGames.shortDescription,
+			headerImage: processedGames.headerImage,
+			requiredAge: processedGames.requiredAge,
+			isFree: processedGames.isFree,
+			releaseDate: processedGames.releaseDate,
+			developers: processedGames.developers,
+			genres: processedGames.genres,
+			categories: processedGames.categories,
+			voteCount: processedGames.voteCount,
+			voteType: gameVotes.voteType,
+		})
+		.from(processedGames)
+		.leftJoin(gameVotes, and(eq(gameVotes.gameId, processedGames.id), eq(gameVotes.userId, sql.placeholder('userId'))))
+		.where(
+			and(
+				sql`${processedGames.type} = 'game'`,
+				sql`NOT (${or(
+					...exclusionKeywords.flatMap((keyword) => [
+						sql`${processedGames.name} ilike ${sql.placeholder('exclusionPattern')}`,
+						sql`${processedGames.shortDescription} ilike ${sql.placeholder('exclusionPattern')}`,
+					]),
+				)})`,
+				sql.placeholder('searchCondition'),
+				sql.placeholder('genreCondition'),
+				sql.placeholder('categoryCondition'),
+			),
+		)
+		.limit(INFINITE_SCROLL_PAGINATION_RESULTS)
+		.offset(sql.placeholder('offset'))
+
+	const preparedQueries = {
+		'popularity-desc': preparedQuery.orderBy(desc(processedGames.voteCount)).prepare('get_games_popularity_desc'),
+		'popularity-asc': preparedQuery.orderBy(asc(processedGames.voteCount)).prepare('get_games_popularity_asc'),
+		'name-desc': preparedQuery.orderBy(desc(processedGames.name)).prepare('get_games_name_desc'),
+		'name-asc': preparedQuery.orderBy(asc(processedGames.name)).prepare('get_games_name_asc'),
+		'releaseDate-desc': preparedQuery.orderBy(desc(processedGames.releaseDate)).prepare('get_games_releaseDate_desc'),
+		'releaseDate-asc': preparedQuery.orderBy(asc(processedGames.releaseDate)).prepare('get_games_releaseDate_asc'),
+	}
+
+	const countQuery = db
+		.select({ count: sql<number>`count(*)` })
+		.from(processedGames)
+		.where(
+			and(
+				sql`${processedGames.type} = 'game'`,
+				sql`NOT (${or(
+					...exclusionKeywords.flatMap((keyword) => [
+						sql`${processedGames.name} ilike ${sql.placeholder('exclusionPattern')}`,
+						sql`${processedGames.shortDescription} ilike ${sql.placeholder('exclusionPattern')}`,
+					]),
+				)})`,
+				sql.placeholder('searchCondition'),
+				sql.placeholder('genreCondition'),
+				sql.placeholder('categoryCondition'),
+			),
+		)
+		.prepare('get_games_count')
+
 	try {
-		const { page, search, searchOption, genres, categories, sort } = z
-			.object({
-				page: z.coerce.number().int().positive().default(1),
-				search: z.string().default(''),
-				searchOption: z.string().default(''),
-				genres: z.string().default(''),
-				categories: z.string().default(''),
-				sort: z.string().default('popularity-desc'),
-			})
-			.parse(searchParams)
+		const { page, search, genres, categories, sort } = searchParamsSchema.parse(searchParams)
 
 		const limit = INFINITE_SCROLL_PAGINATION_RESULTS
 		const offset = (page - 1) * limit
 
 		const genresArray = genres ? genres.split(',') : []
 		const categoriesArray = categories ? categories.split(',') : []
-		const [sortField, sortOrder] = sort.split('-') as [string, 'asc' | 'desc']
 
-		const conditions: SQL[] = []
+		const whereConditions: SQL[] = [
+			eq(processedGames.type, 'game'),
+			...exclusionKeywords.flatMap((keyword) => [
+				sql`${processedGames.name} not ilike ${`%${keyword}%`}`,
+				sql`${processedGames.shortDescription} not ilike ${`%${keyword}%`}`,
+			]),
+		]
 
 		if (search) {
-			conditions.push(
-				sql`(
-          setweight(to_tsvector('english', ${processedGames.name}), 'A') ||
-          setweight(to_tsvector('english', ${processedGames.shortDescription}), 'B')
-        ) @@ plainto_tsquery('english', ${search})`,
-			)
+			whereConditions.push(sql`
+                (setweight(to_tsvector('english', ${processedGames.name}), 'A') ||
+                 setweight(to_tsvector('english', ${processedGames.shortDescription}), 'B'))
+                @@ plainto_tsquery('english', ${search})
+              `)
 		}
 
 		if (genresArray.length > 0) {
-			conditions.push(arrayContains(processedGames.genres, genresArray))
+			whereConditions.push(arrayContains(processedGames.genres, genresArray))
 		}
+
 		if (categoriesArray.length > 0) {
-			conditions.push(arrayContains(processedGames.categories, categoriesArray))
+			whereConditions.push(arrayContains(processedGames.categories, categoriesArray))
 		}
 
-		const exclusionConditions = [
-			sql`${processedGames.name} ilike '%sex%'`,
-			sql`${processedGames.name} ilike '%nude%'`,
-			sql`${processedGames.name} ilike '%nsfw%'`,
-			sql`${processedGames.name} ilike '%porn%'`,
-			sql`${processedGames.name} ilike '%hentai%'`,
-			sql`${processedGames.name} ilike '%adult%'`,
-			sql`${processedGames.name} ilike '%furry%'`,
-			sql`${processedGames.name} ilike '%slave%'`,
-			sql`${processedGames.shortDescription} ilike '%sex%'`,
-			sql`${processedGames.shortDescription} ilike '%nude%'`,
-			sql`${processedGames.shortDescription} ilike '%nsfw%'`,
-			sql`${processedGames.shortDescription} ilike '%porn%'`,
-			sql`${processedGames.shortDescription} ilike '%hentai%'`,
-			sql`${processedGames.shortDescription} ilike '%adult%'`,
-			sql`${processedGames.shortDescription} ilike '%furry%'`,
-			sql`${processedGames.shortDescription} ilike '%slave%'`,
-		]
-		conditions.push(sql`NOT (${or(...exclusionConditions)})`)
-
-		conditions.push(sql`${processedGames.type} = 'game'`)
-
-		const whereClause = and(...conditions)
-
-		let primaryOrderByClause: SQL
+		const [sortField, sortOrder] = sort.split('-') as [string, 'asc' | 'desc']
+		let orderBy: SQL
 		if (sortField === 'popularity') {
-			primaryOrderByClause = sortOrder === 'asc' ? asc(processedGames.voteCount) : desc(processedGames.voteCount)
+			orderBy = sortOrder === 'asc' ? asc(processedGames.voteCount) : desc(processedGames.voteCount)
 		} else if (sortField === 'name') {
-			primaryOrderByClause = sortOrder === 'asc' ? asc(processedGames.name) : desc(processedGames.name)
+			orderBy = sortOrder === 'asc' ? asc(processedGames.name) : desc(processedGames.name)
 		} else {
-			primaryOrderByClause = sortOrder === 'asc' ? asc(processedGames.releaseDate) : desc(processedGames.releaseDate)
+			orderBy = sortOrder === 'asc' ? asc(processedGames.releaseDate) : desc(processedGames.releaseDate)
 		}
 
-		const query = db
+		const gamesQuery = db
 			.select({
 				id: processedGames.id,
 				steamAppid: processedGames.steamAppid,
@@ -103,19 +150,22 @@ export const getGames = async (searchParams: searchParams, session?: Session | n
 			})
 			.from(processedGames)
 			.leftJoin(gameVotes, and(eq(gameVotes.gameId, processedGames.id), eq(gameVotes.userId, session?.user?.id ?? '')))
-			.where(whereClause)
-			.orderBy(primaryOrderByClause)
+			.where(and(...whereConditions))
+			.orderBy(orderBy)
 			.limit(limit)
 			.offset(offset)
 
-		const games = await query
-
-		const countResult = await db.select({ count: sql<number>`count(*)` }).from(processedGames).where(whereClause)
+		const games = await gamesQuery
+		const countQuery = db
+			.select({ count: sql<number>`cast(count(*) as integer)` })
+			.from(processedGames)
+			.where(and(...whereConditions))
+		const countResult = await countQuery
 		const totalGames = countResult[0].count
 
 		return { games, totalGames }
 	} catch (error) {
-		console.error(error)
+		console.error('Error in getGames:', error)
 		throw error
 	}
 }
