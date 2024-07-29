@@ -8,11 +8,12 @@ import { Input } from '@/components/ui/input'
 import { VoteType } from '@/constants/enums'
 import type { ExtendedGame } from '@/types/db'
 import { useIntersection } from '@mantine/hooks'
-import axios from 'axios'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import axios, { type CancelToken } from 'axios'
 import { ArrowDownUp, ArrowUpDown, Brain, Search, Sparkles } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface GameFeedProps {
 	initGames: ExtendedGame[]
@@ -94,137 +95,142 @@ const CategoryFilters = [
 	{ label: 'Single-player', checked: false },
 ]
 
-export default function GameFeed({ initGames, initTotalGames, searchParamsObj, session }: GameFeedProps) {
+function useDebounce<T>(value: T, delay: number): T {
+	const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedValue(value)
+		}, delay)
+
+		return () => {
+			clearTimeout(handler)
+		}
+	}, [value, delay])
+
+	return debouncedValue
+}
+
+export default function GameFeed({ initGames, initTotalGames, searchParamsObj }: GameFeedProps) {
 	const [selectedGenres, setSelectedGenres] = useState<string[]>(searchParamsObj.genres ? searchParamsObj.genres.split(',') : [])
 	const [selectedCategories, setSelectedCategories] = useState<string[]>(searchParamsObj.categories ? searchParamsObj.categories.split(',') : [])
-	const [searchQuery, setSearchQuery] = useState(searchParamsObj.search)
+	const [searchQuery, setSearchQuery] = useState(searchParamsObj.search || '')
 	const [searchOption, setSearchOption] = useState(searchParamsObj.searchOption || 'smart-text')
 	const [sortOption, setSortOption] = useState(searchParamsObj.sort || 'popularity-desc')
-
-	const [games, setGames] = useState<ExtendedGame[] | null>(initGames)
 	const [totalGames, setTotalGames] = useState(initTotalGames)
-	const [shouldFetchData, setShouldFetchData] = useState(false)
-	const [searchParams, setSearchParams] = useState(searchParamsObj)
-	const hasMounted = useRef(false)
+
+	const debouncedGenres = useDebounce(selectedGenres, 300)
+	const debouncedCategories = useDebounce(selectedCategories, 300)
+	const debouncedSearchQuery = useDebounce(searchQuery, 300)
+	const debouncedSearchOption = useDebounce(searchOption, 300)
+	const debouncedSortOption = useDebounce(sortOption, 300)
 
 	const searchParamsURL = useSearchParams()
 	const pathname = usePathname()
 	const { replace } = useRouter()
+	const queryClient = useQueryClient()
 
-	// ref to the last post and the intersection observer
-	const lastPostRef = useRef<HTMLElement>(null)
+	const lastItemRef = useRef<HTMLDivElement>(null)
 	const { ref, entry } = useIntersection({
-		root: lastPostRef.current,
-		threshold: 0.6,
+		root: lastItemRef.current,
+		threshold: 1,
 	})
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	useEffect(() => {
-		const handler = setTimeout(() => {
-			if (!hasMounted.current) {
-				hasMounted.current = true
-				return
+	const fetchGames = async ({ pageParam = 1 }, cancelToken: CancelToken) => {
+		const { data } = await axios.get('/api/games', {
+			params: {
+				page: pageParam,
+				search: debouncedSearchQuery,
+				searchOption: debouncedSearchOption,
+				genres: debouncedGenres.join(','),
+				categories: debouncedCategories.join(','),
+				sort: debouncedSortOption,
+			},
+			cancelToken,
+		})
+		setTotalGames(data.totalGames)
+		return data
+	}
+
+	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error, refetch } = useInfiniteQuery({
+		queryKey: ['games', debouncedSearchQuery, debouncedSearchOption, debouncedGenres, debouncedCategories, debouncedSortOption],
+		queryFn: ({ pageParam }) => {
+			const source = axios.CancelToken.source()
+			const promise = fetchGames({ pageParam }, source.token)
+			// @ts-ignore
+			promise.cancel = () => {
+				source.cancel('Query was cancelled by React Query')
 			}
+			return promise
+		},
+		getNextPageParam: (lastPage, allPages) => {
+			const nextPage = allPages.length + 1
+			return lastPage.games.length > 0 ? nextPage : undefined
+		},
+		initialPageParam: 1,
+		initialData: {
+			pages: [{ games: initGames, totalGames: initTotalGames }],
+			pageParams: [1],
+		},
+	})
 
-			setGames(null)
-			setShouldFetchData(true)
-
-			setSearchParams((prev) => ({
-				...prev,
-				page: 1,
-				search: searchQuery,
-				searchOption: searchOption,
-				genres: selectedGenres.join(','),
-				categories: selectedCategories.join(','),
-				sort: sortOption,
-			}))
-		}, 300) // debounce the search query
-
+	const updateURLParams = useCallback(() => {
 		const params = new URLSearchParams(searchParamsURL)
 
-		if (selectedGenres.length === 0) {
+		if (debouncedGenres.length === 0) {
 			params.delete('genres')
 		} else {
-			params.set('genres', selectedGenres.join(','))
+			params.set('genres', debouncedGenres.join(','))
 		}
 
-		if (selectedCategories.length === 0) {
+		if (debouncedCategories.length === 0) {
 			params.delete('categories')
 		} else {
-			params.set('categories', selectedCategories.join(','))
+			params.set('categories', debouncedCategories.join(','))
 		}
 
-		if (searchQuery === '') {
+		if (debouncedSearchQuery === '') {
 			params.delete('search')
 		} else {
-			params.set('search', searchQuery)
+			params.set('search', debouncedSearchQuery)
 		}
 
-		params.set('searchOption', searchOption)
-		params.set('sort', sortOption)
+		params.set('searchOption', debouncedSearchOption)
+		params.set('sort', debouncedSortOption)
 
 		replace(`${pathname}?${params.toString()}`)
+	}, [debouncedGenres, debouncedCategories, debouncedSearchQuery, debouncedSearchOption, debouncedSortOption, searchParamsURL, replace, pathname])
 
-		return () => {
-			clearTimeout(handler)
-			setShouldFetchData(false)
-		}
-	}, [selectedGenres, selectedCategories, searchQuery, searchOption, sortOption])
+	useEffect(() => {
+		updateURLParams()
+	}, [updateURLParams])
 
-	// the use effect that handles the intersection logic
 	useEffect(() => {
 		if (entry?.isIntersecting) {
-			setShouldFetchData(true)
-			setSearchParams((prev) => ({ ...prev, page: prev.page + 1 }))
+			fetchNextPage()
 		}
-	}, [entry])
+	}, [entry, fetchNextPage])
 
-	// the use effect that handles the fetching logic
-	useEffect(() => {
-		const getGamesData = async () => {
-			if (shouldFetchData) {
-				const { data } = await axios.get(
-					`/api/games?page=${searchParams.page}&search=${searchParams.search}&searchOption=${searchParams.searchOption}&genres=${searchParams.genres}&categories=${searchParams.categories}&sort=${searchParams.sort}`,
-				)
-
-				if (data.games) {
-					setGames((prevGames) => (prevGames ? [...prevGames, ...data.games] : data.games))
-				}
-
-				setTotalGames(data.totalGames)
-				setShouldFetchData(false)
-			}
-		}
-
-		getGamesData()
-	}, [searchParams, shouldFetchData])
-
-	// the function that handles the genre checkbox changes
 	const handleGenreCheckboxChange = (genre: string) => {
-		const isAlreadySelected = selectedGenres.includes(genre)
-		const updatedGenres = isAlreadySelected ? selectedGenres.filter((g) => g !== genre) : [...selectedGenres, genre]
-		setSelectedGenres(updatedGenres)
+		setSelectedGenres((prev) => (prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]))
 	}
 
-	// the function that handles the categories checkbox changes
 	const handleCategoryCheckboxChange = (category: string) => {
-		const isAlreadySelected = selectedCategories.includes(category)
-		const updatedCategories = isAlreadySelected ? selectedCategories.filter((c) => c !== category) : [...selectedCategories, category]
-		setSelectedCategories(updatedCategories)
+		setSelectedCategories((prev) => (prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]))
 	}
 
-	// the function that handles the sort option changes
 	const handleSortChange = (option: string) => {
 		if (option === sortOption) return
 		setSortOption(option)
 	}
 
-	// handles the search option changes
 	const handleSearchOptionChange = (option: string) => {
 		setSearchOption(option)
 	}
 
-	// console.log(games)
+	const handleSearchQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchQuery(event.target.value)
+	}
 
 	return (
 		<div className='mx-auto min-h-[90vh] p-4 lg:px-16 lg:py-6'>
@@ -274,7 +280,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 				</aside>
 				<div className='col-span-1 lg:col-span-3 xl:col-span-5'>
 					<div className='mb-6 flex flex-wrap items-center justify-between gap-2 lg:gap-0'>
-						<h1 className='text-3xl font-bold'>Games ({totalGames})</h1>
+						<h1 className='text-3xl font-bold'>Games {totalGames}</h1>
 
 						<div className='flex flex-wrap gap-3 lg:flex-nowrap'>
 							<div className='flex items-center space-x-4'>
@@ -283,7 +289,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 									placeholder='Search games...'
 									type='search'
 									value={searchQuery}
-									onChange={(e) => setSearchQuery(e.target.value)}
+									onChange={handleSearchQueryChange}
 								/>
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
@@ -342,14 +348,24 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 					</div>
 
 					<div className='grid auto-rows-fr grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
-						{games?.map((game, index) => {
-							if (index === games.length - 1) {
-								return <GameCard key={game.id} votesAmt={game.voteCount} currentVote={game.voteType} ref={ref} game={game} />
-							}
+						{status === 'success' &&
+							data.pages
+								.flatMap((page) => page.games)
+								.map((game: ExtendedGame, index: number) => {
+									if (index === data.pages.flatMap((page) => page.games).length - 1) {
+										return <GameCard key={game.id} votesAmt={game.voteCount} currentVote={game.voteType} ref={ref} game={game} />
+									}
 
-							return <GameCard key={game.id} votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
-						})}
+									return <GameCard key={game.id} votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
+								})}
 					</div>
+					{isFetchingNextPage && (
+						<div className='flex justify-center items-center h-32'>
+							<div className='animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-white' />
+						</div>
+					)}
+					{!hasNextPage && status === 'success' && <div className='text-center py-4 text-gray-600'>No more games to load</div>}
+					{status === 'error' && <div className='text-center py-4 text-red-600'>Error: {(error as Error).message}</div>}
 				</div>
 			</div>
 		</div>
