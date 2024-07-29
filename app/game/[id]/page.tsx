@@ -27,7 +27,8 @@ export const fetchCache = 'force-no-store'
 
 export default async function Page({ params: { id } }: PageProps) {
 	const redis = await getRedisClient()
-	const cachedGame = JSON.parse((await redis.get(`game:${id}`)) ?? '') as CachedGame
+	const rawCachedGame = await redis.get(`game:${id}`)
+	const cachedGame = rawCachedGame ? (JSON.parse(rawCachedGame) as CachedGame) : null
 
 	let game: GameView | null = null
 

@@ -39,9 +39,9 @@ export const getGames = async (searchParams: searchParams, session?: Session | n
 		if (search) {
 			conditions.push(
 				sql`(
-          setweight(to_tsvector('english', ${processedGames.name}), 'A') ||
-          setweight(to_tsvector('english', ${processedGames.shortDescription}), 'B')
-        ) @@ plainto_tsquery('english', ${search})`,
+                    setweight(to_tsvector('english', ${processedGames.name}), 'A') ||
+                    setweight(to_tsvector('english', ${processedGames.shortDescription}), 'B')
+                ) @@ plainto_tsquery('english', ${search})`,
 			)
 		}
 
