@@ -58,13 +58,13 @@ export default async function Page({ params: { id } }: PageProps) {
 								alt='Game banner'
 								className='object-fit h-64 w-full'
 								height='400'
-								src={game?.headerImage ?? cachedGame.headerImage}
+								src={cachedGame?.headerImage ?? game?.headerImage ?? ''}
 								width='400'
 							/>
 						</div>
 						<div className='space-y-2'>
-							<h1 className='text-4xl font-bold'>{game?.name ?? cachedGame.name}</h1>
-							<p className='text-gray-500 dark:text-gray-400'>{game?.shortDescription ?? cachedGame.shortDescription}</p>
+							<h1 className='text-4xl font-bold'>{cachedGame?.name ?? game?.name}</h1>
+							<p className='text-gray-500 dark:text-gray-4000'>{cachedGame?.shortDescription ?? game?.shortDescription}</p>
 						</div>
 						<div className='gap-2'>
 							<h2 className='text-xl font-bold'>Genres</h2>
@@ -110,11 +110,11 @@ export default async function Page({ params: { id } }: PageProps) {
 							</div>
 							<div className='flex items-center gap-2'>
 								<ShieldIcon className='h-5 w-5 text-gray-500 dark:text-gray-400' />
-								<span>Rated {game?.requiredAge ?? cachedGame.requiredAge}+</span>
+								<span>Rated {cachedGame?.requiredAge ?? game?.requiredAge}+</span>
 							</div>
 							<div className='flex items-center gap-2'>
 								<DollarSignIcon className='h-5 w-5 text-gray-500 dark:text-gray-400' />
-								<span>{game?.isFree ?? cachedGame.isFree ? 'Free to Play' : 'Paid'}</span>
+								<span>{cachedGame?.isFree ?? game?.isFree ? 'Free to Play' : 'Paid'}</span>
 							</div>
 						</div>
 						<div className='flex items-center gap-4'>
@@ -136,7 +136,7 @@ export default async function Page({ params: { id } }: PageProps) {
 						<div className='flex items-center justify-between'>
 							<Link
 								className='inline-flex items-center rounded-full bg-gray-100 px-3 py-2 text-sm font-medium text-gray-800'
-								href={`https://store.steampowered.com/app/${game?.steamAppid ?? cachedGame.steamAppId}`}
+								href={`https://store.steampowered.com/app/${cachedGame?.steamAppId ?? game?.steamAppid}`}
 								rel='noopener noreferrer'
 								target='_blank'
 							>
