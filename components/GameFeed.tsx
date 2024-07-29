@@ -5,10 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { VoteType } from '@/constants/enums'
 import type { ExtendedGame } from '@/types/db'
 import { useIntersection } from '@mantine/hooks'
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import axios, { type CancelToken } from 'axios'
 import { ArrowDownUp, ArrowUpDown, Brain, Search, Sparkles } from 'lucide-react'
 import type { Session } from 'next-auth'
@@ -128,7 +127,6 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj }:
 	const searchParamsURL = useSearchParams()
 	const pathname = usePathname()
 	const { replace } = useRouter()
-	const queryClient = useQueryClient()
 
 	const lastItemRef = useRef<HTMLDivElement>(null)
 	const { ref, entry } = useIntersection({
