@@ -121,29 +121,18 @@ export const processedGames = pgTable(
 		additionalData: text('additional_data'),
 	},
 	(table) => ({
-		nameIdx: index('name_idx').on(table.name),
-		typeIdx: index('type_idx').on(table.type),
-		isFreeIdx: index('is_free_idx').on(table.isFree),
-		voteCountIdx: index('vote_count_idx').on(table.voteCount),
-		genresIdx: index('genres_idx').on(table.genres),
-		categoriesIdx: index('categories_idx').on(table.categories),
-		releaseDateIdx: index('release_date_idx').on(table.releaseDate),
 		steamAppIdIdx: uniqueIndex('steam_appid_idx').on(table.steamAppid),
-		typeVoteCountIdIdx: index('type_vote_count_id_idx').on(table.type, table.voteCount, table.id),
-		isFreeTypeVoteCountIdx: index('is_free_type_vote_count_idx').on(table.isFree, table.type, table.voteCount),
-		requiredAgeTypeVoteCountIdx: index('required_age_type_vote_count_idx').on(table.requiredAge, table.type, table.voteCount),
+		mainQueryIdx: index('main_query_idx').on(table.type, table.voteCount, table.name, table.releaseDate),
+		genreCategoryIdx: index('genre_category_idx').on(table.genres, table.categories),
 		searchVectorIdx: index('search_vector_idx').using(
 			'gin',
 			sql`(
-              setweight(to_tsvector('english', ${table.name}), 'A') ||
-              setweight(to_tsvector('english', ${table.shortDescription}), 'B')
+                setweight(to_tsvector('english', ${table.name}), 'A') ||
+                setweight(to_tsvector('english', ${table.shortDescription}), 'B')
             )`,
 		),
-
-		typeNameIdx: index('type_name_idx').on(table.type, table.name),
-		typeShortDescriptionIdx: index('type_short_description_idx').on(table.type, table.shortDescription),
-		createdAtTypeVoteCountIdx: index('created_at_type_vote_count_idx').on(table.createdAt, table.type, table.voteCount),
-		updatedAtTypeVoteCountIdx: index('updated_at_type_vote_count_idx').on(table.updatedAt, table.type, table.voteCount),
+		releaseDateIdx: index('release_date_idx').on(table.releaseDate),
+		nameIdx: index('name_idx').on(table.name),
 	}),
 )
 
