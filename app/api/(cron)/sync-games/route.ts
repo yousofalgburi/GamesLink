@@ -1,4 +1,4 @@
-import { db } from '@/lib/db'
+import { db } from '@/prisma/db'
 import type { Game } from '@prisma/client'
 
 export async function POST(req, res) {

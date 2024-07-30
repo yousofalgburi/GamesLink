@@ -4,9 +4,9 @@ import { BadgeInfo } from 'lucide-react'
 import HiddenAuth from './HiddenAuth'
 import { auth } from '@/auth'
 import GameCarousel from './GameCarousel'
-import { db } from '@/lib/db/index'
+import { db } from '@/db'
 import { eq, sql } from 'drizzle-orm'
-import { processedGames } from '@/lib/db/schema'
+import { processedGames } from '@/db/schema'
 
 export default async function SimilarGames({ gameId }: { gameId: string }) {
 	const session = await auth()

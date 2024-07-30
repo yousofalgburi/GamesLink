@@ -1,5 +1,5 @@
 import { auth } from '@/auth'
-import { db } from '@/lib/db'
+import { db } from '@/prisma/db'
 import { z } from 'zod'
 
 export async function POST(req: Request) {

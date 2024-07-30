@@ -1,5 +1,5 @@
 import { auth } from '@/auth'
-import { db } from '@/lib/db'
+import { db } from '@/prisma/db'
 import type { Comment, CommentVote, User } from '@prisma/client'
 import CreateComment from './CreateComment'
 import GameComment from './comments/GameComment'

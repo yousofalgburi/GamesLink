@@ -1,4 +1,4 @@
-import { db } from '@/lib/db'
+import { db } from '@/prisma/db'
 import type { ExtendedGame } from '@/types/db'
 import { z } from 'zod'
 

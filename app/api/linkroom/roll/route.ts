@@ -1,4 +1,4 @@
-import { db } from '@/lib/db'
+import { db } from '@/prisma/db'
 import { roomEventValidator } from '@/lib/validators/linkroom/events'
 import { z } from 'zod'
 

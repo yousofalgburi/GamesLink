@@ -1,5 +1,5 @@
 import { auth } from '@/auth'
-import { db } from '@/lib/db'
+import { db } from '@/prisma/db'
 import { LinkRoomValidator } from '@/lib/validators/linkroom/linkroom'
 import { z } from 'zod'
 

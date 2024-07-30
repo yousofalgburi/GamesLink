@@ -1,6 +1,6 @@
 import { VoteType } from '@/constants/enums'
 import { auth } from '@/auth'
-import { db } from '@/lib/db'
+import { db } from '@/prisma/db'
 import { CommentVoteValidator } from '@/lib/validators/vote'
 import { z } from 'zod'
 

@@ -1,7 +1,7 @@
 import HiddenAuth from '@/components/HiddenAuth'
 import LinkRoom from '@/components/link-room/LinkRoom'
 import { auth } from '@/auth'
-import { db } from '@/lib/db'
+import { db } from '@/prisma/db'
 import { notFound, redirect } from 'next/navigation'
 
 export const metadata = {

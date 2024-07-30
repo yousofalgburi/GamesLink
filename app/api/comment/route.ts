@@ -1,4 +1,4 @@
-import { db } from '@/lib/db'
+import { db } from '@/prisma/db'
 import { CommentValidator } from '@/lib/validators/comment'
 import { z } from 'zod'
 import words from 'profane-words'

@@ -1,4 +1,4 @@
-import { db } from '@/lib/db'
+import { db } from '@/prisma/db'
 import axios from 'axios'
 
 export const maxDuration = 25
