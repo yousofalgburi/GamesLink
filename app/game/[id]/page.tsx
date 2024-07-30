@@ -51,7 +51,7 @@ export default async function Page({ params: { id } }: PageProps) {
 			</Link>
 
 			<div className='flex flex-col gap-8 lg:flex-row'>
-				<div className='w-full max-w-[600px]'>
+				<div className='w-full max-w-[575px]'>
 					<div className='grid gap-6'>
 						<div className='overflow-hidden rounded-lg'>
 							<Image
