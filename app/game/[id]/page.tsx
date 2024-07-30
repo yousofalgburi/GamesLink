@@ -181,6 +181,7 @@ export default async function Page({ params: { id } }: PageProps) {
 
 			<div className='mt-8 w-full'>
 				<Suspense fallback={<div>Loading similar games...</div>}>
+					{/* @ts-expect-error Server Component */}
 					<SimilarGames gameId={id} />
 				</Suspense>
 			</div>

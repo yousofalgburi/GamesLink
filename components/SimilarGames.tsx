@@ -1,63 +1,88 @@
-'use client'
-
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import type { ExtendedGame } from '@/types/db'
-import { useMutation } from '@tanstack/react-query'
-import axios, { AxiosError } from 'axios'
-import { BadgeInfo, Loader2 } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import GameCard from './GameCard'
-import { toast } from './ui/use-toast'
+import { BadgeInfo } from 'lucide-react'
 import HiddenAuth from './HiddenAuth'
-import { VoteType } from '@/constants/enums'
+import { auth } from '@/auth'
+import GameCarousel from './GameCarousel'
+import { db } from '@/lib/db/index'
+import { eq, sql } from 'drizzle-orm'
+import { processedGames } from '@/lib/db/schema'
 
-export default function SimilarGames({ gameId }: { gameId: string }) {
-	const [fetchOnce, setFetchOnce] = useState(false)
-	const { data: session } = useSession()
-	const router = useRouter()
+export default async function SimilarGames({ gameId }: { gameId: string }) {
+	const session = await auth()
 
-	const {
-		data: games,
-		mutate: fetchSimilarGames,
-		isPending: isLoading,
-	} = useMutation({
-		mutationFn: async () => {
-			const payload = { gameId }
+	const givenGame = await db
+		.select({
+			genres: processedGames.genres,
+			categories: processedGames.categories,
+		})
+		.from(processedGames)
+		.where(eq(processedGames.steamAppid, Number(gameId)))
+		.limit(1)
 
-			const { data } = await axios.post('/api/games/similar', payload)
-			return data.similarGames as ExtendedGame[]
-		},
-		onError: (err) => {
-			if (err instanceof AxiosError) {
-				if (err.response?.status === 401) {
-					return toast({
-						title: 'Authentication required.',
-						description: 'Please sign in to see similar games.',
-						variant: 'destructive',
-					})
-				}
-			}
+	if (!givenGame[0]) {
+		return new Response(JSON.stringify({ error: 'Game not found' }), { status: 404 })
+	}
 
-			return toast({
-				title: 'Something went wrong.',
-				description: 'Similar games not loaded successfully. Please try again.',
-				variant: 'destructive',
-			})
-		},
-		onSuccess: () => {
-			router.refresh()
-		},
-	})
+	const givenGameGenres = givenGame[0].genres || []
+	const givenGameCategories = givenGame[0].categories || []
 
-	useEffect(() => {
-		if (!fetchOnce && gameId) {
-			fetchSimilarGames()
-			setFetchOnce(true)
-		}
-	}, [fetchSimilarGames, fetchOnce, gameId])
+	const similarGames = await db.execute(
+		sql`
+            SELECT 
+                id,
+                steam_appid AS "steamAppid",
+                name,
+                short_description AS "shortDescription",
+                header_image AS "headerImage",
+                required_age AS "requiredAge",
+                is_free AS "isFree",
+                release_date AS "releaseDate",
+                developers,
+                categories,
+                genres,
+                vote_count AS "voteCount",
+                (
+                SELECT COUNT(*) 
+                FROM unnest(genres) AS genre
+                WHERE genre = ANY(${sql.join([
+					sql`ARRAY[${sql.join(
+						givenGameGenres.map((genre) => sql`${genre}`),
+						sql`,`,
+					)}]`,
+				])})
+                ) +
+                (
+                SELECT COUNT(*)
+                FROM unnest(categories) AS category  
+                WHERE category = ANY(${sql.join([
+					sql`ARRAY[${sql.join(
+						givenGameCategories.map((category) => sql`${category}`),
+						sql`,`,
+					)}]`,
+				])})
+                ) AS score
+            FROM processed_games
+            WHERE steam_appid != ${gameId}
+            ORDER BY score DESC
+            LIMIT 10
+        `,
+	)
+
+	const games = similarGames.map((game) => ({
+		id: game.id as number,
+		steamAppid: game.steamAppid as number | null,
+		name: game.name as string,
+		shortDescription: game.shortDescription as string,
+		headerImage: game.headerImage as string,
+		requiredAge: game.requiredAge as number,
+		isFree: game.isFree as boolean,
+		releaseDate: game.releaseDate as Date | null,
+		developers: game.developers as string[],
+		categories: game.categories as string[],
+		genres: game.genres as string[],
+		voteCount: game.voteCount as number,
+	})) as ExtendedGame[]
 
 	return (
 		<>
@@ -85,30 +110,7 @@ export default function SimilarGames({ gameId }: { gameId: string }) {
 				</div>
 			</div>
 
-			{session?.user ? (
-				<Carousel
-					opts={{
-						align: 'start',
-					}}
-					className='w-full'
-				>
-					<CarouselContent className={`${isLoading ? 'flex items-center justify-center' : ''}`}>
-						{isLoading && <Loader2 className='animate-spin' />}
-
-						{games?.map((game) => {
-							return (
-								<CarouselItem key={game.id} className='md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5'>
-									<GameCard className='h-[40rem]' key={game.id} votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
-								</CarouselItem>
-							)
-						})}
-					</CarouselContent>
-					<CarouselPrevious className={`${isLoading ? 'hidden' : ''}`} />
-					<CarouselNext className={`${isLoading ? 'hidden' : ''}`} />
-				</Carousel>
-			) : (
-				<HiddenAuth message='to see similar games.' />
-			)}
+			{session?.user ? <GameCarousel games={games} /> : <HiddenAuth message='to see similar games.' />}
 		</>
 	)
 }
