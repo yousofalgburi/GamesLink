@@ -5,13 +5,19 @@ import { Toaster as SonnerToaster } from '@/components/ui/sonner'
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
 import type { Metadata } from 'next'
-import { Inter as FontSans } from 'next/font/google'
+import { Manrope } from 'next/font/google'
 import './globals.css'
-import { auth } from '@/auth'
 
-export const fontSans = FontSans({
+const fontHeading = Manrope({
 	subsets: ['latin'],
-	variable: '--font-sans',
+	display: 'swap',
+	variable: '--font-heading',
+})
+
+const fontBody = Manrope({
+	subsets: ['latin'],
+	display: 'swap',
+	variable: '--font-body',
 })
 
 export const metadata: Metadata = {
@@ -22,7 +28,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang='en' suppressHydrationWarning>
-			<body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
+			<body className={cn('min-h-screen bg-background font-sans antialiased', fontHeading.variable, fontBody.variable)}>
 				<Providers>
 					<main className='flex flex-1 flex-col'>
 						<Navbar />

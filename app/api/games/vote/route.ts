@@ -1,8 +1,8 @@
 import { auth } from '@/auth'
-import { db } from '@/lib/db/index'
+import { db } from '@/db'
 import { GameVoteValidator } from '@/lib/validators/vote'
 import type { CachedGame } from '@/types/redis'
-import { gameVotes, processedGames } from '@/lib/db/schema'
+import { gameVotes, processedGames } from '@/db/schema'
 import { and, eq } from 'drizzle-orm'
 import { getRedisClient } from '@/lib/redis'
 

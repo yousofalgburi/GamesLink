@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { auth } from '@/auth'
-import { getGames } from '@/lib/db/queries/getGames'
+import { getGames } from '@/db/queries/getGames'
 
 export async function GET(req: Request) {
 	const url = new URL(req.url)

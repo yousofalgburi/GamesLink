@@ -1,8 +1,8 @@
-import { db } from '@/lib/db/index'
+import { db } from '@/db'
 import { nanoid } from 'nanoid'
 import { DrizzleAdapter } from '@auth/drizzle-adapter'
 import { eq } from 'drizzle-orm'
-import { users } from './lib/db/schema'
+import { users } from './db/schema'
 import NextAuth from 'next-auth'
 import google from 'next-auth/providers/google'
 

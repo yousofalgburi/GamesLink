@@ -1,9 +1,7 @@
 import GameFeed from '@/components/GameFeed'
 import { auth } from '@/auth'
-import type { ExtendedGame } from '@/types/db'
-import axios from 'axios'
 import { z } from 'zod'
-import { getGames } from '@/lib/db/queries/getGames'
+import { getGames } from '@/db/queries/getGames'
 
 export default async function Page({
 	searchParams,

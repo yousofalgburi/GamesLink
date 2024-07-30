@@ -1,8 +1,8 @@
 import { sql, and, or, desc, asc, type SQL, arrayContains, eq, ilike } from 'drizzle-orm'
-import { gameVotes, processedGames } from '@/lib/db/schema'
+import { gameVotes, processedGames } from '@/db/schema'
 import { INFINITE_SCROLL_PAGINATION_RESULTS } from '@/config'
 import { z } from 'zod'
-import { db } from '@/lib/db/index'
+import { db } from '@/db'
 import type { Session } from 'next-auth'
 
 interface searchParams {
