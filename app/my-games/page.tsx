@@ -1,37 +1,37 @@
 import GameCard from '@/components/GameCard'
 import RecommendedGames from '@/components/RecommendedGames'
-import { VoteType } from '@/constants/enums'
 import { auth } from '@/auth'
 import type { ExtendedGame } from '@/types/db'
+import { db } from '@/db'
+import { gameVotes, processedGames } from '@/db/schema'
+import { and, desc, eq } from 'drizzle-orm'
 
 export default async function Page() {
 	const session = await auth()
-	const games: ExtendedGame[] = []
+	let games: ExtendedGame[] = []
 
-	// // Check user logged in
-	// if (session?.user) {
-	// 	games = (await db.steamGame.findMany({
-	// 		where: {
-	// 			votes: {
-	// 				some: {
-	// 					userId: session.user.id,
-	// 				},
-	// 			},
-	// 		},
-	// 		include: {
-	// 			votes: {
-	// 				where: {
-	// 					userId: session.user.id,
-	// 				},
-	// 			},
-	// 		},
-	// 		orderBy: {
-	// 			voteCount: 'desc',
-	// 		},
-	// 	})) as ExtendedGame[]
-	// } else {
-	// 	games = []
-	// }
+	if (session?.user) {
+		games = (await db
+			.select({
+				id: processedGames.id,
+				steamAppid: processedGames.steamAppid,
+				name: processedGames.name,
+				shortDescription: processedGames.shortDescription ?? '',
+				headerImage: processedGames.headerImage,
+				requiredAge: processedGames.requiredAge,
+				isFree: processedGames.isFree,
+				releaseDate: processedGames.releaseDate,
+				developers: processedGames.developers,
+				genres: processedGames.genres,
+				categories: processedGames.categories,
+				voteCount: processedGames.voteCount,
+				voteType: gameVotes.voteType,
+			})
+			.from(processedGames)
+			.leftJoin(gameVotes, and(eq(gameVotes.gameId, processedGames.id), eq(gameVotes.userId, session.user.id)))
+			.where(eq(gameVotes.userId, session.user.id))
+			.orderBy(desc(processedGames.voteCount))) as ExtendedGame[]
+	}
 
 	return (
 		<div className='mx-auto flex min-h-[90vh] flex-col gap-10 px-16 py-6'>

@@ -1,59 +1,18 @@
-'use client'
-
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import type { ExtendedGame } from '@/types/db'
-import { useMutation } from '@tanstack/react-query'
-import axios, { AxiosError } from 'axios'
-import { BadgeInfo, Loader2 } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { BadgeInfo } from 'lucide-react'
+import { auth } from '@/auth'
 import GameCard from './GameCard'
-import { Button } from './ui/button'
-import { toast } from './ui/use-toast'
 import HiddenAuth from './HiddenAuth'
-import { VoteType } from '@/constants/enums'
+import { getRecommendedGames } from '@/db/queries/getRecommendedGames'
 
-export default function RecommendedGames() {
-	const [fetchOnce, setFetchOnce] = useState(false)
-	const { data: session } = useSession()
-	const router = useRouter()
-
-	const {
-		data: games,
-		mutate: recommended,
-		isPending: isLoading,
-	} = useMutation({
-		mutationFn: async () => {
-			const payload = { userId: session?.user.id }
-
-			const { data } = await axios.post('/api/games/recommended', payload)
-			return data.recommendedGames as ExtendedGame[]
-		},
-		onError: (err) => {
-			if (err instanceof AxiosError) {
-				if (err.response?.status === 401) {
-				}
-			}
-
-			return toast({
-				title: 'Something went wrong.',
-				description: 'Recommended games not loaded successfully. Please try again.',
-				variant: 'destructive',
-			})
-		},
-		onSuccess: () => {
-			router.refresh()
-		},
-	})
-
-	useEffect(() => {
-		if (!fetchOnce && session?.user) {
-			recommended()
-			setFetchOnce(true)
-		}
-	}, [recommended, fetchOnce, session])
+export default async function RecommendedGames() {
+	const session = await auth()
+	let games: ExtendedGame[] = []
+	if (session?.user) {
+		games = await getRecommendedGames(session.user.id)
+	}
 
 	return (
 		<>
@@ -73,18 +32,13 @@ export default function RecommendedGames() {
 
 								<p>
 									The recommendations are based on games you have liked/disliked. It is strongly recommended to like/dislike as many
-									games before hitting refresh. These recommendations do not take into account your friends{"'"} likes/dislikes.
+									games as possible to improve recommendations. These recommendations do not take into account your friends'
+									likes/dislikes.
 								</p>
 							</DialogContent>
 						</Dialog>
 					)}
 				</div>
-
-				{session?.user && (
-					<Button isLoading={isLoading} onClick={() => recommended()}>
-						Refresh Games
-					</Button>
-				)}
 			</div>
 
 			{session?.user ? (
@@ -94,19 +48,15 @@ export default function RecommendedGames() {
 					}}
 					className='w-full'
 				>
-					<CarouselContent className={`${isLoading ? 'flex items-center justify-center' : ''}`}>
-						{isLoading && <Loader2 className='animate-spin' />}
-
-						{games?.map((game) => {
-							return (
-								<CarouselItem key={game.id} className='md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5'>
-									<GameCard className='h-[40rem]' key={game.id} votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
-								</CarouselItem>
-							)
-						})}
+					<CarouselContent>
+						{games.map((game) => (
+							<CarouselItem key={game.id} className='md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5'>
+								<GameCard className='h-[40rem]' votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
+							</CarouselItem>
+						))}
 					</CarouselContent>
-					<CarouselPrevious className={`${isLoading ? 'hidden' : ''}`} />
-					<CarouselNext className={`${isLoading ? 'hidden' : ''}`} />
+					<CarouselPrevious />
+					<CarouselNext />
 				</Carousel>
 			) : (
 				<HiddenAuth message='to see games you have interacted with and get recommendations.' />
