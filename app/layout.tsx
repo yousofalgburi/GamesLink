@@ -27,14 +27,12 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang='en' suppressHydrationWarning>
-			<body className={cn('min-h-screen bg-background font-sans antialiased', fontHeading.variable, fontBody.variable)}>
+		<html lang='en'>
+			<body className={cn('antialiased', fontHeading.variable, fontBody.variable)}>
 				<Providers>
-					<main className='flex flex-1 flex-col'>
-						<Navbar />
-						<div className='min-h-[85vh]'>{children}</div>
-						<Footer />
-					</main>
+					<Navbar />
+					<div className='min-h-[85vh]'>{children}</div>
+					<Footer />
 				</Providers>
 				<Toaster />
 				<SonnerToaster />
