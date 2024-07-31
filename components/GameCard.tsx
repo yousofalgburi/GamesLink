@@ -38,20 +38,10 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 
 					{game.genres.length && (
 						<div className='flex flex-wrap items-center gap-1 pt-3'>
-							<label className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
-								Genres:
-							</label>
 							{game.genres.map((genre) => (
 								<Badge key={genre}>{genre}</Badge>
 							))}
-						</div>
-					)}
 
-					{game.categories.length && (
-						<div className='flex max-h-24 flex-wrap items-center gap-1 overflow-y-auto pt-3'>
-							<label className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
-								Categories:
-							</label>
 							{game.categories.map((category) => (
 								<Badge key={category}>{category}</Badge>
 							))}
