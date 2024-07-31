@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import { db } from '@/prisma/db'
-import { roomEventValidator } from '@/lib/validators/linkroom/events'
+import { roomEventValidator } from '@/lib/validators/linkroom'
 import type { ExtendedGame } from '@/types/db'
 import type { User } from '@prisma/client'
 import { z } from 'zod'

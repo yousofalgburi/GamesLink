@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import { db } from '@/prisma/db'
-import { roomAccessValidator } from '@/lib/validators/linkroom/events/access'
+import { roomAccessValidator } from '@/lib/validators/linkroom'
 import { z } from 'zod'
 
 export async function PATCH(req: Request) {

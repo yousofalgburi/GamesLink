@@ -1,5 +1,5 @@
 import { db } from '@/prisma/db'
-import { roomEventValidator } from '@/lib/validators/linkroom/events'
+import { roomEventValidator } from '@/lib/validators/linkroom'
 import { z } from 'zod'
 
 export async function GET(req: Request) {
