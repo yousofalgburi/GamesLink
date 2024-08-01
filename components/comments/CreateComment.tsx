@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { toast } from './ui/use-toast'
+import { toast } from '../ui/use-toast'
 import type { CommentRequest } from '@/lib/validators/comment'
 import { useCustomToasts } from '@/hooks/use-custom-toasts'
 import { useMutation } from '@tanstack/react-query'

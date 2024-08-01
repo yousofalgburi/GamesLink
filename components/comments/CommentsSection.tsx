@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import CreateComment from './CreateComment'
-import GameComment from './comments/GameComment'
+import GameComment from './GameComment'
 import type { VoteType } from '@/constants/enums'
 import { comments as commentsTable, commentVotes, users } from '@/db/schema'
 import { db } from '@/db'

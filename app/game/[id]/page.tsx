@@ -1,4 +1,4 @@
-import CommentsSection from '@/components/CommentsSection'
+import CommentsSection from '@/components/comments/CommentsSection'
 import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'

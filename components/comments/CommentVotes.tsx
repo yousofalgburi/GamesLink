@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { toast } from './ui/use-toast'
+import { toast } from '../ui/use-toast'
 import { useCustomToasts } from '@/hooks/use-custom-toasts'
 import { cn } from '@/lib/utils'
 import type { CommentVoteRequest } from '@/lib/validators/vote'
