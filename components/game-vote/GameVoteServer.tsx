@@ -1,37 +1,44 @@
 import { auth } from '@/auth'
-import type { ProcessedGame, Vote } from '@prisma/client'
 import { notFound } from 'next/navigation'
 import GameVoteClient from './GameVoteClient'
 import type { VoteType } from '@/constants/enums'
+import type { ExtendedGame } from '@/types/db'
+import { db } from '@/db'
+import { gameVotes, processedGames } from '@/db/schema'
+import { and, eq } from 'drizzle-orm'
 
 interface GameVoteServerProps {
 	gameId: string
 	initialVotesAmt?: number
 	initialVote?: VoteType | null
-	getData?: () => Promise<(ProcessedGame & { votes: Vote[] }) | null>
+	getData?: () => Promise<ExtendedGame | null>
 }
 
-const GameVoteServer = async ({ gameId, initialVotesAmt, initialVote, getData }: GameVoteServerProps) => {
+const GameVoteServer = async ({ gameId }: GameVoteServerProps) => {
 	const session = await auth()
 
-	let _votesAmt = 0
-	let _currentVote: VoteType | null | undefined = undefined
+	const [game] = (await db
+		.select({
+			id: processedGames.id,
+			steamAppid: processedGames.steamAppid,
+			name: processedGames.name,
+			shortDescription: processedGames.shortDescription ?? '',
+			headerImage: processedGames.headerImage,
+			requiredAge: processedGames.requiredAge,
+			isFree: processedGames.isFree,
+			releaseDate: processedGames.releaseDate,
+			developers: processedGames.developers,
+			genres: processedGames.genres,
+			categories: processedGames.categories,
+			voteCount: processedGames.voteCount,
+			voteType: gameVotes.voteType,
+		})
+		.from(processedGames)
+		.leftJoin(gameVotes, eq(processedGames.id, gameVotes.gameId))
+		.where(and(eq(processedGames.steamAppid, Number(gameId)), eq(gameVotes.userId, session?.user?.id ?? '')))) as ExtendedGame[]
 
-	if (getData) {
-		const post = await getData()
-		if (!post) return notFound()
-
-		_votesAmt = post.votes.reduce((acc, vote) => {
-			if (vote.type === 'UP') return acc + 1
-			if (vote.type === 'DOWN') return acc - 1
-			return acc
-		}, 0)
-
-		_currentVote = post.votes.find((vote) => vote.userId === session?.user?.id)?.type as VoteType
-	} else {
-		_votesAmt = initialVotesAmt ?? 0
-		_currentVote = initialVote
-	}
+	const _votesAmt = game.voteCount
+	const _currentVote = game.voteType
 
 	return <GameVoteClient gameId={gameId} initialVotesAmt={_votesAmt} initialVote={_currentVote} />
 }

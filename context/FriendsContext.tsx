@@ -1,7 +1,5 @@
 import { type PropsWithChildren, createContext, useState } from 'react'
 
-// TODO: turn into a web socket real time
-
 type FriendsContextType = {
 	friends: { name: string; image: string }[]
 	setFriends: React.Dispatch<React.SetStateAction<{ name: string; image: string }[]>>

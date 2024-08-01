@@ -1,6 +1,5 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import type { Vote } from '@prisma/client'
 import Link from 'next/link'
 import { type Ref, forwardRef } from 'react'
 import GamePostVoteClient from './game-vote/GameVoteClient'

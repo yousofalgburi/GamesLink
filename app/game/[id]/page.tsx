@@ -15,6 +15,8 @@ import { processedGames } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { getRedisClient } from '@/lib/redis'
 import type { GameView } from '@/types/db'
+import GameVoteShell from '@/components/game-vote/GameVoteShell'
+import GameVoteServer from '@/components/game-vote/GameVoteServer'
 
 interface PageProps {
 	params: {
@@ -143,26 +145,9 @@ export default async function Page({ params: { id } }: PageProps) {
 								<ExternalLinkIcon className='mr-2 h-5 w-5 text-gray-500 dark:text-gray-400' />
 								View on Steam
 							</Link>
-							{/* <Suspense fallback={<GameVoteShell />}>
-								<GameVoteServer
-									gameId={id}
-									getData={async () => {
-										const game = await db.processedGame.findFirst({
-											where: {
-												id: Number(id),
-											},
-										})
-
-										const gameInteraction = await db.gameInteraction.findUnique({
-											where: {
-												appId: game?.appId ?? '',
-											},
-										})
-
-										return { game, gameInteraction }
-									}}
-								/>
-							</Suspense> */}
+							<Suspense fallback={<GameVoteShell />}>
+								<GameVoteServer gameId={id} />
+							</Suspense>
 						</div>
 					</div>
 				</div>

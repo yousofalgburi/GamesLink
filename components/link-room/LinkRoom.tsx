@@ -5,11 +5,12 @@ import { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { useToast } from '../ui/use-toast'
-import type { Room, User } from '@prisma/client'
 import type { UserInRoom } from '@/types/linkroom'
 import LinkRoomPlayers from './LinkRoomPlayers'
 import LowPlayersAvatar from '../LowPlayersAvatar'
 import LinkRoomHeader from './LinkRoomHeader'
+import type { InferSelectModel } from 'drizzle-orm'
+import type { rooms, users } from '@/db/schema'
 
 export default function LinkRoom({
 	roomId,
@@ -20,12 +21,12 @@ export default function LinkRoom({
 	roomId: string
 	userId: string
 	roomUsers: UserInRoom[]
-	roomDetails: Room
+	roomDetails: InferSelectModel<typeof rooms>
 }) {
 	const { toast } = useToast()
 	const [usersInRoom, setUsersInRoom] = useState<UserInRoom[]>(roomUsers)
 	const [userLowGameCount, setUserLowGameCount] = useState(false)
-	const [waitList, setWaitList] = useState<User[]>([])
+	const [waitList, setWaitList] = useState<InferSelectModel<typeof users>[]>([])
 	const [publicAccess, setPublicAccess] = useState(roomDetails.isPublic)
 
 	const wsRef = useRef<WebSocket | null>(null)

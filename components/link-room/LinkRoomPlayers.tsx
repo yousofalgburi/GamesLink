@@ -4,9 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel'
 import type { UserInRoom } from '@/types/linkroom'
 import GameCard from '../GameCard'
-import type { Room } from '@prisma/client'
 import { UserAvatar } from '../UserAvatar'
-import { VoteType } from '@/constants/enums'
+import type { rooms } from '@/db/schema'
+import type { InferSelectModel } from 'drizzle-orm'
 
 export default function LinkRoomPlayers({
 	usersInRoom,
@@ -14,7 +14,7 @@ export default function LinkRoomPlayers({
 	userId,
 }: {
 	usersInRoom: UserInRoom[]
-	roomDetails: Room
+	roomDetails: InferSelectModel<typeof rooms>
 	userId: string
 }) {
 	return (

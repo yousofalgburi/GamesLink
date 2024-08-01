@@ -1,7 +1,6 @@
 'use client'
 
 import type { UserInRoom } from '@/types/linkroom'
-import type { Room, User } from '@prisma/client'
 import { UserAvatar } from '../UserAvatar'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Switch } from '../ui/switch'
@@ -9,6 +8,8 @@ import { Label } from '../ui/label'
 import { Button } from '../ui/button'
 import axios from 'axios'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import type { rooms, users } from '@/db/schema'
+import type { InferSelectModel } from 'drizzle-orm'
 
 export default function LinkRoomHeader({
 	userId,
@@ -20,9 +21,9 @@ export default function LinkRoomHeader({
 	setPublicAccess,
 }: {
 	usersInRoom: UserInRoom[]
-	roomDetails: Room
+	roomDetails: InferSelectModel<typeof rooms>
 	userId: string
-	waitList: User[]
+	waitList: InferSelectModel<typeof users>[]
 	publicAccess: boolean
 	setPublicAccess: (value: boolean) => void
 	roomId: string
