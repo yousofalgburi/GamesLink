@@ -1,5 +1,4 @@
 import { auth } from '@/auth'
-import { notFound } from 'next/navigation'
 import GameVoteClient from './GameVoteClient'
 import type { VoteType } from '@/constants/enums'
 import type { ExtendedGame } from '@/types/db'
@@ -34,8 +33,8 @@ const GameVoteServer = async ({ gameId }: GameVoteServerProps) => {
 			voteType: gameVotes.voteType,
 		})
 		.from(processedGames)
-		.leftJoin(gameVotes, eq(processedGames.id, gameVotes.gameId))
-		.where(and(eq(processedGames.steamAppid, Number(gameId)), eq(gameVotes.userId, session?.user?.id ?? '')))) as ExtendedGame[]
+		.leftJoin(gameVotes, and(eq(gameVotes.gameId, processedGames.id), eq(gameVotes.userId, session?.user?.id ?? '')))
+		.where(and(eq(processedGames.steamAppid, Number(gameId))))) as ExtendedGame[]
 
 	const _votesAmt = game.voteCount
 	const _currentVote = game.voteType
