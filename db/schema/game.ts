@@ -1,87 +1,8 @@
-import { pgTable, serial, text, integer, boolean, timestamp, pgEnum, varchar, index, uniqueIndex, foreignKey, primaryKey } from 'drizzle-orm/pg-core'
-import { relations, sql } from 'drizzle-orm'
-import type { AdapterAccount } from 'next-auth/adapters'
+import { pgTable, serial, text, integer, boolean, timestamp, varchar, index, uniqueIndex, foreignKey } from 'drizzle-orm/pg-core'
+import { sql } from 'drizzle-orm'
+import { users } from './user'
+import { voteType } from '@/constants/enums'
 
-// USER
-export const users = pgTable('user', {
-	id: text('id')
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
-	name: text('name'),
-	username: text('username').unique(),
-	email: text('email').unique(),
-	emailVerified: timestamp('emailVerified', { mode: 'date' }),
-	image: text('image'),
-})
-
-export const accounts = pgTable(
-	'account',
-	{
-		userId: text('userId')
-			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' }),
-		type: text('type').$type<AdapterAccount['type']>().notNull(),
-		provider: text('provider').notNull(),
-		providerAccountId: text('providerAccountId').notNull(),
-		refresh_token: text('refresh_token'),
-		access_token: text('access_token'),
-		expires_at: integer('expires_at'),
-		token_type: text('token_type'),
-		scope: text('scope'),
-		id_token: text('id_token'),
-		session_state: text('session_state'),
-	},
-	(account) => ({
-		compoundKey: primaryKey({
-			columns: [account.provider, account.providerAccountId],
-		}),
-	}),
-)
-
-export const sessions = pgTable('session', {
-	sessionToken: text('sessionToken').primaryKey(),
-	userId: text('userId')
-		.notNull()
-		.references(() => users.id, { onDelete: 'cascade' }),
-	expires: timestamp('expires', { mode: 'date' }).notNull(),
-})
-
-export const verificationTokens = pgTable(
-	'verificationToken',
-	{
-		identifier: text('identifier').notNull(),
-		token: text('token').notNull(),
-		expires: timestamp('expires', { mode: 'date' }).notNull(),
-	},
-	(verificationToken) => ({
-		compositePk: primaryKey({
-			columns: [verificationToken.identifier, verificationToken.token],
-		}),
-	}),
-)
-
-export const authenticators = pgTable(
-	'authenticator',
-	{
-		credentialID: text('credentialID').notNull().unique(),
-		userId: text('userId')
-			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' }),
-		providerAccountId: text('providerAccountId').notNull(),
-		credentialPublicKey: text('credentialPublicKey').notNull(),
-		counter: integer('counter').notNull(),
-		credentialDeviceType: text('credentialDeviceType').notNull(),
-		credentialBackedUp: boolean('credentialBackedUp').notNull(),
-		transports: text('transports'),
-	},
-	(authenticator) => ({
-		compositePK: primaryKey({
-			columns: [authenticator.userId, authenticator.credentialID],
-		}),
-	}),
-)
-
-// GAME
 export const processedGames = pgTable(
 	'processed_games',
 	{
@@ -133,33 +54,6 @@ export const processedGames = pgTable(
 		),
 		releaseDateIdx: index('release_date_idx').on(table.releaseDate),
 		nameIdx: index('name_idx').on(table.name),
-	}),
-)
-
-export const voteType = pgEnum('vote_type', ['UP', 'DOWN'])
-
-export const gameVotes = pgTable(
-	'game_votes',
-	{
-		id: serial('id').primaryKey(),
-		gameId: integer('game_id').notNull().unique(),
-		userId: text('user_id').notNull(),
-		voteType: voteType('vote_type'),
-	},
-	(table) => ({
-		gameIdIdx: uniqueIndex('vote_game_id_idx').on(table.gameId),
-		gameIdFk: foreignKey({
-			columns: [table.gameId],
-			foreignColumns: [processedGames.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
-		gameIdUserFk: foreignKey({
-			columns: [table.userId],
-			foreignColumns: [users.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
 	}),
 )
 
@@ -452,143 +346,28 @@ export const metacritics = pgTable(
 	}),
 )
 
-// Comments
-export const comments = pgTable(
-	'comments',
+// Game Votes
+export const gameVotes = pgTable(
+	'game_votes',
 	{
-		id: text('id')
-			.primaryKey()
-			.$defaultFn(() => crypto.randomUUID()),
-		text: text('text').notNull(),
-		createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-		authorId: text('author_id').notNull(),
-		gameId: integer('game_id').notNull(),
-		replyToId: text('reply_to_id'),
-		voteCount: integer('vote_count').notNull().default(0),
+		id: serial('id').primaryKey(),
+		gameId: integer('game_id').notNull().unique(),
+		userId: text('user_id').notNull(),
+		voteType: voteType('vote_type'),
 	},
 	(table) => ({
-		authorFk: foreignKey({
-			columns: [table.authorId],
-			foreignColumns: [users.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
-		gameFk: foreignKey({
+		gameIdIdx: uniqueIndex('vote_game_id_idx').on(table.gameId),
+		gameIdFk: foreignKey({
 			columns: [table.gameId],
 			foreignColumns: [processedGames.id],
 		})
 			.onDelete('cascade')
 			.onUpdate('cascade'),
-		replyToFk: foreignKey({
-			columns: [table.replyToId],
-			foreignColumns: [table.id],
-		})
-			.onDelete('set null')
-			.onUpdate('cascade'),
-		createdAtIdx: uniqueIndex('comment_created_at_idx').on(table.createdAt),
-	}),
-)
-
-export const commentVotes = pgTable(
-	'comment_votes',
-	{
-		userId: text('user_id').notNull(),
-		commentId: text('comment_id').notNull(),
-		type: voteType('vote_type').notNull(),
-	},
-	(table) => ({
-		pk: primaryKey({ columns: [table.userId, table.commentId] }),
-		userFk: foreignKey({
+		gameIdUserFk: foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 		})
 			.onDelete('cascade')
 			.onUpdate('cascade'),
-		commentFk: foreignKey({
-			columns: [table.commentId],
-			foreignColumns: [comments.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
 	}),
 )
-
-// friends
-export const friendRequests = pgTable(
-	'friend_requests',
-	{
-		id: text('id')
-			.primaryKey()
-			.$defaultFn(() => crypto.randomUUID()),
-		fromUserId: text('from_user_id').notNull(),
-		toUserId: text('to_user_id').notNull(),
-		status: text('status').notNull(),
-		createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-	},
-	(table) => ({
-		fromUserFk: foreignKey({
-			columns: [table.fromUserId],
-			foreignColumns: [users.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
-		toUserFk: foreignKey({
-			columns: [table.toUserId],
-			foreignColumns: [users.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
-		createdAtIdx: uniqueIndex('friend_request_created_at_idx').on(table.createdAt),
-	}),
-)
-
-export const friendships = pgTable(
-	'friendships',
-	{
-		id: text('id')
-			.primaryKey()
-			.$defaultFn(() => crypto.randomUUID()),
-		userId: text('user_id').notNull(),
-		friendId: text('friend_id').notNull(),
-	},
-	(table) => ({
-		userFriendUnique: uniqueIndex('user_friend_unique_idx').on(table.userId, table.friendId),
-		friendIdIdx: uniqueIndex('friend_id_idx').on(table.friendId),
-		userFk: foreignKey({
-			columns: [table.userId],
-			foreignColumns: [users.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
-		friendFk: foreignKey({
-			columns: [table.friendId],
-			foreignColumns: [users.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
-	}),
-)
-
-// link room
-export const rooms = pgTable(
-	'rooms',
-	{
-		id: text('id')
-			.primaryKey()
-			.$defaultFn(() => crypto.randomUUID()),
-		hostId: text('host_id').notNull(),
-		roomId: text('room_id').notNull().unique(),
-		isActive: boolean('is_active').notNull().default(true),
-		isPublic: boolean('is_public').notNull().default(true),
-		queuedUsers: text('queued_users').notNull(),
-		allowedUsers: text('allowed_users').notNull(),
-		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-	},
-	(table) => ({
-		roomIdIdx: uniqueIndex('room_id_idx').on(table.roomId),
-	}),
-)
-
-export const roomRelations = relations(rooms, ({ many }) => ({
-	members: many(users),
-}))
