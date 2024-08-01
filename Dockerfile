@@ -21,11 +21,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# TEMP PRISMA
-RUN npm install -g prisma
-COPY prisma ./prisma
-RUN npx prisma generate
-
 ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN \
