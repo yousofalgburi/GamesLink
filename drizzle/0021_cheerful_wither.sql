@@ -1,0 +1,1 @@
+ALTER TABLE "processed_games" ADD COLUMN "nsfw" boolean DEFAULT false NOT NULL;

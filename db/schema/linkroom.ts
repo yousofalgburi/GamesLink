@@ -20,7 +20,3 @@ export const rooms = pgTable(
 		roomIdIdx: uniqueIndex('room_id_idx').on(table.roomId),
 	}),
 )
-
-export const roomRelations = relations(rooms, ({ many }) => ({
-	members: many(users),
-}))

@@ -53,6 +53,7 @@ export const getGames = async (searchParams: searchParams, session?: Session | n
 		}
 
 		conditions.push(sql`${processedGames.type} = 'game'`)
+		conditions.push(sql`${processedGames.nsfw} = false`)
 
 		const whereClause = and(...conditions)
 

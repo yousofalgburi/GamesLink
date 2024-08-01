@@ -18,9 +18,11 @@ export const processedGames = pgTable(
 		developers: text('developers').array(),
 		genres: text('genres').array(),
 		categories: text('categories').array(),
-		voteCount: integer('vote_count').notNull().default(0),
 		createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+
+		voteCount: integer('vote_count').notNull().default(0),
+		nsfw: boolean('nsfw').notNull().default(false),
 
 		dlc: text('dlc'),
 		detailedDescription: text('detailed_description'),
