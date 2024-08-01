@@ -3,7 +3,7 @@ import { processedGames } from '@/db/schema'
 import { db } from '@/db'
 
 export async function POST(req: Request) {
-	const nsfwWords = ['sex', 'nude', 'porn', 'nsfw', 'hentai', 'adult', 'furry', 'slave', 'orgasm']
+	const nsfwWords = process.env.CLEAN_UP_NSFW_WORDS?.split(',') || []
 
 	const nsfwConditions = nsfwWords.map(
 		(word) => sql`${processedGames.name} ILIKE ${`%${word}%`} OR ${processedGames.shortDescription} ILIKE ${`%${word}%`}`,
