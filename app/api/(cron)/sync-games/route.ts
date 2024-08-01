@@ -1,5 +1,3 @@
-import type { Game } from '@prisma/client'
-
 export async function POST(req, res) {
 	// const response = await fetch('https://api.steampowered.com/ISteamApps/GetAppList/v2')
 	// const data = await response.json()
