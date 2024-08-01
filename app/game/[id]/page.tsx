@@ -9,7 +9,7 @@ import { CalendarHeartIcon, ChevronLeft, DollarSignIcon, ExternalLinkIcon, Shiel
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { cache, Suspense } from 'react'
+import { Suspense } from 'react'
 import SimilarGames from '@/components/SimilarGames'
 import { processedGames } from '@/db/schema'
 import { eq } from 'drizzle-orm'

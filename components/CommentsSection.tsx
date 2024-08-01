@@ -4,7 +4,7 @@ import GameComment from './comments/GameComment'
 import type { VoteType } from '@/constants/enums'
 import { comments as commentsTable, commentVotes, users } from '@/db/schema'
 import { db } from '@/db'
-import { desc, eq, and, type InferSelectModel, ConsoleLogWriter } from 'drizzle-orm'
+import { desc, eq, and, type InferSelectModel } from 'drizzle-orm'
 
 export type ExtendedComment = Omit<InferSelectModel<typeof commentsTable>, 'author'> & {
 	author: {

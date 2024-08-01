@@ -1,5 +1,7 @@
 import { auth } from '@/auth'
-import { db } from '@/prisma/db'
+import { db } from '@/db'
+import { users, friendships, friendRequests } from '@/db/schema'
+import { eq, inArray } from 'drizzle-orm'
 
 export async function GET(req: Request) {
 	try {
@@ -9,55 +11,39 @@ export async function GET(req: Request) {
 			return new Response(JSON.stringify({ error: 'Not logged in' }), { status: 401 })
 		}
 
-		const friendsIds = await db.friendship.findMany({
-			where: {
-				userId: session.user.id,
-			},
-		})
+		const friendsIds = await db.select({ friendId: friendships.friendId }).from(friendships).where(eq(friendships.userId, session.user.id))
 
-		const friendsInfo = await db.user.findMany({
-			where: {
-				id: {
-					in: friendsIds.map((friend) => friend.friendId),
-				},
-			},
-		})
+		const friendsInfo = await db
+			.select({ id: users.id, username: users.username, image: users.image })
+			.from(users)
+			.where(
+				inArray(
+					users.id,
+					friendsIds.map((friend) => friend.friendId),
+				),
+			)
 
-		const friends = friendsIds.map((friend) => {
-			const friendInfo = friendsInfo.find((info) => info.id === friend.friendId)
+		const friends = friendsInfo.map((friendInfo) => ({
+			name: friendInfo.username,
+			image: friendInfo.image,
+		}))
 
-			return {
-				name: friendInfo?.username,
-				image: friendInfo?.image,
-			}
-		})
-
-		const friendRequests = await db.friendRequest.findMany({
-			where: {
-				toUserId: session.user.id,
-			},
-		})
-
-		const friendRequestsInfo = await db.user.findMany({
-			where: {
-				id: {
-					in: friendRequests.map((friend) => friend.fromUserId),
-				},
-			},
-		})
-
-		const friendRequestsData = friendRequests.map((friendRequest) => {
-			const friendRequestInfo = friendRequestsInfo.find((info) => info.id === friendRequest.fromUserId)
-
-			return {
-				...friendRequest,
-				name: friendRequestInfo?.username,
-				image: friendRequestInfo?.image,
-			}
-		})
+		const friendRequestsData = await db
+			.select({
+				id: friendRequests.id,
+				fromUserId: friendRequests.fromUserId,
+				status: friendRequests.status,
+				createdAt: friendRequests.createdAt,
+				name: users.username,
+				image: users.image,
+			})
+			.from(friendRequests)
+			.leftJoin(users, eq(friendRequests.fromUserId, users.id))
+			.where(eq(friendRequests.toUserId, session.user.id))
 
 		return new Response(JSON.stringify({ friends, friendRequests: friendRequestsData }))
 	} catch (error: unknown) {
+		console.error('Error fetching friends and requests:', error)
 		if (error instanceof Error) {
 			return new Response(JSON.stringify({ message: 'Error fetching friends', error: error.message }), { status: 500 })
 		}

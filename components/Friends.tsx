@@ -9,21 +9,22 @@ import { FriendsContext } from '@/context/FriendsContext'
 import { formatTimeToNow } from '@/lib/utils'
 import { UsernameValidator } from '@/lib/validators/username'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { FriendRequest } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
 import { Users } from 'lucide-react'
 import type { Session } from 'next-auth'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
 import { UserAvatar } from './UserAvatar'
 import { Input } from './ui/input'
 import { toast } from './ui/use-toast'
+import type { friendRequests } from '@/db/schema'
+import type { InferSelectModel } from 'drizzle-orm'
 
 type FormData = z.infer<typeof UsernameValidator>
 
-type FriendRequestType = FriendRequest & {
+type FriendRequestType = InferSelectModel<typeof friendRequests> & {
 	name: string
 	image: string
 }

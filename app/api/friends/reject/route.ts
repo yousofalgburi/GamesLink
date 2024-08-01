@@ -1,6 +1,8 @@
 import { auth } from '@/auth'
-import { db } from '@/prisma/db'
+import { db } from '@/db'
 import { z } from 'zod'
+import { friendRequests } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 
 export async function POST(req: Request) {
 	try {
@@ -17,15 +19,15 @@ export async function POST(req: Request) {
 			})
 			.parse(body)
 
-		await db.friendRequest.delete({
-			where: {
-				id: id,
-			},
-		})
+		const result = await db.delete(friendRequests).where(eq(friendRequests.id, id)).returning()
+
+		if (result.length === 0) {
+			return new Response('Friend request not found', { status: 404 })
+		}
 
 		return new Response('OK')
 	} catch (error) {
-		error
+		console.error('Error rejecting friend request:', error)
 
 		if (error instanceof z.ZodError) {
 			return new Response(error.message, { status: 400 })

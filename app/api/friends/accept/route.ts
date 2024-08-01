@@ -1,6 +1,8 @@
 import { auth } from '@/auth'
-import { db } from '@/prisma/db'
+import { db } from '@/db'
 import { z } from 'zod'
+import { friendRequests, friendships, users } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 
 export async function POST(req: Request) {
 	try {
@@ -17,51 +19,36 @@ export async function POST(req: Request) {
 			})
 			.parse(body)
 
-		const friendRequest = await db.friendRequest.findFirst({
-			where: {
-				id: id,
-			},
-		})
+		const [friendRequest] = await db.select().from(friendRequests).where(eq(friendRequests.id, id))
 
-		const user1 = await db.user.findFirst({
-			where: {
-				id: friendRequest?.fromUserId,
-			},
-		})
+		if (!friendRequest) {
+			return new Response('Friend request not found', { status: 404 })
+		}
 
-		const user2 = await db.user.findFirst({
-			where: {
-				id: friendRequest?.toUserId,
-			},
-		})
+		const [user1] = await db.select().from(users).where(eq(users.id, friendRequest.fromUserId))
+
+		const [user2] = await db.select().from(users).where(eq(users.id, friendRequest.toUserId))
 
 		if (!user1 || !user2) {
 			return new Response('Could not find users', { status: 500 })
 		}
 
-		await db.friendship.create({
-			data: {
-				userId: user1?.id,
-				friendId: user2?.id,
+		await db.insert(friendships).values([
+			{
+				userId: user1.id,
+				friendId: user2.id,
 			},
-		})
+			{
+				userId: user2.id,
+				friendId: user1.id,
+			},
+		])
 
-		await db.friendship.create({
-			data: {
-				userId: user2?.id,
-				friendId: user1?.id,
-			},
-		})
-
-		await db.friendRequest.delete({
-			where: {
-				id: id,
-			},
-		})
+		await db.delete(friendRequests).where(eq(friendRequests.id, id))
 
 		return new Response('OK')
 	} catch (error) {
-		error
+		console.error('Error accepting friend request:', error)
 
 		if (error instanceof z.ZodError) {
 			return new Response(error.message, { status: 400 })
