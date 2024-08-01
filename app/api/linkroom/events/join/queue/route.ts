@@ -1,47 +1,50 @@
 import { auth } from '@/auth'
-import { db } from '@/prisma/db'
+import { db } from '@/db'
 import { roomEventValidator } from '@/lib/validators/linkroom'
-import type { User } from '@prisma/client'
 import { z } from 'zod'
+import { users, rooms } from '@/db/schema'
+import { eq, sql } from 'drizzle-orm'
 
 export async function GET(req: Request) {
-	return new Response(JSON.stringify({ user: {} }), { status: 201 })
-	// try {
-	// 	const session = await auth()
+	try {
+		const session = await auth()
 
-	// 	if (!session?.user) {
-	// 		return new Response('Unauthorized', { status: 401 })
-	// 	}
+		if (!session?.user) {
+			return new Response('Unauthorized', { status: 401 })
+		}
 
-	// 	const url = new URL(req.url)
-	// 	const { userId, roomId } = roomEventValidator.parse({
-	// 		userId: url.searchParams.get('userId'),
-	// 		roomId: url.searchParams.get('roomId'),
-	// 	})
+		const url = new URL(req.url)
+		const { userId, roomId } = roomEventValidator.parse({
+			userId: url.searchParams.get('userId'),
+			roomId: url.searchParams.get('roomId'),
+		})
 
-	// 	const user = (await db.user.findUnique({
-	// 		where: {
-	// 			id: userId,
-	// 		},
-	// 	})) as User
+		const [user] = await db.select().from(users).where(eq(users.id, userId))
 
-	// 	await db.room.update({
-	// 		where: {
-	// 			roomId: roomId,
-	// 		},
-	// 		data: {
-	// 			queuedUsers: {
-	// 				push: user.id,
-	// 			},
-	// 		},
-	// 	})
+		if (!user) {
+			return new Response('User not found', { status: 404 })
+		}
 
-	// 	return new Response(JSON.stringify({ user }), { status: 201 })
-	// } catch (error) {
-	// 	if (error instanceof z.ZodError) {
-	// 		return new Response(error.message, { status: 400 })
-	// 	}
+		const result = await db
+			.update(rooms)
+			.set({
+				queuedUsers: sql`array_append(${rooms.queuedUsers}, ${user.id})`,
+			})
+			.where(eq(rooms.roomId, roomId))
+			.returning({ updatedRoom: rooms.queuedUsers })
 
-	// 	return new Response('Could not fetch user games, please try again later.', { status: 500 })
-	// }
+		if (result.length === 0) {
+			return new Response('Room not found', { status: 404 })
+		}
+
+		return new Response(JSON.stringify({ user }), { status: 201 })
+	} catch (error) {
+		console.error('Error queuing user in room:', error)
+
+		if (error instanceof z.ZodError) {
+			return new Response(error.message, { status: 400 })
+		}
+
+		return new Response('Could not queue user in room, please try again later.', { status: 500 })
+	}
 }

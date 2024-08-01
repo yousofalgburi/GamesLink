@@ -1,7 +1,9 @@
 import { auth } from '@/auth'
-import { db } from '@/prisma/db'
+import { db } from '@/db'
 import { roomAccessValidator } from '@/lib/validators/linkroom'
 import { z } from 'zod'
+import { rooms } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 
 export async function PATCH(req: Request) {
 	try {
@@ -20,27 +22,26 @@ export async function PATCH(req: Request) {
 			publicAccess: url.searchParams.get('publicAccess') === 'true',
 		})
 
-		const roomDetails = await db.room.findUnique({
-			where: {
-				roomId: roomId,
-			},
-		})
+		const [roomDetails] = await db.select().from(rooms).where(eq(rooms.roomId, roomId))
 
-		if (session.user.id !== roomDetails?.hostId) {
+		if (!roomDetails) {
+			return new Response('Room not found', { status: 404 })
+		}
+
+		if (session.user.id !== roomDetails.hostId) {
 			return new Response('Unauthorized', { status: 401 })
 		}
 
-		await db.room.update({
-			where: {
-				roomId: roomId,
-			},
-			data: {
-				isPublic: publicAccess,
-			},
-		})
+		const result = await db.update(rooms).set({ isPublic: publicAccess }).where(eq(rooms.roomId, roomId)).returning()
+
+		if (result.length === 0) {
+			return new Response('Room not found', { status: 404 })
+		}
 
 		return new Response('OK!', { status: 201 })
 	} catch (error) {
+		console.error('Error updating room access:', error)
+
 		if (error instanceof z.ZodError) {
 			return new Response(error.message, { status: 400 })
 		}

@@ -1,7 +1,9 @@
 import { auth } from '@/auth'
-import { db } from '@/prisma/db'
+import { db } from '@/db'
 import { roomEventValidator } from '@/lib/validators/linkroom'
 import { z } from 'zod'
+import { rooms } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 
 export async function PATCH(req: Request) {
 	try {
@@ -17,21 +19,36 @@ export async function PATCH(req: Request) {
 			roomId: url.searchParams.get('roomId'),
 		})
 
-		await db.room.update({
-			where: {
-				roomId: roomId,
-			},
-			data: {
-				members: {
-					disconnect: {
-						id: userId,
-					},
-				},
-			},
-		})
+		const [currentRoom] = await db
+			.select({
+				allowedUsers: rooms.allowedUsers,
+			})
+			.from(rooms)
+			.where(eq(rooms.roomId, roomId))
 
-		return new Response('OK!', { status: 201 })
+		if (!currentRoom) {
+			return new Response('Room not found', { status: 404 })
+		}
+
+		const allowedUsersArray = currentRoom.allowedUsers.split(',')
+		const updatedAllowedUsersArray = allowedUsersArray.filter((id) => id !== userId)
+		const updatedAllowedUsersString = updatedAllowedUsersArray.join(',')
+
+		if (allowedUsersArray.length !== updatedAllowedUsersArray.length) {
+			await db
+				.update(rooms)
+				.set({
+					allowedUsers: updatedAllowedUsersString,
+				})
+				.where(eq(rooms.roomId, roomId))
+
+			return new Response('OK!', { status: 201 })
+		}
+
+		return new Response('User not found in the room', { status: 404 })
 	} catch (error) {
+		console.error('Error removing user from room:', error)
+
 		if (error instanceof z.ZodError) {
 			return new Response(error.message, { status: 400 })
 		}
