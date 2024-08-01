@@ -1,8 +1,9 @@
-import { db } from '@/prisma/db'
+import { db } from '@/db'
 import { CommentValidator } from '@/lib/validators/comment'
 import { z } from 'zod'
 import words from 'profane-words'
 import { auth } from '@/auth'
+import { comments } from '@/db/schema'
 
 export async function PATCH(req: Request) {
 	try {
@@ -17,24 +18,19 @@ export async function PATCH(req: Request) {
 			return new Response('Unauthorized', { status: 401 })
 		}
 
-		// check profanity
 		if (words.includes(text.toLowerCase())) {
 			return new Response('Please keep it nice :)', { status: 403 })
 		}
 
-		// check text length
 		if (text.length > 256) {
 			return new Response('Max length is 256.', { status: 403 })
 		}
 
-		// create a new comment
-		await db.comment.create({
-			data: {
-				text,
-				gameId,
-				authorId: session.user.id,
-				replyToId,
-			},
+		await db.insert(comments).values({
+			text,
+			gameId,
+			authorId: session.user.id,
+			replyToId: replyToId || null,
 		})
 
 		return new Response('OK')
@@ -43,6 +39,7 @@ export async function PATCH(req: Request) {
 			return new Response(error.message, { status: 400 })
 		}
 
+		console.error('Error posting comment:', error)
 		return new Response('Could not post comment at this time. Please try later', { status: 500 })
 	}
 }

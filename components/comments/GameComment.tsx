@@ -3,7 +3,6 @@
 import { useOnClickOutside } from '@/hooks/use-on-click-outside'
 import { formatTimeToNow } from '@/lib/utils'
 import type { CommentRequest } from '@/lib/validators/comment'
-import type { Comment, CommentVote, User } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import { MessageSquare } from 'lucide-react'
@@ -16,16 +15,13 @@ import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { Textarea } from '../ui/textarea'
 import { toast } from '../ui/use-toast'
-
-type ExtendedComment = Comment & {
-	votes: CommentVote[]
-	author: User
-}
+import type { ExtendedComment } from '../CommentsSection'
+import type { VoteType } from '@/constants/enums'
 
 interface GameCommentProps {
 	comment: ExtendedComment
 	votesAmt: number
-	currentVote: CommentVote | undefined
+	currentVote: VoteType | null
 	gameId: string
 }
 
