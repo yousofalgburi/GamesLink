@@ -1,5 +1,4 @@
 import { auth } from '@/auth'
-import { db } from '@/prisma/db'
 import { LinkRoomValidator } from '@/lib/validators/linkroom'
 import { z } from 'zod'
 

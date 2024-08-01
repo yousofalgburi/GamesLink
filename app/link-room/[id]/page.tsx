@@ -1,8 +1,12 @@
 import HiddenAuth from '@/components/HiddenAuth'
 import LinkRoom from '@/components/link-room/LinkRoom'
 import { auth } from '@/auth'
-import { db } from '@/prisma/db'
+import { db } from '@/db'
+import { rooms, users, gameVotes, processedGames } from '@/db/schema'
 import { notFound, redirect } from 'next/navigation'
+import { eq, desc } from 'drizzle-orm'
+import type { UserInRoom } from '@/types/linkroom'
+import type { ExtendedGame } from '@/types/db'
 
 export const metadata = {
 	title: 'Link Room',
@@ -22,55 +26,57 @@ export default async function Page({ params: { id } }: PageProps) {
 		return <HiddenAuth message='to be able to join a room.' />
 	}
 
-	const roomUsers = await db.room.findUnique({
-		where: {
-			roomId: id,
-		},
-		include: {
-			members: true,
-		},
-	})
+	const roomData = await db.select().from(rooms).where(eq(rooms.roomId, id)).limit(1)
 
-	if (!roomUsers) return notFound()
+	if (!roomData || roomData.length === 0) return notFound()
 
-	if (session.user.id !== roomUsers.hostId && !roomUsers.isPublic) {
+	const room = roomData[0]
+
+	if (session.user.id !== room.hostId && !room.isPublic) {
 		return redirect(`/link-room/queue/${id}`)
 	}
 
-	// const roomUsersWithGames = await Promise.all(
-	// 	roomUsers.members.map(async (user) => {
-	// 		const games = await db.steamGame.findMany({
-	// 			where: {
-	// 				votes: {
-	// 					some: {
-	// 						userId: user.id,
-	// 					},
-	// 				},
-	// 			},
-	// 			include: {
-	// 				votes: {
-	// 					where: {
-	// 						userId: user.id,
-	// 					},
-	// 				},
-	// 			},
-	// 			orderBy: {
-	// 				voteCount: 'desc',
-	// 			},
-	// 		})
+	const membersQuery = db.select().from(users).where(eq(users.id, room.hostId))
 
-	// 		return {
-	// 			...user,
-	// 			games,
-	// 		}
-	// 	}),
-	// )
+	const gamesQuery = db
+		.select({
+			id: processedGames.id,
+			steamAppid: processedGames.steamAppid,
+			name: processedGames.name,
+			shortDescription: processedGames.shortDescription,
+			headerImage: processedGames.headerImage,
+			requiredAge: processedGames.requiredAge,
+			isFree: processedGames.isFree,
+			releaseDate: processedGames.releaseDate,
+			developers: processedGames.developers,
+			genres: processedGames.genres,
+			categories: processedGames.categories,
+			voteCount: processedGames.voteCount,
+			voteType: gameVotes.voteType,
+			userId: gameVotes.userId,
+		})
+		.from(gameVotes)
+		.innerJoin(processedGames, eq(gameVotes.gameId, processedGames.id))
+		.orderBy(desc(processedGames.voteCount))
 
-	const { members, ...roomDetails } = roomUsers
+	const [members, games] = await Promise.all([membersQuery, gamesQuery])
+
+	const roomUsersWithGames: UserInRoom[] = members.map((member) => ({
+		...member,
+		games: games
+			.filter((game) => game.userId === member.id)
+			.map((game) => ({
+				...game,
+				shortDescription: game.shortDescription ?? '',
+				headerImage: game.headerImage ?? '',
+			})) as ExtendedGame[],
+	}))
+
+	const { ...roomDetails } = room
 
 	return (
 		<div className='container mx-auto py-12'>
-			<LinkRoom roomId={id} userId={session?.user.id} roomDetails={roomDetails} roomUsers={[]} />
+			<LinkRoom roomId={id} userId={session?.user.id} roomDetails={roomDetails} roomUsers={roomUsersWithGames} />
 		</div>
 	)
 }
