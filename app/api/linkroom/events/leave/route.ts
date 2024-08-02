@@ -30,15 +30,14 @@ export async function PATCH(req: Request) {
 			return new Response('Room not found', { status: 404 })
 		}
 
-		const allowedUsersArray = currentRoom.allowedUsers.split(',')
-		const updatedAllowedUsersArray = allowedUsersArray.filter((id) => id !== userId)
-		const updatedAllowedUsersString = updatedAllowedUsersArray.join(',')
+		const allowedUsersArray = currentRoom.allowedUsers
+		const updatedAllowedUsersArray = allowedUsersArray?.filter((id) => id !== userId)
 
-		if (allowedUsersArray.length !== updatedAllowedUsersArray.length) {
+		if (allowedUsersArray?.length !== updatedAllowedUsersArray?.length) {
 			await db
 				.update(rooms)
 				.set({
-					allowedUsers: updatedAllowedUsersString,
+					allowedUsers: updatedAllowedUsersArray,
 				})
 				.where(eq(rooms.roomId, roomId))
 
