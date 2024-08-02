@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX IF NOT EXISTS "category_idx" ON "game_categories" USING btree ("category");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "genre_idx" ON "game_genres" USING btree ("genre");

@@ -59,63 +59,6 @@ export const processedGames = pgTable(
 	}),
 )
 
-export const pcRequirements = pgTable(
-	'pc_requirements',
-	{
-		id: serial('id').primaryKey(),
-		gameId: integer('game_id').notNull().unique(),
-		minimum: text('minimum').notNull(),
-		recommended: text('recommended'),
-	},
-	(table) => ({
-		gameIdIdx: uniqueIndex('pc_req_game_id_idx').on(table.gameId),
-		gameIdFk: foreignKey({
-			columns: [table.gameId],
-			foreignColumns: [processedGames.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
-	}),
-)
-
-export const macRequirements = pgTable(
-	'mac_requirements',
-	{
-		id: serial('id').primaryKey(),
-		gameId: integer('game_id').notNull().unique(),
-		minimum: text('minimum').notNull(),
-		recommended: text('recommended'),
-	},
-	(table) => ({
-		gameIdIdx: uniqueIndex('mac_req_game_id_idx').on(table.gameId),
-		gameIdFk: foreignKey({
-			columns: [table.gameId],
-			foreignColumns: [processedGames.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
-	}),
-)
-
-export const linuxRequirements = pgTable(
-	'linux_requirements',
-	{
-		id: serial('id').primaryKey(),
-		gameId: integer('game_id').notNull().unique(),
-		minimum: text('minimum').notNull(),
-		recommended: text('recommended'),
-	},
-	(table) => ({
-		gameIdIdx: uniqueIndex('linux_req_game_id_idx').on(table.gameId),
-		gameIdFk: foreignKey({
-			columns: [table.gameId],
-			foreignColumns: [processedGames.id],
-		})
-			.onDelete('cascade')
-			.onUpdate('cascade'),
-	}),
-)
-
 export const supportInfo = pgTable(
 	'support_info',
 	{
@@ -371,5 +314,32 @@ export const gameVotes = pgTable(
 		})
 			.onDelete('cascade')
 			.onUpdate('cascade'),
+	}),
+)
+
+// genres and categories
+export const gameGenres = pgTable(
+	'game_genres',
+	{
+		id: serial('id').primaryKey(),
+		genre: varchar('genre', { length: 255 }).notNull(),
+		gameCount: integer('game_count').notNull(),
+		isEnglish: boolean('is_english').notNull().default(false),
+	},
+	(table) => ({
+		genreIdx: uniqueIndex('genre_idx').on(table.genre),
+	}),
+)
+
+export const gameCategories = pgTable(
+	'game_categories',
+	{
+		id: serial('id').primaryKey(),
+		category: varchar('category', { length: 255 }).notNull(),
+		gameCount: integer('game_count').notNull(),
+		isEnglish: boolean('is_english').notNull().default(false),
+	},
+	(table) => ({
+		categoryIdx: uniqueIndex('category_idx').on(table.category),
 	}),
 )
