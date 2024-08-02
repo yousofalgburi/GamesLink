@@ -47,7 +47,7 @@ export default function LinkRoomPlayers({
 													<GameCard
 														className='h-[28rem]'
 														nowidth={true}
-														key={game.id}
+														key={game.steamAppid}
 														votesAmt={game.voteCount}
 														currentVote={game.voteType}
 														game={game}

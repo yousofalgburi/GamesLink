@@ -4,7 +4,7 @@ import { auth } from '@/auth'
 import { db } from '@/db'
 import { rooms, users, gameVotes, processedGames } from '@/db/schema'
 import { notFound, redirect } from 'next/navigation'
-import { eq, desc } from 'drizzle-orm'
+import { eq, desc, inArray, sql, and } from 'drizzle-orm'
 import type { UserInRoom } from '@/types/linkroom'
 import type { ExtendedGame } from '@/types/db'
 
@@ -26,17 +26,22 @@ export default async function Page({ params: { id } }: PageProps) {
 		return <HiddenAuth message='to be able to join a room.' />
 	}
 
-	const roomData = await db.select().from(rooms).where(eq(rooms.roomId, id)).limit(1)
-
-	if (!roomData || roomData.length === 0) return notFound()
-
-	const room = roomData[0]
+	const [room] = await db.select().from(rooms).where(eq(rooms.roomId, id)).limit(1)
+	if (!room) return notFound()
 
 	if (session.user.id !== room.hostId && !room.isPublic) {
 		return redirect(`/link-room/queue/${id}`)
 	}
 
-	const membersQuery = db.select().from(users).where(eq(users.id, room.hostId))
+	await db
+		.update(rooms)
+		.set({ members: sql`array_append(${rooms.members}, ${session.user.id})` })
+		.where(and(eq(rooms.roomId, id), sql`NOT ${rooms.members}::uuid[] @> ARRAY[${session.user.id}]::uuid[]`))
+
+	const membersQuery = db
+		.select()
+		.from(users)
+		.where(inArray(users.id, [...(room.members ?? []), session.user.id]))
 
 	const gamesQuery = db
 		.select({

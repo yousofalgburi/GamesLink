@@ -12,8 +12,9 @@ export const rooms = pgTable(
 		roomId: text('room_id').notNull().unique(),
 		isActive: boolean('is_active').notNull().default(true),
 		isPublic: boolean('is_public').notNull().default(true),
-		queuedUsers: text('queued_users').notNull(),
-		allowedUsers: text('allowed_users').notNull(),
+		queuedUsers: text('queued_users').array(),
+		allowedUsers: text('allowed_users').array(),
+		members: text('members').array(),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 	},
 	(table) => ({

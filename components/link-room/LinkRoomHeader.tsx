@@ -83,7 +83,7 @@ export default function LinkRoomHeader({
 
 				<TooltipProvider>
 					<Tooltip>
-						<TooltipTrigger>
+						<TooltipTrigger asChild>
 							<Button disabled>Roll!</Button>
 						</TooltipTrigger>
 						<TooltipContent>
