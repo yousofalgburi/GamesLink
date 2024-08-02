@@ -14,6 +14,7 @@ export async function updateGenreAndCategoryCounts() {
 				count: sql<number>`count(*)`,
 			})
 			.from(processedGames)
+			.where(sql`${processedGames.type} = 'game'`)
 			.groupBy(sql`unnest(${processedGames.genres})`)
 
 		for (const { genre, count } of genreCounts) {
@@ -41,6 +42,7 @@ export async function updateGenreAndCategoryCounts() {
 				count: sql<number>`count(*)`,
 			})
 			.from(processedGames)
+			.where(sql`${processedGames.type} = 'game'`)
 			.groupBy(sql`unnest(${processedGames.categories})`)
 
 		for (const { category, count } of categoryCounts) {

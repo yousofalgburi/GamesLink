@@ -42,7 +42,7 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 							))}
 
 							{game.categories.map((category) => (
-								<Badge key={'${category}'}>{category}</Badge>
+								<Badge key={`c-${category}`}>{category}</Badge>
 							))}
 						</div>
 					)}
