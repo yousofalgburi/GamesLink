@@ -5,6 +5,7 @@ import type { ExtendedGame } from '@/types/db'
 import { db } from '@/db'
 import { gameVotes, processedGames } from '@/db/schema'
 import { and, desc, eq } from 'drizzle-orm'
+import { Suspense } from 'react'
 
 export default async function Page() {
 	const session = await auth()
@@ -36,7 +37,9 @@ export default async function Page() {
 	return (
 		<div className='mx-auto flex min-h-[90vh] flex-col gap-10 px-16 py-6'>
 			<div>
-				<RecommendedGames />
+				<Suspense fallback={<div>Loading...</div>}>
+					<RecommendedGames />
+				</Suspense>
 			</div>
 
 			<div>
