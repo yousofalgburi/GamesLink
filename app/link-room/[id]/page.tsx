@@ -33,10 +33,11 @@ export default async function Page({ params: { id } }: PageProps) {
 		return redirect(`/link-room/queue/${id}`)
 	}
 
-	await db
+	const updateMembersQuery = db
 		.update(rooms)
 		.set({ members: sql`array_append(${rooms.members}, ${session.user.id})` })
 		.where(and(eq(rooms.roomId, id), sql`NOT ${rooms.members}::uuid[] @> ARRAY[${session.user.id}]::uuid[]`))
+		.returning()
 
 	const membersQuery = db
 		.select()
@@ -62,9 +63,10 @@ export default async function Page({ params: { id } }: PageProps) {
 		})
 		.from(gameVotes)
 		.innerJoin(processedGames, eq(gameVotes.gameId, processedGames.id))
+		.where(inArray(gameVotes.userId, [...(room.members ?? []), session.user.id]))
 		.orderBy(desc(processedGames.voteCount))
 
-	const [members, games] = await Promise.all([membersQuery, gamesQuery])
+	const [updatedMembers, members, games] = await Promise.all([updateMembersQuery, membersQuery, gamesQuery])
 
 	const roomUsersWithGames: UserInRoom[] = members.map((member) => ({
 		...member,
@@ -72,8 +74,6 @@ export default async function Page({ params: { id } }: PageProps) {
 			.filter((game) => game.userId === member.id)
 			.map((game) => ({
 				...game,
-				shortDescription: game.shortDescription ?? '',
-				headerImage: game.headerImage ?? '',
 			})) as ExtendedGame[],
 	}))
 
