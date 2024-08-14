@@ -55,4 +55,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 			}
 		},
 	},
+	debug: process.env.NODE_ENV !== 'production',
 })
+
+declare module 'next-auth' {
+	interface Session {
+		accessToken?: string
+	}
+}
+
+declare module 'next-auth/jwt' {
+	interface JWT {
+		accessToken?: string
+	}
+}

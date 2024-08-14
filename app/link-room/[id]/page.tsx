@@ -81,7 +81,13 @@ export default async function Page({ params: { id } }: PageProps) {
 
 	return (
 		<div className='container mx-auto py-12'>
-			<LinkRoom roomId={id} userId={session?.user.id} roomDetails={roomDetails} roomUsers={roomUsersWithGames} />
+			<LinkRoom
+				wsLink={process.env.REAL_TIME_API_URL}
+				roomId={id}
+				userId={session?.user.id}
+				roomDetails={roomDetails}
+				roomUsers={roomUsersWithGames}
+			/>
 		</div>
 	)
 }

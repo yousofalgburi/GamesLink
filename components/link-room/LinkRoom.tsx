@@ -19,11 +19,13 @@ import { UserAvatar } from '../UserAvatar'
 import GameCard from '../GameCard'
 
 export default function LinkRoom({
+	wsLink,
 	roomId,
 	userId,
 	roomUsers,
 	roomDetails,
 }: {
+	wsLink: string
 	roomId: string
 	userId: string
 	roomUsers: UserInRoom[]
@@ -37,48 +39,74 @@ export default function LinkRoom({
 
 	const wsRef = useRef<WebSocket | null>(null)
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		const ws = new WebSocket(process.env.REAL_TIME_API_URL)
-		wsRef.current = ws
+		let ws: WebSocket | null = null
 
-		ws.onopen = () => {
-			ws.send(JSON.stringify({ type: 'join', roomId, userId: userId }))
-		}
+		const connectWebSocket = () => {
+			ws = new WebSocket(wsLink)
+			wsRef.current = ws
 
-		ws.onmessage = async (event) => {
-			try {
-				const data: { type: string; roomId: string; userId: string } = JSON.parse(event.data)
+			ws.onopen = () => {
+				ws?.send(JSON.stringify({ type: 'join', roomId, userId }))
+			}
 
-				if (data.type === 'userJoined') {
-					if (!usersInRoom.find((user) => user.id === data.userId)) {
-						const { data: user } = await axios.get(`/api/linkroom/events/join?userId=${data.userId}&roomId=${roomId}`)
-						setUsersInRoom((prevUsers) => [...prevUsers, { ...user.user, games: user.games }])
-						if (user.games.length < 5) {
-							setUserLowGameCount(true)
-							setTimeout(() => {
-								setUserLowGameCount(false)
-							}, 10000)
+			ws.onmessage = async (event) => {
+				try {
+					const data: { type: string; roomId: string; userId: string } = JSON.parse(event.data)
+
+					switch (data.type) {
+						case 'userJoined':
+							if (!usersInRoom.find((user) => user.id === data.userId)) {
+								const { data: user } = await axios.get(`/api/linkroom/events/join?userId=${data.userId}&roomId=${roomId}`)
+								setUsersInRoom((prevUsers) => [...prevUsers, { ...user.user, games: user.games }])
+								if (user.games.length < 5) {
+									setUserLowGameCount(true)
+									setTimeout(() => {
+										setUserLowGameCount(false)
+									}, 10000)
+								}
+							}
+							break
+						case 'userLeft':
+							setUsersInRoom((prevUsers) => prevUsers.filter((user) => user.id !== data.userId))
+							await axios.patch(`/api/linkroom/events/leave?userId=${data.userId}&roomId=${roomId}`)
+							break
+						case 'userJoinedQueue': {
+							const { data: user } = await axios.get(`/api/linkroom/events/join/queue?userId=${data.userId}&roomId=${roomId}`)
+							if (!waitList.find((u) => u.id === user.id)) {
+								setWaitList((prevUsers) => [...prevUsers, user.user])
+							}
+							break
 						}
+						default:
+							console.warn('Unknown message type:', data.type)
 					}
-				} else if (data.type === 'userLeft') {
-					setUsersInRoom((prevUsers) => prevUsers.filter((user) => user.id !== data.userId))
-					await axios.patch(`/api/linkroom/events/leave?userId=${data.userId}&roomId=${roomId}`)
-				} else if (data.type === 'userJoinedQueue') {
-					const { data: user } = await axios.get(`/api/linkroom/events/join/queue?userId=${data.userId}&roomId=${roomId}`)
-					if (!waitList.find((u) => u.id === user.id)) {
-						setWaitList((prevUsers) => [...prevUsers, user.user])
-					}
+				} catch (error) {
+					console.error('Error handling WebSocket message:', error)
 				}
-			} catch (error) {
-				console.error('Error handling WebSocket message:', error)
+			}
+
+			ws.onclose = (event) => {
+				if (event.code !== 1000) {
+					console.log('WebSocket closed unexpectedly. Attempting to reconnect...')
+					setTimeout(connectWebSocket, 3000)
+				}
+			}
+
+			ws.onerror = (error) => {
+				console.error('WebSocket error:', error)
+				ws?.close()
 			}
 		}
 
+		connectWebSocket()
+
 		return () => {
-			ws.close()
+			if (ws) {
+				ws.close()
+			}
 		}
-	}, [userId, roomId])
+	}, [wsLink, roomId, userId, usersInRoom, waitList])
 
 	return (
 		<>
