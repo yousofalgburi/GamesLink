@@ -13,10 +13,10 @@ import { Suspense } from 'react'
 import SimilarGames from '@/components/SimilarGames'
 import { processedGames } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-import { withRedis } from '@/lib/redis'
 import type { GameView } from '@/types/db'
 import GameVoteShell from '@/components/game-vote/GameVoteShell'
 import GameVoteServer from '@/components/game-vote/GameVoteServer'
+import { redis } from '@/lib/redis'
 
 interface PageProps {
 	params: {
@@ -31,10 +31,12 @@ export default async function Page({ params: { id } }: PageProps) {
 	let cachedGame: CachedGame | null = null
 	let game: GameView | null = null
 
-	await withRedis(async (redis) => {
+	try {
 		const rawCachedGame = await redis.get(`game:${id}`)
-		cachedGame = rawCachedGame ? (JSON.parse(rawCachedGame) as CachedGame) : null
-	})
+		cachedGame = rawCachedGame ? JSON.parse(rawCachedGame) : null
+	} catch (error) {
+		console.error('Error fetching cached game:', error)
+	}
 
 	if (!cachedGame) {
 		const [dbGame] = await db
@@ -46,6 +48,8 @@ export default async function Page({ params: { id } }: PageProps) {
 	}
 
 	if (!game && !cachedGame) return notFound()
+
+	const displayGame = cachedGame || game
 
 	return (
 		<div className='container mx-auto flex min-h-[90vh] flex-col gap-8 px-4 py-12'>

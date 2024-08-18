@@ -4,7 +4,7 @@ import { GameVoteValidator } from '@/lib/validators/vote'
 import type { CachedGame } from '@/types/redis'
 import { gameVotes, processedGames } from '@/db/schema'
 import { and, eq } from 'drizzle-orm'
-import { withRedis } from '@/lib/redis'
+import { redis } from '@/lib/redis'
 
 const CACHE_AFTER_UPVOTES = 1
 
@@ -92,9 +92,7 @@ export async function PATCH(req: Request) {
 				genres: game.genres?.join(',') ?? '',
 			}
 
-			await withRedis(async (redis) => {
-				await redis.set(`game:${gameId}`, JSON.stringify(cachePayload))
-			})
+			await redis.set(`game:${gameId}`, JSON.stringify(cachePayload))
 		}
 
 		return new Response('OK')
