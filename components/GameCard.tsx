@@ -35,14 +35,14 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ game, votesAmt: _v
 					<CardTitle>{game.name}</CardTitle>
 					<CardDescription className='pt-1'>{game.shortDescription}</CardDescription>
 
-					{game.genres.length && (
+					{(game.genres.length > 0 || game.categories.length > 0) && (
 						<div className='flex flex-wrap items-center gap-1 pt-3'>
-							{game.genres.map((genre) => (
-								<Badge key={`g-${genre}`}>{genre}</Badge>
+							{game.genres.map((genre, index) => (
+								<Badge key={`g-${index}-${genre}`}>{genre}</Badge>
 							))}
 
-							{game.categories.map((category) => (
-								<Badge key={`c-${category}`}>{category}</Badge>
+							{game.categories.map((category, index) => (
+								<Badge key={`c-${index}-${category}`}>{category}</Badge>
 							))}
 						</div>
 					)}
