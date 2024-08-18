@@ -1,23 +1,41 @@
-import { createClient } from 'redis'
+import { createClient, type RedisClientType } from 'redis'
 
-let redis: ReturnType<typeof createClient> | null = null
+let redisClient: RedisClientType | null = null
 
-export async function getRedisClient() {
-	if (!redis || !redis.isOpen) {
-		redis = createClient({
+export async function getRedisClient(): Promise<RedisClientType> {
+	if (!redisClient) {
+		redisClient = createClient({
 			url: process.env.REDIS_URL,
 		})
-		redis.on('error', (error) => {
+
+		redisClient.on('error', (error) => {
 			console.error('Redis Client Error:', error)
 		})
-		await redis.connect()
+
+		await redisClient.connect()
 	}
-	return redis
+
+	return redisClient
 }
 
-export async function closeRedisConnection() {
-	if (redis?.isOpen) {
-		await redis.quit()
-		redis = null
+export async function closeRedisConnection(): Promise<void> {
+	if (redisClient) {
+		await redisClient.quit()
+		redisClient = null
+	}
+}
+
+export async function withRedis<T>(operation: (client: RedisClientType) => Promise<T>): Promise<T> {
+	const client = await getRedisClient()
+	try {
+		return await operation(client)
+	} catch (error: unknown) {
+		if (error instanceof Error && (error.message.includes('ECONNREFUSED') || error.message.includes('Connection timeout'))) {
+			console.warn('Redis connection lost. Attempting to reconnect...')
+			await closeRedisConnection()
+			const newClient = await getRedisClient()
+			return await operation(newClient)
+		}
+		throw error
 	}
 }

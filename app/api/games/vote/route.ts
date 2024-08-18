@@ -4,50 +4,42 @@ import { GameVoteValidator } from '@/lib/validators/vote'
 import type { CachedGame } from '@/types/redis'
 import { gameVotes, processedGames } from '@/db/schema'
 import { and, eq } from 'drizzle-orm'
-import { getRedisClient } from '@/lib/redis'
+import { withRedis } from '@/lib/redis'
 
 const CACHE_AFTER_UPVOTES = 1
 
 export async function PATCH(req: Request) {
 	const updateVoteCount = async (gameId: number) => {
 		const [updatedGame] = await db.selectDistinct().from(processedGames).where(eq(processedGames.steamAppid, gameId))
-
 		if (!updatedGame) {
 			return 0
 		}
-
 		const totalVotes = await db.select().from(gameVotes).where(eq(gameVotes.gameId, updatedGame.id))
-
 		const votesAmt = totalVotes.reduce((acc, vote) => {
 			if (vote.voteType === 'UP') return acc + 1
 			if (vote.voteType === 'DOWN') return acc - 1
 			return acc
 		}, 0)
-
 		await db
 			.update(processedGames)
 			.set({
 				voteCount: votesAmt,
 			})
 			.where(eq(processedGames.steamAppid, gameId))
-
 		return votesAmt
 	}
 
 	try {
 		const body = await req.json()
-
 		const { gameId: gameIdString, voteType } = GameVoteValidator.parse(body)
 		const gameId = Number.parseInt(gameIdString)
 
 		const session = await auth()
-
 		if (!session?.user) {
 			return new Response('Unauthorized', { status: 401 })
 		}
 
 		const [game] = await db.select().from(processedGames).where(eq(processedGames.steamAppid, gameId))
-
 		if (!game) {
 			return new Response('Game not found', { status: 404 })
 		}
@@ -100,8 +92,9 @@ export async function PATCH(req: Request) {
 				genres: game.genres?.join(',') ?? '',
 			}
 
-			const redis = await getRedisClient()
-			await redis.set(`game:${gameId}`, JSON.stringify(cachePayload))
+			await withRedis(async (redis) => {
+				await redis.set(`game:${gameId}`, JSON.stringify(cachePayload))
+			})
 		}
 
 		return new Response('OK')

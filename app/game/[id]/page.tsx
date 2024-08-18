@@ -13,7 +13,7 @@ import { Suspense } from 'react'
 import SimilarGames from '@/components/SimilarGames'
 import { processedGames } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-import { getRedisClient } from '@/lib/redis'
+import { withRedis } from '@/lib/redis'
 import type { GameView } from '@/types/db'
 import GameVoteShell from '@/components/game-vote/GameVoteShell'
 import GameVoteServer from '@/components/game-vote/GameVoteServer'
@@ -28,11 +28,13 @@ export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
 export default async function Page({ params: { id } }: PageProps) {
-	const redis = await getRedisClient()
-	const rawCachedGame = await redis.get(`game:${id}`)
-	const cachedGame = rawCachedGame ? (JSON.parse(rawCachedGame) as CachedGame) : null
-
+	let cachedGame: CachedGame | null = null
 	let game: GameView | null = null
+
+	await withRedis(async (redis) => {
+		const rawCachedGame = await redis.get(`game:${id}`)
+		cachedGame = rawCachedGame ? (JSON.parse(rawCachedGame) as CachedGame) : null
+	})
 
 	if (!cachedGame) {
 		const [dbGame] = await db
