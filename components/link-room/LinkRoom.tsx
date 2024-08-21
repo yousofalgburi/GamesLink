@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 import { useEffect, useRef, useState } from 'react'
-import { GamepadIcon, Loader2, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { GamepadIcon, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { UserInRoom } from '@/types/linkroom'
 import type { InferSelectModel } from 'drizzle-orm'
 import type { rooms, users } from '@/db/schema'
@@ -24,12 +24,14 @@ export default function LinkRoom({
 	userId,
 	roomUsers,
 	roomDetails,
+	initialRolls,
 }: {
 	wsLink: string
 	roomId: string
 	userId: string
 	roomUsers: UserInRoom[]
 	roomDetails: InferSelectModel<typeof rooms>
+	initialRolls: { id: number; games: ExtendedGame[] }[]
 }) {
 	const { toast } = useToast()
 	const [usersInRoom, setUsersInRoom] = useState<UserInRoom[]>(roomUsers)
@@ -37,10 +39,11 @@ export default function LinkRoom({
 	const [waitList, setWaitList] = useState<InferSelectModel<typeof users>[]>([])
 	const [publicAccess, setPublicAccess] = useState(roomDetails.isPublic)
 	const [isRolling, setIsRolling] = useState(false)
-	const [rolls, setRolls] = useState<{ id: number; games: ExtendedGame[] }[]>([])
-	const [rollCount, setRollCount] = useState(0)
+
+	const [rolls, setRolls] = useState<{ id: number; games: ExtendedGame[] }[]>(initialRolls)
+	const [rollCount, setRollCount] = useState(initialRolls.length)
 	const [currentRollIndex, setCurrentRollIndex] = useState(0)
-	const [allRolledGames, setAllRolledGames] = useState<number[]>([])
+	const [allRolledGames, setAllRolledGames] = useState<number[]>(initialRolls.flatMap((roll) => roll.games.map((game) => game.id)))
 
 	const wsRef = useRef<WebSocket | null>(null)
 

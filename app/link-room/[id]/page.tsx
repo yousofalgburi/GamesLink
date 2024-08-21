@@ -2,7 +2,7 @@ import HiddenAuth from '@/components/HiddenAuth'
 import LinkRoom from '@/components/link-room/LinkRoom'
 import { auth } from '@/auth'
 import { db } from '@/db'
-import { rooms, users, gameVotes, processedGames } from '@/db/schema'
+import { rooms, users, gameVotes, processedGames, rollResults } from '@/db/schema'
 import { notFound, redirect } from 'next/navigation'
 import { eq, desc, inArray, sql, and } from 'drizzle-orm'
 import type { UserInRoom } from '@/types/linkroom'
@@ -66,7 +66,9 @@ export default async function Page({ params: { id } }: PageProps) {
 		.where(inArray(gameVotes.userId, [...(room.members ?? []), session.user.id]))
 		.orderBy(desc(processedGames.voteCount))
 
-	const [updatedMembers, members, games] = await Promise.all([updateMembersQuery, membersQuery, gamesQuery])
+	const rollResultsQuery = db.select().from(rollResults).where(eq(rollResults.roomId, id)).orderBy(desc(rollResults.rollNumber))
+
+	const [updatedMembers, members, games, rollResultsList] = await Promise.all([updateMembersQuery, membersQuery, gamesQuery, rollResultsQuery])
 
 	const roomUsersWithGames: UserInRoom[] = members.map((member) => ({
 		...member,
@@ -79,6 +81,11 @@ export default async function Page({ params: { id } }: PageProps) {
 
 	const { ...roomDetails } = room
 
+	const formattedRollResults = rollResultsList.map((roll) => ({
+		id: roll.rollNumber,
+		games: roll.games,
+	}))
+
 	return (
 		<div className='container mx-auto py-12'>
 			<LinkRoom
@@ -87,6 +94,7 @@ export default async function Page({ params: { id } }: PageProps) {
 				userId={session?.user.id}
 				roomDetails={roomDetails}
 				roomUsers={roomUsersWithGames}
+				initialRolls={formattedRollResults}
 			/>
 		</div>
 	)

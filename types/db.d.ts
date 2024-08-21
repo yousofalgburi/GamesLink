@@ -10,7 +10,7 @@ export type GameView = {
 	developers: string[]
 	categories: string[]
 	genres: string[]
-	voteCount
+	voteCount: number
 }
 
 export type ExtendedGame = GameView & {

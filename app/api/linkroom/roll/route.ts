@@ -1,8 +1,9 @@
 import { z } from 'zod'
 import { db } from '@/db'
-import { rooms, users, gameVotes, processedGames } from '@/db/schema'
+import { rooms, users, gameVotes, processedGames, rollResults } from '@/db/schema'
 import { eq, inArray, sql, not, and, or, arrayContains, desc } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
+import type { ExtendedGame } from '@/types/db'
 
 const rollRequestValidator = z.object({
 	roomId: z.string(),
@@ -111,10 +112,37 @@ export async function POST(req: Request) {
 		const newRollIds = recommendedGames.map((game) => game.id)
 		const allRolledGames = [...previousRolls, ...newRollIds]
 
+		const gameViews: ExtendedGame[] = recommendedGames.map((game) => ({
+			...game,
+			shortDescription: game.shortDescription ?? '',
+			headerImage: game.headerImage ?? '',
+			releaseDate: game.releaseDate ?? null,
+			developers: game.developers ?? [],
+			genres: game.genres ?? [],
+			categories: game.categories ?? [],
+			voteType: null,
+		}))
+
+		const [lastRoll] = await db
+			.select({ rollNumber: rollResults.rollNumber })
+			.from(rollResults)
+			.where(eq(rollResults.roomId, roomId))
+			.orderBy(desc(rollResults.rollNumber))
+			.limit(1)
+
+		const newRollNumber = (lastRoll?.rollNumber ?? 0) + 1
+
+		await db.insert(rollResults).values({
+			roomId,
+			rollNumber: newRollNumber,
+			games: gameViews,
+		})
+
 		return new Response(
 			JSON.stringify({
 				newRecommendations: recommendedGames,
 				allRolledGames,
+				rollNumber: newRollNumber,
 			}),
 			{
 				status: 200,

@@ -1,9 +1,9 @@
 import { Icons } from '@/components/Icons'
-import type { AvatarProps } from '@radix-ui/react-avatar'
 import Image from 'next/image'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import type { users } from '@/db/schema'
 import type { InferSelectModel } from 'drizzle-orm'
+import type { AvatarProps } from '@radix-ui/react-avatar'
 
 interface UserAvatarProps extends AvatarProps {
 	user: Pick<InferSelectModel<typeof users>, 'image' | 'name'>

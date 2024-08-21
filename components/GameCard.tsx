@@ -26,7 +26,13 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
 				<Card className={cn(`${nowidth ? 'w-full' : 'min-w-80'}`, className, 'flex flex-col')} key={game.id} ref={ref}>
 					<div className='flex h-40'>
 						<div className='w-2/4 relative'>
-							<Image alt={game.name} className='rounded-l-lg object-cover' fill src={`${game.headerImage}`} />
+							<Image
+								alt={game.name}
+								className='rounded-l-lg object-cover'
+								fill
+								sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw'
+								src={`${game.headerImage}`}
+							/>
 						</div>
 						<div className='w-2/4 p-3 flex flex-col'>
 							<CardTitle className='text-lg mb-1 line-clamp-1'>{game.name}</CardTitle>

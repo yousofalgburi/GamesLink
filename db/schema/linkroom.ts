@@ -1,6 +1,6 @@
-import { pgTable, text, boolean, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
+import { pgTable, text, boolean, timestamp, uniqueIndex, integer, jsonb } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { users } from './user'
+import type { ExtendedGame } from '@/types/db'
 
 export const rooms = pgTable(
 	'rooms',
@@ -21,3 +21,30 @@ export const rooms = pgTable(
 		roomIdIdx: uniqueIndex('room_id_idx').on(table.roomId),
 	}),
 )
+
+export const rollResults = pgTable(
+	'roll_results',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		roomId: text('room_id').notNull(),
+		rollNumber: integer('roll_number').notNull(),
+		games: jsonb('games').$type<ExtendedGame[]>().notNull(),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+	},
+	(table) => ({
+		roomIdIdx: uniqueIndex('room_id_roll_number_idx').on(table.roomId, table.rollNumber),
+	}),
+)
+
+export const roomsRelations = relations(rooms, ({ many }) => ({
+	rollResults: many(rollResults),
+}))
+
+export const rollResultsRelations = relations(rollResults, ({ one }) => ({
+	room: one(rooms, {
+		fields: [rollResults.roomId],
+		references: [rooms.id],
+	}),
+}))
