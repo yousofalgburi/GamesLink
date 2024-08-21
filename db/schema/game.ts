@@ -296,19 +296,19 @@ export const gameVotes = pgTable(
 	'game_votes',
 	{
 		id: serial('id').primaryKey(),
-		gameId: integer('game_id').notNull().unique(),
+		gameId: integer('game_id').notNull(),
 		userId: text('user_id').notNull(),
 		voteType: voteType('vote_type'),
 	},
 	(table) => ({
-		gameIdIdx: uniqueIndex('vote_game_id_idx').on(table.gameId),
+		gameUserIdx: uniqueIndex('vote_game_user_idx').on(table.gameId, table.userId),
 		gameIdFk: foreignKey({
 			columns: [table.gameId],
 			foreignColumns: [processedGames.id],
 		})
 			.onDelete('cascade')
 			.onUpdate('cascade'),
-		gameIdUserFk: foreignKey({
+		userIdFk: foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 		})

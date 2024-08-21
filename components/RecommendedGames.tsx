@@ -51,7 +51,7 @@ export default async function RecommendedGames() {
 					<CarouselContent>
 						{games.map((game) => (
 							<CarouselItem key={game.id} className='md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5'>
-								<GameCard className='h-[40rem]' votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
+								<GameCard votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
 							</CarouselItem>
 						))}
 					</CarouselContent>

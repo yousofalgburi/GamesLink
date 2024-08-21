@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 import { useEffect, useRef, useState } from 'react'
-import { GamepadIcon } from 'lucide-react'
+import { GamepadIcon, Loader2, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { UserInRoom } from '@/types/linkroom'
 import type { InferSelectModel } from 'drizzle-orm'
 import type { rooms, users } from '@/db/schema'
@@ -13,10 +13,10 @@ import { Switch } from '../ui/switch'
 import { Label } from '../ui/label'
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel'
 import { UserAvatar } from '../UserAvatar'
 import GameCard from '../GameCard'
+import type { ExtendedGame } from '@/types/db'
 
 export default function LinkRoom({
 	wsLink,
@@ -36,6 +36,11 @@ export default function LinkRoom({
 	const [userLowGameCount, setUserLowGameCount] = useState(false)
 	const [waitList, setWaitList] = useState<InferSelectModel<typeof users>[]>([])
 	const [publicAccess, setPublicAccess] = useState(roomDetails.isPublic)
+	const [isRolling, setIsRolling] = useState(false)
+	const [rolls, setRolls] = useState<{ id: number; games: ExtendedGame[] }[]>([])
+	const [rollCount, setRollCount] = useState(0)
+	const [currentRollIndex, setCurrentRollIndex] = useState(0)
+	const [allRolledGames, setAllRolledGames] = useState<number[]>([])
 
 	const wsRef = useRef<WebSocket | null>(null)
 
@@ -82,24 +87,59 @@ export default function LinkRoom({
 		}
 	}, [userId, roomId])
 
+	const handleRoll = async () => {
+		setIsRolling(true)
+		try {
+			const response = await axios.post('/api/linkroom/roll', { roomId, previousRolls: allRolledGames })
+			const newRollId = rollCount + 1
+			setRolls((prevRolls) => [{ id: newRollId, games: response.data.newRecommendations }, ...prevRolls])
+			setAllRolledGames(response.data.allRolledGames)
+			setRollCount(newRollId)
+			setCurrentRollIndex(0)
+
+			toast({
+				title: 'Roll successful',
+				description: 'Check out the new recommended games!',
+			})
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error ? error.message : 'An error occurred while processing your request.'
+			toast({
+				title: 'Roll failed',
+				description: axios.isAxiosError(error) && error.response?.data ? error.response.data : errorMessage,
+				variant: 'destructive',
+			})
+		} finally {
+			setIsRolling(false)
+		}
+	}
+
+	const navigateRoll = (direction: 'prev' | 'next') => {
+		setCurrentRollIndex((prevIndex) => {
+			if (direction === 'prev') {
+				return Math.min(prevIndex + 1, rolls.length - 1)
+			}
+			return Math.max(prevIndex - 1, 0)
+		})
+	}
+
 	return (
-		<>
+		<div className='container max-w-full mx-auto px-4'>
 			{userLowGameCount && (
 				<Alert className='mb-8'>
 					<GamepadIcon className='h-4 w-4' />
 					<AlertTitle>Heads up!</AlertTitle>
-					<AlertDescription>A User has less than 5 games, results wont be useful unless all users have at least 5 games.</AlertDescription>
+					<AlertDescription>A User has less than 5 games, results won't be useful unless all users have at least 5 games.</AlertDescription>
 				</Alert>
 			)}
 
-			<div className='grid items-start gap-8'>
-				<div className='flex justify-between'>
-					<div className='flex items-center gap-2'>
-						<h1 className='text-3xl font-bold md:text-4xl'>Link Room ({usersInRoom.length}/10)</h1>
-						<p className='truncate text-sm text-muted-foreground'>Created on {roomDetails.createdAt.toLocaleString()}</p>
+			<div className='space-y-8'>
+				<div className='flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center'>
+					<div>
+						<h1 className='text-2xl font-bold sm:text-3xl md:text-4xl'>Link Room ({usersInRoom.length}/10)</h1>
+						<p className='text-sm text-muted-foreground'>Created on {roomDetails.createdAt.toLocaleString()}</p>
 					</div>
 
-					<div className='flex gap-4'>
+					<div className='flex flex-wrap gap-2'>
 						<Dialog>
 							<DialogTrigger asChild>
 								<Button disabled={roomDetails.hostId !== userId} variant='outline'>
@@ -139,92 +179,135 @@ export default function LinkRoom({
 									setPublicAccess(e)
 									await axios.patch(`/api/linkroom/events/access?roomId=${roomId}&publicAccess=${e}`)
 								}}
-								id='airplane-mode'
+								id='public-access'
 								disabled={roomDetails.hostId !== userId}
 							/>
-							<Label htmlFor='airplane-mode'>Public</Label>
+							<Label htmlFor='public-access'>Public</Label>
 						</div>
 
-						<TooltipProvider>
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<Button disabled>Roll!</Button>
-								</TooltipTrigger>
-								<TooltipContent>
-									<p>This feature is still in progress. Coming soon!</p>
-								</TooltipContent>
-							</Tooltip>
-						</TooltipProvider>
+						<Button onClick={handleRoll} disabled={isRolling || roomDetails.hostId !== userId}>
+							{isRolling ? (
+								<>
+									<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+									Rolling...
+								</>
+							) : (
+								'Roll!'
+							)}
+						</Button>
 					</div>
 				</div>
 
-				<div className='grid grid-cols-1 gap-10 lg:grid-cols-2'>
-					<>
-						{usersInRoom.map((user) => (
-							<Card key={user.id}>
-								<CardHeader>
-									<CardTitle>
-										<div className='flex items-center gap-2'>
-											<UserAvatar user={{ name: user.name || null, image: user.image || null }} />
-											{user.name} {roomDetails.hostId === user.id ? '(Host)' : ''}
-										</div>
-									</CardTitle>
-									<CardDescription>
-										{user.username} ({user.credits} Credits)
-									</CardDescription>
-								</CardHeader>
-								<CardContent>
-									{user?.games.length === 0 ? (
-										<p className='text-lg font-light'>No games found for this user.</p>
-									) : (
-										<>
-											<p className='pb-2 text-2xl font-medium'>Games ({user?.games.length}):</p>
-
-											<Carousel>
-												<CarouselContent>
-													{user.games.map((game) => {
-														return (
-															<CarouselItem key={game.id} className='flex basis-full gap-2 lg:basis-1/2'>
-																<GameCard
-																	className='h-[28rem]'
-																	nowidth={true}
-																	key={game.steamAppid}
-																	votesAmt={game.voteCount}
-																	currentVote={game.voteType}
-																	game={game}
-																/>
-															</CarouselItem>
-														)
-													})}
-												</CarouselContent>
-
-												<CarouselPrevious />
-												<CarouselNext />
-											</Carousel>
-										</>
-									)}
-								</CardContent>
-							</Card>
-						))}
-					</>
-
+				{rolls.length > 0 && (
 					<Card>
-						<CardContent className='flex h-full w-full items-center justify-center p-4'>
-							<Button
-								onClick={() => {
-									toast({
-										title: 'Copied',
-										description: 'The invite link has been copied to your clipboard',
-									})
-									navigator.clipboard.writeText(window.location.href)
-								}}
-							>
-								Copy Invite Link
-							</Button>
+						<CardHeader>
+							<CardTitle className='flex justify-between items-center flex-wrap gap-2'>
+								<span>Recommended Games</span>
+								<div className='flex items-center gap-2'>
+									<Button
+										variant='outline'
+										size='icon'
+										onClick={() => navigateRoll('prev')}
+										disabled={currentRollIndex === rolls.length - 1}
+									>
+										<ChevronLeft className='h-4 w-4' />
+									</Button>
+									<span>Roll #{rolls[currentRollIndex].id}</span>
+									<Button variant='outline' size='icon' onClick={() => navigateRoll('next')} disabled={currentRollIndex === 0}>
+										<ChevronRight className='h-4 w-4' />
+									</Button>
+								</div>
+							</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<Carousel className='w-full'>
+								<CarouselContent className='-ml-2 md:-ml-4'>
+									{rolls[currentRollIndex].games.map((game) => (
+										<CarouselItem key={game.id} className='pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/3'>
+											<GameCard
+												className='h-full'
+												nowidth={true}
+												game={game}
+												votesAmt={game.voteCount}
+												currentVote={undefined}
+												smallDescription={true}
+											/>
+										</CarouselItem>
+									))}
+								</CarouselContent>
+								<CarouselPrevious />
+								<CarouselNext />
+							</Carousel>
 						</CardContent>
 					</Card>
+				)}
+
+				<div className='grid gap-6 sm:grid-cols-2'>
+					{usersInRoom.map((user) => (
+						<Card key={user.id}>
+							<CardHeader>
+								<CardTitle>
+									<div className='flex items-center gap-2'>
+										<UserAvatar user={{ name: user.name || null, image: user.image || null }} />
+										<div>
+											<div>
+												{user.name} {roomDetails.hostId === user.id ? '(Host)' : ''}
+											</div>
+											<CardDescription>
+												{user.username} ({user.credits} Credits)
+											</CardDescription>
+										</div>
+									</div>
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								{user?.games.length === 0 ? (
+									<p className='text-lg font-light'>No games found for this user.</p>
+								) : (
+									<>
+										<p className='pb-2 text-xl font-medium'>Games ({user?.games.length}):</p>
+										<Carousel>
+											<CarouselContent className='-ml-2 md:-ml-4'>
+												{user.games.map((game) => (
+													<CarouselItem key={game.id} className='pl-2 md:pl-4 basis-full md:basis-1/2'>
+														<GameCard
+															className='h-full'
+															nowidth={true}
+															key={game.steamAppid}
+															votesAmt={game.voteCount}
+															currentVote={game.voteType}
+															game={game}
+															smallDescription={true}
+														/>
+													</CarouselItem>
+												))}
+											</CarouselContent>
+											<CarouselPrevious />
+											<CarouselNext />
+										</Carousel>
+									</>
+								)}
+							</CardContent>
+						</Card>
+					))}
 				</div>
+
+				<Card>
+					<CardContent className='flex items-center justify-center p-4'>
+						<Button
+							onClick={() => {
+								toast({
+									title: 'Copied',
+									description: 'The invite link has been copied to your clipboard',
+								})
+								navigator.clipboard.writeText(window.location.href)
+							}}
+						>
+							Copy Invite Link
+						</Button>
+					</CardContent>
+				</Card>
 			</div>
-		</>
+		</div>
 	)
 }

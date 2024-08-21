@@ -15,8 +15,6 @@ export async function PATCH(req: Request) {
 
 		const url = new URL(req.url)
 
-		console.log(url.searchParams.get('publicAccess'))
-
 		const { roomId, publicAccess } = roomAccessValidator.parse({
 			roomId: url.searchParams.get('roomId'),
 			publicAccess: url.searchParams.get('publicAccess') === 'true',

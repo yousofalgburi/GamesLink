@@ -56,7 +56,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 			}
 		},
 	},
-	debug: process.env.NODE_ENV !== 'production',
 })
 
 declare module 'next-auth' {
