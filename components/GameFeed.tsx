@@ -300,8 +300,8 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj }:
 											<DropdownMenuRadioItem value='smart-text'>
 												Smart Text &nbsp; <Brain />
 											</DropdownMenuRadioItem>
-											<DropdownMenuRadioItem value='ai-search'>
-												AI Search &nbsp; <Sparkles />
+											<DropdownMenuRadioItem disabled value='ai-search'>
+												AI Search (Soon!) &nbsp; <Sparkles />
 											</DropdownMenuRadioItem>
 										</DropdownMenuRadioGroup>
 									</DropdownMenuContent>
