@@ -58,7 +58,7 @@ export default function LinkRoom({
 
 		ws.onmessage = async (event) => {
 			try {
-				const data: { type: string; roomId: string; userId: string } = JSON.parse(event.data)
+				const data = JSON.parse(event.data)
 
 				if (data.type === 'userJoined') {
 					if (!usersInRoom.find((user) => user.id === data.userId)) {
@@ -79,6 +79,17 @@ export default function LinkRoom({
 					if (!waitList.find((u) => u.id === user.id)) {
 						setWaitList((prevUsers) => [...prevUsers, user.user])
 					}
+				} else if (data.type === 'newRoll') {
+					const newRollId = rollCount + 1
+					setRollCount((prevCount) => prevCount + 1)
+					setRolls((prevRolls) => [{ id: newRollId, games: data.rollResults.newRecommendations }, ...prevRolls])
+					setAllRolledGames(data.rollResults.allRolledGames)
+					setCurrentRollIndex(0)
+
+					toast({
+						title: 'New roll available',
+						description: 'Check out the new recommended games!',
+					})
 				}
 			} catch (error) {
 				console.error('Error handling WebSocket message:', error)
@@ -99,6 +110,15 @@ export default function LinkRoom({
 			setAllRolledGames(response.data.allRolledGames)
 			setRollCount(newRollId)
 			setCurrentRollIndex(0)
+
+			wsRef.current?.send(
+				JSON.stringify({
+					type: 'requestRoll',
+					roomId,
+					userId,
+					previousRolls: allRolledGames,
+				}),
+			)
 
 			toast({
 				title: 'Roll successful',
