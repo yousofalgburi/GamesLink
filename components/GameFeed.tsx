@@ -13,6 +13,7 @@ import { ArrowDownUp, ArrowUpDown, Brain, Search, Sparkles } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { toast } from './ui/use-toast'
 
 interface GameFeedProps {
 	initGames: ExtendedGame[]
@@ -109,7 +110,7 @@ function useDebounce<T>(value: T, delay: number): T {
 	return debouncedValue
 }
 
-export default function GameFeed({ initGames, initTotalGames, searchParamsObj }: GameFeedProps) {
+export default function GameFeed({ initGames, initTotalGames, searchParamsObj, session }: GameFeedProps) {
 	const [selectedGenres, setSelectedGenres] = useState<string[]>(searchParamsObj.genres ? searchParamsObj.genres.split(',') : [])
 	const [selectedCategories, setSelectedCategories] = useState<string[]>(searchParamsObj.categories ? searchParamsObj.categories.split(',') : [])
 	const [searchQuery, setSearchQuery] = useState(searchParamsObj.search || '')
@@ -134,19 +135,38 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj }:
 	})
 
 	const fetchGames = async ({ pageParam = 1 }, cancelToken: CancelToken) => {
-		const { data } = await axios.get('/api/games', {
-			params: {
-				page: pageParam,
-				search: debouncedSearchQuery,
-				searchOption: debouncedSearchOption,
-				genres: debouncedGenres.join(','),
-				categories: debouncedCategories.join(','),
-				sort: debouncedSortOption,
-			},
-			cancelToken,
-		})
-		setTotalGames(data.totalGames)
-		return data
+		try {
+			const { data } = await axios.get('/api/games', {
+				params: {
+					page: pageParam,
+					search: debouncedSearchQuery,
+					searchOption: debouncedSearchOption,
+					genres: debouncedGenres.join(','),
+					categories: debouncedCategories.join(','),
+					sort: debouncedSortOption,
+				},
+				cancelToken,
+			})
+			setTotalGames(data.totalGames)
+			if (data.isNewGeneration) {
+				toast({
+					title: 'New AI embedding generated',
+					description: 'Your AI search results are now up to date.',
+					duration: 3000,
+				})
+			}
+			return data
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response?.status === 429) {
+				toast({
+					title: 'AI search rate limit reached. Please try again later.',
+					description: 'You have reached the rate limit for AI search. Please try again later.',
+					duration: 5000,
+				})
+				setSearchOption('smart-text')
+			}
+			throw error
+		}
 	}
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error, refetch } = useInfiniteQuery({
@@ -222,6 +242,15 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj }:
 	}
 
 	const handleSearchOptionChange = (option: string) => {
+		if (option === 'ai-search' && !session?.user) {
+			toast({
+				title: 'Please log in to use AI search.',
+				description: 'You need to be logged in to use AI search.',
+				variant: 'destructive',
+				duration: 5000,
+			})
+			return
+		}
 		setSearchOption(option)
 	}
 
@@ -300,8 +329,8 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj }:
 											<DropdownMenuRadioItem value='smart-text'>
 												Smart Text &nbsp; <Brain />
 											</DropdownMenuRadioItem>
-											<DropdownMenuRadioItem disabled value='ai-search'>
-												AI Search (Soon!) &nbsp; <Sparkles />
+											<DropdownMenuRadioItem value='ai-search'>
+												AI Search &nbsp; <Sparkles />
 											</DropdownMenuRadioItem>
 										</DropdownMenuRadioGroup>
 									</DropdownMenuContent>

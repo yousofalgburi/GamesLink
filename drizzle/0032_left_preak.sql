@@ -1,0 +1,1 @@
+ALTER TABLE "processed_games" ADD COLUMN "no_embedding" boolean DEFAULT false NOT NULL;

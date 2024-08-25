@@ -63,6 +63,20 @@ class Redis {
 			await client.set(key, value)
 		})
 	}
+
+	public async expire(key: string, seconds: number): Promise<void> {
+		await this.withRetry(async () => {
+			const client = await this.getClient()
+			await client.expire(key, seconds)
+		})
+	}
+
+	public async incr(key: string): Promise<number> {
+		return this.withRetry(async () => {
+			const client = await this.getClient()
+			return client.incr(key)
+		})
+	}
 }
 
 export const redis = Redis.getInstance()

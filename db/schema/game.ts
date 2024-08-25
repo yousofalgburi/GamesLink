@@ -44,6 +44,7 @@ export const processedGames = pgTable(
 		additionalData: text('additional_data'),
 
 		embedding: vector('embedding', { dimensions: 3072 }),
+		noEmbedding: boolean('no_embedding').notNull().default(false),
 	},
 	(table) => ({
 		steamAppIdIdx: uniqueIndex('steam_appid_idx').on(table.steamAppid),

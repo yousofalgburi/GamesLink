@@ -5,8 +5,6 @@ import { and, eq, sql } from 'drizzle-orm'
 import OpenAI from 'openai'
 import puppeteer from 'puppeteer'
 
-export const maxDuration = 300
-
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 })
@@ -30,7 +28,7 @@ function truncateToTokenLimit(text: string, limit: number): string {
 	return truncatedText.trim()
 }
 
-async function fetchGameInfoFromWikipedia(gameName: string): Promise<string> {
+async function fetchGameInfoFromWikipedia(gameName: string, gameId: number): Promise<string> {
 	const browser = await puppeteer.launch({
 		headless: true,
 		executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
@@ -45,6 +43,7 @@ async function fetchGameInfoFromWikipedia(gameName: string): Promise<string> {
 		const wikipediaLink = await page.$('a[href*="wikipedia.org"]')
 		if (!wikipediaLink) {
 			console.warn(`No Wikipedia link found for ${gameName}`)
+			await db.update(processedGames).set({ noEmbedding: true }).where(eq(processedGames.id, gameId))
 			return ''
 		}
 
@@ -121,11 +120,17 @@ export async function POST(request: Request) {
 				name: processedGames.name,
 			})
 			.from(processedGames)
-			.where(and(sql`${processedGames.embedding} IS NULL`, eq(processedGames.type, 'game'), sql`${processedGames.nsfw} = false`))
-			.limit(10)
+			.where(
+				and(
+					sql`${processedGames.embedding} IS NULL`,
+					eq(processedGames.type, 'game'),
+					sql`${processedGames.nsfw} = false`,
+					sql`${processedGames.noEmbedding} = false`,
+				),
+			)
 
 		for (const game of gamesToProcess) {
-			let gameInfo = await fetchGameInfoFromWikipedia(game.name)
+			let gameInfo = await fetchGameInfoFromWikipedia(game.name, game.id)
 
 			const MAX_TOKENS = 7000
 			if (estimateTokenCount(gameInfo) > MAX_TOKENS) {
