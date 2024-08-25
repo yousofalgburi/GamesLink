@@ -373,7 +373,7 @@ export default function GameFeed({ initGames, initTotalGames, searchParamsObj, s
 						</div>
 					</div>
 
-					<div className='grid auto-rows-fr grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3'>
+					<div className='grid auto-rows-fr grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5'>
 						{status === 'success' &&
 							data.pages
 								.flatMap((page) => page.games)

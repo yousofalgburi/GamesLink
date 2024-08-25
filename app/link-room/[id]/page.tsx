@@ -81,10 +81,12 @@ export default async function Page({ params: { id } }: PageProps) {
 
 	const { ...roomDetails } = room
 
-	const formattedRollResults = rollResultsList.map((roll) => ({
-		id: roll.rollNumber,
-		games: roll.games,
-	}))
+	const formattedRollResults = rollResultsList
+		.map((roll) => ({
+			id: roll.rollNumber,
+			games: roll.games.slice(0, 3),
+		}))
+		.sort((a, b) => b.id - a.id)
 
 	return (
 		<div className='container mx-auto py-12'>

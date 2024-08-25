@@ -8,11 +8,12 @@ import type { ExtendedGame } from '@/types/db'
 const rollRequestValidator = z.object({
 	roomId: z.string(),
 	previousRolls: z.array(z.number()),
+	saveRoll: z.boolean().default(true),
 })
 
 export async function POST(req: Request) {
 	try {
-		const { roomId, previousRolls } = rollRequestValidator.parse(await req.json())
+		const { roomId, previousRolls, saveRoll } = rollRequestValidator.parse(await req.json())
 
 		const [room] = await db.select().from(rooms).where(eq(rooms.roomId, roomId)).limit(1)
 		if (!room) {
@@ -22,6 +23,13 @@ export async function POST(req: Request) {
 		const [host] = await db.select().from(users).where(eq(users.id, room.hostId)).limit(1)
 		if (!host || host.credits < 1) {
 			return new Response('Host does not have enough credits', { status: 400 })
+		}
+
+		if (saveRoll) {
+			await db
+				.update(users)
+				.set({ credits: sql`${users.credits} - 1` })
+				.where(eq(users.id, room.hostId))
 		}
 
 		await db
@@ -107,7 +115,7 @@ export async function POST(req: Request) {
 			.from(processedGames)
 			.where(whereClause)
 			.orderBy(desc(processedGames.voteCount), desc(processedGames.releaseDate))
-			.limit(5)
+			.limit(3)
 
 		const newRollIds = recommendedGames.map((game) => game.id)
 		const allRolledGames = [...previousRolls, ...newRollIds]
@@ -132,11 +140,14 @@ export async function POST(req: Request) {
 
 		const newRollNumber = (lastRoll?.rollNumber ?? 0) + 1
 
-		await db.insert(rollResults).values({
-			roomId,
-			rollNumber: newRollNumber,
-			games: gameViews,
-		})
+		// Only save the roll if saveRoll is true
+		if (saveRoll) {
+			await db.insert(rollResults).values({
+				roomId,
+				rollNumber: newRollNumber,
+				games: gameViews,
+			})
+		}
 
 		return new Response(
 			JSON.stringify({

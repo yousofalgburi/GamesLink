@@ -20,6 +20,7 @@ async function getCachedEmbedding(text: string, userId: string): Promise<{ embed
 	const cachedEmbedding = await redis.get(cacheKey)
 
 	if (cachedEmbedding) {
+		console.log('Cached embedding found')
 		return { embedding: JSON.parse(cachedEmbedding), isNewGeneration: false }
 	}
 

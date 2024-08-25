@@ -45,6 +45,7 @@
 		"next-plausible": "^3.12.2",
 		"next-themes": "^0.3.0",
 		"openai": "^4.56.0",
+		"p-limit": "^6.1.0",
 		"postgres": "^3.4.4",
 		"profane-words": "^1.5.11",
 		"puppeteer": "^23.1.1",

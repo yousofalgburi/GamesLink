@@ -40,75 +40,112 @@ export default function LinkRoom({
 	const [publicAccess, setPublicAccess] = useState(roomDetails.isPublic)
 	const [isRolling, setIsRolling] = useState(false)
 
-	const [rolls, setRolls] = useState<{ id: number; games: ExtendedGame[] }[]>(initialRolls)
-	const [rollCount, setRollCount] = useState(initialRolls.length)
-	const [currentRollIndex, setCurrentRollIndex] = useState(0)
 	const [allRolledGames, setAllRolledGames] = useState<number[]>(initialRolls.flatMap((roll) => roll.games.map((game) => game.id)))
+
+	const [rolls, setRolls] = useState<{ id: number; games: ExtendedGame[] }[]>(initialRolls.sort((a, b) => b.id - a.id))
+	const [currentRollIndex, setCurrentRollIndex] = useState(0)
 
 	const wsRef = useRef<WebSocket | null>(null)
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		const ws = new WebSocket(wsLink)
-		wsRef.current = ws
+		let ws: WebSocket | null = null
+		let isConnected = false
 
-		ws.onopen = () => {
-			ws.send(JSON.stringify({ type: 'join', roomId, userId: userId }))
-		}
+		const connectWebSocket = () => {
+			if (isConnected) return
 
-		ws.onmessage = async (event) => {
-			try {
-				const data = JSON.parse(event.data)
+			ws = new WebSocket(wsLink)
+			wsRef.current = ws
 
-				if (data.type === 'userJoined') {
-					if (!usersInRoom.find((user) => user.id === data.userId)) {
-						const { data: user } = await axios.get(`/api/linkroom/events/join?userId=${data.userId}&roomId=${roomId}`)
-						setUsersInRoom((prevUsers) => [...prevUsers, { ...user.user, games: user.games }])
-						if (user.games.length < 5) {
-							setUserLowGameCount(true)
-							setTimeout(() => {
-								setUserLowGameCount(false)
-							}, 10000)
+			ws.onopen = () => {
+				console.log('WebSocket connected')
+				isConnected = true
+				ws?.send(JSON.stringify({ type: 'join', roomId, userId }))
+			}
+
+			ws.onmessage = async (event) => {
+				try {
+					const data = JSON.parse(event.data)
+					console.log('Received message:', data.type)
+
+					if (data.type === 'userJoined') {
+						if (!usersInRoom.find((user) => user.id === data.userId)) {
+							const { data: user } = await axios.get(`/api/linkroom/events/join?userId=${data.userId}&roomId=${roomId}`)
+							setUsersInRoom((prevUsers) => [...prevUsers, { ...user.user, games: user.games }])
+							if (user.games.length < 5) {
+								setUserLowGameCount(true)
+								setTimeout(() => {
+									setUserLowGameCount(false)
+								}, 10000)
+							}
 						}
-					}
-				} else if (data.type === 'userLeft') {
-					setUsersInRoom((prevUsers) => prevUsers.filter((user) => user.id !== data.userId))
-					await axios.patch(`/api/linkroom/events/leave?userId=${data.userId}&roomId=${roomId}`)
-				} else if (data.type === 'userJoinedQueue') {
-					const { data: user } = await axios.get(`/api/linkroom/events/join/queue?userId=${data.userId}&roomId=${roomId}`)
-					if (!waitList.find((u) => u.id === user.id)) {
-						setWaitList((prevUsers) => [...prevUsers, user.user])
-					}
-				} else if (data.type === 'newRoll') {
-					const newRollId = rollCount + 1
-					setRollCount((prevCount) => prevCount + 1)
-					setRolls((prevRolls) => [{ id: newRollId, games: data.rollResults.newRecommendations }, ...prevRolls])
-					setAllRolledGames(data.rollResults.allRolledGames)
-					setCurrentRollIndex(0)
+					} else if (data.type === 'userLeft') {
+						setUsersInRoom((prevUsers) => prevUsers.filter((user) => user.id !== data.userId))
+						await axios.patch(`/api/linkroom/events/leave?userId=${data.userId}&roomId=${roomId}`)
+					} else if (data.type === 'userJoinedQueue') {
+						const { data: user } = await axios.get(`/api/linkroom/events/join/queue?userId=${data.userId}&roomId=${roomId}`)
+						if (!waitList.find((u) => u.id === user.id)) {
+							setWaitList((prevUsers) => [...prevUsers, user.user])
+						}
+					} else if (data.type === 'newRoll' && userId !== roomDetails.hostId) {
+						// Only update rolls if the current user is not the host
+						const newRoll = {
+							id: data.rollResults.rollNumber,
+							games: data.rollResults.newRecommendations,
+						}
+						setRolls((prevRolls) => {
+							const updatedRolls = [newRoll, ...prevRolls].sort((a, b) => b.id - a.id)
+							return updatedRolls
+						})
+						setAllRolledGames(data.rollResults.allRolledGames)
+						setCurrentRollIndex(0)
 
-					toast({
-						title: 'New roll available',
-						description: 'Check out the new recommended games!',
-					})
+						toast({
+							title: 'New roll available',
+							description: 'Check out the new recommended games!',
+						})
+					}
+				} catch (error) {
+					console.error('Error handling WebSocket message:', error)
 				}
-			} catch (error) {
-				console.error('Error handling WebSocket message:', error)
+			}
+
+			ws.onerror = (error) => {
+				console.error('WebSocket error:', error)
+				isConnected = false
+			}
+
+			ws.onclose = (event) => {
+				console.log('WebSocket closed:', event.code, event.reason)
+				isConnected = false
+				setTimeout(connectWebSocket, 5000)
 			}
 		}
 
+		connectWebSocket()
+
 		return () => {
-			ws.close()
+			isConnected = false
+			if (ws) {
+				ws.close()
+			}
 		}
-	}, [userId, roomId])
+	}, [userId, roomId, wsLink, toast, usersInRoom, waitList, roomDetails.hostId])
 
 	const handleRoll = async () => {
 		setIsRolling(true)
 		try {
-			const response = await axios.post('/api/linkroom/roll', { roomId, previousRolls: allRolledGames })
-			const newRollId = rollCount + 1
-			setRolls((prevRolls) => [{ id: newRollId, games: response.data.newRecommendations }, ...prevRolls])
+			const response = await axios.post('/api/linkroom/roll', {
+				roomId,
+				previousRolls: allRolledGames,
+				saveRoll: true,
+			})
+			const newRoll = { id: response.data.rollNumber, games: response.data.newRecommendations }
+			setRolls((prevRolls) => {
+				const updatedRolls = [newRoll, ...prevRolls].sort((a, b) => b.id - a.id)
+				return updatedRolls
+			})
 			setAllRolledGames(response.data.allRolledGames)
-			setRollCount(newRollId)
 			setCurrentRollIndex(0)
 
 			wsRef.current?.send(
@@ -243,24 +280,19 @@ export default function LinkRoom({
 							</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<Carousel className='w-full'>
-								<CarouselContent className='-ml-2 md:-ml-4'>
-									{rolls[currentRollIndex].games.map((game) => (
-										<CarouselItem key={game.id} className='pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/3'>
-											<GameCard
-												className='h-full'
-												nowidth={true}
-												game={game}
-												votesAmt={game.voteCount}
-												currentVote={undefined}
-												smallDescription={true}
-											/>
-										</CarouselItem>
-									))}
-								</CarouselContent>
-								<CarouselPrevious />
-								<CarouselNext />
-							</Carousel>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+								{rolls[currentRollIndex].games.map((game) => (
+									<GameCard
+										key={game.id}
+										className='h-full'
+										nowidth={true}
+										game={game}
+										votesAmt={game.voteCount}
+										currentVote={undefined}
+										smallDescription={true}
+									/>
+								))}
+							</div>
 						</CardContent>
 					</Card>
 				)}

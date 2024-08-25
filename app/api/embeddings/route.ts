@@ -4,10 +4,13 @@ import { processedGames } from '@/db/schema/game'
 import { and, eq, sql } from 'drizzle-orm'
 import OpenAI from 'openai'
 import puppeteer from 'puppeteer'
+import pLimit from 'p-limit'
 
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 })
+
+const limit = pLimit(5)
 
 function estimateTokenCount(text: string): number {
 	return Math.ceil(text.length / 4)
@@ -47,8 +50,15 @@ async function fetchGameInfoFromWikipedia(gameName: string, gameId: number): Pro
 			return ''
 		}
 
-		await wikipediaLink.click()
-		await page.waitForNavigation()
+		const href = await wikipediaLink.evaluate((el) => el.getAttribute('href'))
+		if (!href) {
+			console.warn(`Wikipedia link found for ${gameName}, but href is missing`)
+			await db.update(processedGames).set({ noEmbedding: true }).where(eq(processedGames.id, gameId))
+			return ''
+		}
+
+		await page.goto(href)
+		await page.waitForSelector('.mw-parser-output')
 
 		const content = await page.evaluate(() => {
 			const articleContent = document.querySelector('.mw-parser-output')
@@ -129,29 +139,56 @@ export async function POST(request: Request) {
 				),
 			)
 
-		for (const game of gamesToProcess) {
-			let gameInfo = await fetchGameInfoFromWikipedia(game.name, game.id)
+		console.log(`Processing ${gamesToProcess.length} games`)
 
-			const MAX_TOKENS = 7000
-			if (estimateTokenCount(gameInfo) > MAX_TOKENS) {
-				gameInfo = truncateToTokenLimit(gameInfo, MAX_TOKENS)
-			}
+		const results = await Promise.all(gamesToProcess.map((game) => limit(() => processGame(game))))
 
-			if (gameInfo) {
-				try {
-					const embedding = await createEmbeddingWithRetry(gameInfo)
-					await db.update(processedGames).set({ embedding }).where(eq(processedGames.id, game.id))
-				} catch (error) {
-					console.error(`Failed to create embedding for game: ${game.name}`, error)
-				}
-			} else {
-				console.warn(`No Wikipedia information found for game: ${game.name}`)
-			}
-		}
+		const processedCount = results.filter((r) => r.status === 'processed').length
+		const noInfoCount = results.filter((r) => r.status === 'noInfo').length
+		const errorCount = results.filter((r) => r.status === 'error').length
 
-		return NextResponse.json({ success: true, processed: gamesToProcess.length })
+		console.log(`
+        Processing complete:
+        Total games: ${gamesToProcess.length}
+        Successfully processed: ${processedCount}
+        No information found: ${noInfoCount}
+        Errors encountered: ${errorCount}
+      `)
+
+		return NextResponse.json({
+			success: true,
+			processed: processedCount,
+			noInfo: noInfoCount,
+			errors: errorCount,
+		})
 	} catch (error) {
 		console.error('Error generating embeddings:', error)
 		return NextResponse.json({ error: 'Failed to generate embeddings' }, { status: 500 })
+	}
+}
+
+async function processGame(game: { id: number; name: string }) {
+	console.log(`Processing game: ${game.name}`)
+	let gameInfo = await fetchGameInfoFromWikipedia(game.name, game.id)
+
+	if (gameInfo) {
+		const MAX_TOKENS = 7000
+		if (estimateTokenCount(gameInfo) > MAX_TOKENS) {
+			gameInfo = truncateToTokenLimit(gameInfo, MAX_TOKENS)
+		}
+
+		try {
+			const embedding = await createEmbeddingWithRetry(gameInfo)
+			await db.update(processedGames).set({ embedding }).where(eq(processedGames.id, game.id))
+			console.log(`Successfully processed: ${game.name}`)
+			return { status: 'processed' }
+		} catch (error) {
+			console.error(`Failed to create embedding for game: ${game.name}`, error)
+			return { status: 'error' }
+		}
+	} else {
+		console.warn(`No Wikipedia information found for game: ${game.name}`)
+		await db.update(processedGames).set({ noEmbedding: true }).where(eq(processedGames.id, game.id))
+		return { status: 'noInfo' }
 	}
 }

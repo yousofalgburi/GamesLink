@@ -223,9 +223,6 @@ export default function Friends({ session }: { session: Session | null }) {
 										</div>
 
 										<div className='flex gap-2'>
-											<Button size='sm' disabled>
-												Invite
-											</Button>
 											<Button onClick={() => unfriend({ friendName: friend.name })} size='sm' variant='destructive'>
 												Unfriend
 											</Button>
