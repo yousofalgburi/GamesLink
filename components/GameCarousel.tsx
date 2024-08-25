@@ -13,8 +13,8 @@ export default function GameCarousel({ games }: { games: ExtendedGame[] }) {
 			<CarouselContent>
 				{games?.map((game) => {
 					return (
-						<CarouselItem key={game.id} className='md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5'>
-							<GameCard className='h-[40rem]' key={game.id} votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
+						<CarouselItem key={game.id} className='md:basis-1/2 lg:basis-1/3'>
+							<GameCard key={game.id} votesAmt={game.voteCount} currentVote={game.voteType} game={game} />
 						</CarouselItem>
 					)
 				})}

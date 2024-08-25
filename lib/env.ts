@@ -3,6 +3,7 @@ import { z } from 'zod'
 const envVariables = z.object({
 	NODE_ENV: z.string(),
 	DATABASE_URL: z.string(),
+	OPENAI_API_KEY: z.string(),
 	REAL_TIME_API_URL: z.string(),
 	REDIS_URL: z.string(),
 	AUTH_SECRET: z.string(),

@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, boolean, timestamp, varchar, index, uniqueIndex, foreignKey } from 'drizzle-orm/pg-core'
+import { pgTable, serial, text, integer, boolean, timestamp, varchar, index, uniqueIndex, foreignKey, vector } from 'drizzle-orm/pg-core'
 import { sql } from 'drizzle-orm'
 import { users } from './user'
 import { voteType } from '@/constants/enums'
@@ -42,6 +42,8 @@ export const processedGames = pgTable(
 		controllerSupport: varchar('controller_support', { length: 255 }),
 		fullgame: text('fullgame'),
 		additionalData: text('additional_data'),
+
+		embedding: vector('embedding', { dimensions: 3072 }),
 	},
 	(table) => ({
 		steamAppIdIdx: uniqueIndex('steam_appid_idx').on(table.steamAppid),

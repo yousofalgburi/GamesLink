@@ -211,6 +211,20 @@
       "when": 1724278685142,
       "tag": "0029_talented_sway",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1724599069564,
+      "tag": "0030_puzzling_mephisto",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1724601533188,
+      "tag": "0031_outstanding_expediter",
+      "breakpoints": true
     }
   ]
 }

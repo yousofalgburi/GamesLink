@@ -24,22 +24,22 @@ const GameCard = forwardRef<HTMLDivElement, GameCardProps>(
 		return (
 			<Link href={`/game/${game.steamAppid}`}>
 				<Card className={cn(`${nowidth ? 'w-full' : 'min-w-80'}`, className, 'flex flex-col')} key={game.id} ref={ref}>
-					<div className='flex h-40'>
-						<div className='w-2/4 relative'>
+					<div className='flex flex-col'>
+						<div className='relative w-full h-40'>
 							<Image
 								alt={game.name}
-								className='rounded-l-lg object-cover'
+								className='rounded-t-lg object-cover'
 								fill
 								sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw'
 								src={`${game.headerImage}`}
 							/>
 						</div>
-						<div className='w-2/4 p-3 flex flex-col'>
+						<div className='p-3 flex flex-col'>
 							<CardTitle className='text-lg mb-1 line-clamp-1'>{game.name}</CardTitle>
 							<CardDescription className='text-sm line-clamp-3 mb-2' title={game.shortDescription}>
 								{smallDescription
-									? game.shortDescription.length > 25
-										? `${game.shortDescription.slice(0, 25)}...`
+									? game.shortDescription.length > 150
+										? `${game.shortDescription.slice(0, 150)}...`
 										: game.shortDescription
 									: game.shortDescription}
 							</CardDescription>

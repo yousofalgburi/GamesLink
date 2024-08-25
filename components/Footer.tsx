@@ -1,19 +1,42 @@
 import Link from 'next/link'
 
-export default function Footer() {
+export function Footer() {
+	const legalLinks = [
+		{ label: 'Terms of Service', href: '/terms' },
+		{ label: 'Privacy Policy', href: '/privacy' },
+		{ label: 'Cookie Policy', href: '/cookies' },
+	]
+
 	return (
-		<footer className='flex w-full shrink-0 flex-col items-center gap-2 border-t px-4 py-6 sm:flex-row md:px-6'>
-			<p className='text-xs'>
-				© Made by <Link href='https://twitter.com/yousof_dev'>Yousof Algburi</Link>. All rights reserved.
-			</p>
-			<nav className='flex gap-4 sm:ml-auto sm:gap-6'>
-				<Link className='text-xs underline-offset-4 hover:underline' href='#'>
-					Terms of Service
-				</Link>
-				<Link className='text-xs underline-offset-4 hover:underline' href='#'>
-					Privacy
-				</Link>
-			</nav>
+		<footer className='bg-background border-t border-border'>
+			<div className='container mx-auto px-4 py-10'>
+				<div className='flex flex-col md:flex-row justify-between items-center'>
+					<div className='flex gap-4 items-center'>
+						<p className='text-sm text-muted-foreground mb-4 md:mb-0'>
+							&copy; {new Date().getFullYear()} GamesLink. All rights reserved.
+						</p>
+
+						<div>
+							{legalLinks.map((link) => (
+								<Link
+									key={link.href}
+									href={link.href}
+									className='text-sm text-muted-foreground hover:text-primary transition-colors mr-4'
+								>
+									{link.label}
+								</Link>
+							))}
+						</div>
+					</div>
+
+					{/* <div className='flex space-x-4'>
+						<SocialLink href='https://facebook.com/gameslink' Icon={Facebook} />
+						<SocialLink href='https://twitter.com/gameslink' Icon={Twitter} />
+						<SocialLink href='https://linkedin.com/company/gameslink' Icon={Linkedin} />
+						<SocialLink href='https://instagram.com/gameslink' Icon={Instagram} />
+					</div> */}
+				</div>
+			</div>
 		</footer>
 	)
 }
