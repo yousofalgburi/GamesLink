@@ -5,6 +5,8 @@ import { and, eq, sql } from 'drizzle-orm'
 import OpenAI from 'openai'
 import puppeteer from 'puppeteer'
 
+export const maxDuration = 300
+
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 })
