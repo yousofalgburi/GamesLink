@@ -120,7 +120,7 @@ export async function POST(request: Request) {
 			})
 			.from(processedGames)
 			.where(and(sql`${processedGames.embedding} IS NULL`, eq(processedGames.type, 'game'), sql`${processedGames.nsfw} = false`))
-			.limit(1000)
+			.limit(100)
 
 		for (const game of gamesToProcess) {
 			let gameInfo = await fetchGameInfoFromWikipedia(game.name)
