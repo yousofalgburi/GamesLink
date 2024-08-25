@@ -55,6 +55,9 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Give necessary permissions to the nextjs user
+RUN mkdir -p /app/.cache/puppeteer && chown -R nextjs:nodejs /app/.cache
+
 COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache
@@ -72,6 +75,4 @@ EXPOSE 3000
 
 ENV PORT 3000
 
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD HOSTNAME="0.0.0.0" node server.js
+CMD ["node", "server.js"]
