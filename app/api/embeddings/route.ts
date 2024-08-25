@@ -30,7 +30,8 @@ function truncateToTokenLimit(text: string, limit: number): string {
 
 async function fetchGameInfoFromWikipedia(gameName: string): Promise<string> {
 	const browser = await puppeteer.launch({
-		executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+		headless: true,
+		executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
 		args: ['--no-sandbox', '--disable-setuid-sandbox'],
 	})
 	const page = await browser.newPage()
