@@ -17,6 +17,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { UserAvatar } from '../UserAvatar'
 import GameCard from '../GameCard'
 import type { ExtendedGame } from '@/types/db'
+import { useRouter } from 'next/navigation'
 
 export default function LinkRoom({
 	wsLink,
@@ -25,6 +26,7 @@ export default function LinkRoom({
 	roomUsers,
 	roomDetails,
 	initialRolls,
+	initialWaitList,
 }: {
 	wsLink: string
 	roomId: string
@@ -32,11 +34,12 @@ export default function LinkRoom({
 	roomUsers: UserInRoom[]
 	roomDetails: InferSelectModel<typeof rooms>
 	initialRolls: { id: number; games: ExtendedGame[] }[]
+	initialWaitList: InferSelectModel<typeof users>[]
 }) {
 	const { toast } = useToast()
 	const [usersInRoom, setUsersInRoom] = useState<UserInRoom[]>(roomUsers)
 	const [userLowGameCount, setUserLowGameCount] = useState(false)
-	const [waitList, setWaitList] = useState<InferSelectModel<typeof users>[]>([])
+	const [waitList, setWaitList] = useState<InferSelectModel<typeof users>[]>(initialWaitList)
 	const [publicAccess, setPublicAccess] = useState(roomDetails.isPublic)
 	const [isRolling, setIsRolling] = useState(false)
 
@@ -46,21 +49,71 @@ export default function LinkRoom({
 	const [currentRollIndex, setCurrentRollIndex] = useState(0)
 
 	const wsRef = useRef<WebSocket | null>(null)
+	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+	const router = useRouter()
+
+	const fetchRoomMembers = async () => {
+		try {
+			const response = await axios.get(`/api/linkroom/members?roomId=${roomId}`)
+			setUsersInRoom(response.data)
+		} catch (error) {
+			console.error('Error fetching room members:', error)
+			toast({
+				title: 'Error',
+				description: 'Failed to fetch room members',
+				variant: 'destructive',
+			})
+		}
+	}
+
+	const fetchRolls = async () => {
+		try {
+			const response = await axios.get(`/api/linkroom/rolls?roomId=${roomId}`)
+			setRolls(response.data)
+			setCurrentRollIndex(0)
+		} catch (error) {
+			console.error('Error fetching rolls:', error)
+			toast({
+				title: 'Error',
+				description: 'Failed to fetch roll results',
+				variant: 'destructive',
+			})
+		}
+	}
+
+	const handleAcceptUser = async (userId: string) => {
+		try {
+			await axios.post('/api/linkroom/accept', { roomId, userId })
+			setWaitList((prev) => prev.filter((user) => user.id !== userId))
+			await fetchRoomMembers()
+			toast({
+				title: 'User accepted',
+				description: 'The user has been added to the room.',
+			})
+		} catch (error) {
+			console.error('Error accepting user:', error)
+			toast({
+				title: 'Error',
+				description: 'Failed to accept user',
+				variant: 'destructive',
+			})
+		}
+	}
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		let ws: WebSocket | null = null
-		let isConnected = false
+		let isComponentMounted = true
 
 		const connectWebSocket = () => {
-			if (isConnected) return
+			if (!isComponentMounted || wsRef.current?.readyState === WebSocket.OPEN) return
 
-			ws = new WebSocket(wsLink)
+			const ws = new WebSocket(wsLink)
 			wsRef.current = ws
 
 			ws.onopen = () => {
 				console.log('WebSocket connected')
-				isConnected = true
-				ws?.send(JSON.stringify({ type: 'join', roomId, userId }))
+				ws.send(JSON.stringify({ type: 'join', roomId, userId }))
 			}
 
 			ws.onmessage = async (event) => {
@@ -68,42 +121,19 @@ export default function LinkRoom({
 					const data = JSON.parse(event.data)
 					console.log('Received message:', data.type)
 
-					if (data.type === 'userJoined') {
-						if (!usersInRoom.find((user) => user.id === data.userId)) {
-							const { data: user } = await axios.get(`/api/linkroom/events/join?userId=${data.userId}&roomId=${roomId}`)
-							setUsersInRoom((prevUsers) => [...prevUsers, { ...user.user, games: user.games }])
-							if (user.games.length < 5) {
-								setUserLowGameCount(true)
-								setTimeout(() => {
-									setUserLowGameCount(false)
-								}, 10000)
-							}
-						}
-					} else if (data.type === 'userLeft') {
-						setUsersInRoom((prevUsers) => prevUsers.filter((user) => user.id !== data.userId))
-						await axios.patch(`/api/linkroom/events/leave?userId=${data.userId}&roomId=${roomId}`)
-					} else if (data.type === 'userJoinedQueue') {
-						const { data: user } = await axios.get(`/api/linkroom/events/join/queue?userId=${data.userId}&roomId=${roomId}`)
-						if (!waitList.find((u) => u.id === user.id)) {
-							setWaitList((prevUsers) => [...prevUsers, user.user])
-						}
-					} else if (data.type === 'newRoll' && userId !== roomDetails.hostId) {
-						// Only update rolls if the current user is not the host
-						const newRoll = {
-							id: data.rollResults.rollNumber,
-							games: data.rollResults.newRecommendations,
-						}
-						setRolls((prevRolls) => {
-							const updatedRolls = [newRoll, ...prevRolls].sort((a, b) => b.id - a.id)
-							return updatedRolls
-						})
-						setAllRolledGames(data.rollResults.allRolledGames)
-						setCurrentRollIndex(0)
-
+					if (data.type === 'userJoined' || data.type === 'userLeft') {
+						await fetchRoomMembers()
+					} else if (data.type === 'newRollAvailable') {
+						await fetchRolls()
 						toast({
 							title: 'New roll available',
 							description: 'Check out the new recommended games!',
 						})
+					} else if (data.type === 'userJoinedQueue') {
+						const newUser = JSON.parse(data.user)
+						setWaitList((prev) => [...prev, newUser])
+					} else if (data.type === 'userAccepted' && data.userId === userId) {
+						router.refresh()
 					}
 				} catch (error) {
 					console.error('Error handling WebSocket message:', error)
@@ -112,25 +142,28 @@ export default function LinkRoom({
 
 			ws.onerror = (error) => {
 				console.error('WebSocket error:', error)
-				isConnected = false
 			}
 
 			ws.onclose = (event) => {
 				console.log('WebSocket closed:', event.code, event.reason)
-				isConnected = false
-				setTimeout(connectWebSocket, 5000)
+				if (isComponentMounted) {
+					reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000)
+				}
 			}
 		}
 
 		connectWebSocket()
 
 		return () => {
-			isConnected = false
-			if (ws) {
-				ws.close()
+			isComponentMounted = false
+			if (reconnectTimeoutRef.current) {
+				clearTimeout(reconnectTimeoutRef.current)
+			}
+			if (wsRef.current) {
+				wsRef.current.close()
 			}
 		}
-	}, [userId, roomId, wsLink, toast, usersInRoom, waitList, roomDetails.hostId])
+	}, [userId, roomId, wsLink])
 
 	const handleRoll = async () => {
 		setIsRolling(true)
@@ -140,12 +173,20 @@ export default function LinkRoom({
 				previousRolls: allRolledGames,
 				saveRoll: true,
 			})
-			const newRoll = { id: response.data.rollNumber, games: response.data.newRecommendations }
-			setRolls((prevRolls) => {
-				const updatedRolls = [newRoll, ...prevRolls].sort((a, b) => b.id - a.id)
-				return updatedRolls
-			})
-			setAllRolledGames(response.data.allRolledGames)
+
+			const { newRecommendations, allRolledGames: updatedRolledGames, rollNumber } = response.data
+
+			setAllRolledGames(updatedRolledGames)
+			setRolls((prevRolls) => [
+				{
+					id: rollNumber,
+					games: newRecommendations.map((game: ExtendedGame) => ({
+						...game,
+						voteType: null,
+					})),
+				},
+				...prevRolls,
+			])
 			setCurrentRollIndex(0)
 
 			wsRef.current?.send(
@@ -153,7 +194,6 @@ export default function LinkRoom({
 					type: 'requestRoll',
 					roomId,
 					userId,
-					previousRolls: allRolledGames,
 				}),
 			)
 
@@ -161,7 +201,7 @@ export default function LinkRoom({
 				title: 'Roll successful',
 				description: 'Check out the new recommended games!',
 			})
-		} catch (error: unknown) {
+		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'An error occurred while processing your request.'
 			toast({
 				title: 'Roll failed',
@@ -214,14 +254,15 @@ export default function LinkRoom({
 								<div className='grid gap-4 py-4'>
 									{waitList.length ? (
 										waitList.map((user) => (
-											<div key={user.name} className='flex items-center justify-between'>
+											<div key={user.id} className='flex items-center justify-between'>
 												<div className='flex items-center gap-2'>
 													<UserAvatar user={user} />
 													<Label htmlFor='name'>{user.name}</Label>
 												</div>
-
 												<div className='flex gap-2'>
-													<Button size='sm'>Accept</Button>
+													<Button size='sm' onClick={() => handleAcceptUser(user.id)}>
+														Accept
+													</Button>
 												</div>
 											</div>
 										))
@@ -297,7 +338,7 @@ export default function LinkRoom({
 					</Card>
 				)}
 
-				<div className='grid gap-6 sm:grid-cols-2'>
+				<div className='grid gap-12 sm:grid-cols-2'>
 					{usersInRoom.map((user) => (
 						<Card key={user.id}>
 							<CardHeader>

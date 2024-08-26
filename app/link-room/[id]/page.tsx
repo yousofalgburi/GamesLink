@@ -68,8 +68,18 @@ export default async function Page({ params: { id } }: PageProps) {
 
 	const rollResultsQuery = db.select().from(rollResults).where(eq(rollResults.roomId, id)).orderBy(desc(rollResults.rollNumber))
 
-	const [updatedMembers, members, games, rollResultsList] = await Promise.all([updateMembersQuery, membersQuery, gamesQuery, rollResultsQuery])
+	const waitListQuery = db
+		.select()
+		.from(users)
+		.where(inArray(users.id, room.queuedUsers ?? []))
 
+	const [updatedMembers, members, games, rollResultsList, waitList] = await Promise.all([
+		updateMembersQuery,
+		membersQuery,
+		gamesQuery,
+		rollResultsQuery,
+		waitListQuery,
+	])
 	const roomUsersWithGames: UserInRoom[] = members.map((member) => ({
 		...member,
 		games: games
@@ -97,6 +107,7 @@ export default async function Page({ params: { id } }: PageProps) {
 				roomDetails={roomDetails}
 				roomUsers={roomUsersWithGames}
 				initialRolls={formattedRollResults}
+				initialWaitList={waitList}
 			/>
 		</div>
 	)
