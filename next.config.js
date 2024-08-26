@@ -4,6 +4,9 @@ const nextConfig = {
 	images: {
 		remotePatterns: [
 			{
+				hostname: 'api.producthunt.com',
+			},
+			{
 				hostname: 'cdn.akamai.steamstatic.com',
 			},
 			{

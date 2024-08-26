@@ -14,6 +14,20 @@ export default function Page() {
 						<div className='absolute inset-0 bg-background/70' />
 					</div>
 					<div className='container relative z-10 px-4 md:px-6 text-center'>
+						<Link
+							href='https://www.producthunt.com/posts/gameslink?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-gameslink'
+							target='_blank'
+							rel='noreferrer'
+							className='inline-block'
+						>
+							<img
+								src='https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=483685&theme=neutral'
+								alt='GamesLink - Tired of "What to play?" Try GamesLink! | Product Hunt'
+								width={250}
+								height={54}
+								className='w-[250px] h-[54px]'
+							/>
+						</Link>
 						<h1 className='text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl mb-6'>
 							Discover, Connect, and Play Together
 						</h1>
@@ -160,7 +174,7 @@ export default function Page() {
 					</div>
 				</section>
 
-				<section className='w-full py-24'>
+				{/* <section className='w-full py-24'>
 					<div className='container px-4 md:px-6'>
 						<div className='flex flex-col items-center space-y-4 text-center'>
 							<div className='space-y-2'>
@@ -184,7 +198,7 @@ export default function Page() {
 							</div>
 						</div>
 					</div>
-				</section>
+				</section> */}
 			</main>
 		</div>
 	)
