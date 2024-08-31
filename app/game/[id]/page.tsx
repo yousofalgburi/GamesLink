@@ -17,6 +17,7 @@ import type { GameView } from '@/types/db'
 import GameVoteShell from '@/components/game-vote/GameVoteShell'
 import GameVoteServer from '@/components/game-vote/GameVoteServer'
 import { redis } from '@/lib/redis'
+import type { Metadata } from 'next'
 
 interface PageProps {
 	params: {
@@ -26,6 +27,38 @@ interface PageProps {
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
+
+export async function generateMetadata({ params: { id } }: PageProps): Promise<Metadata> {
+	try {
+		const [game] = await db
+			.select()
+			.from(processedGames)
+			.where(eq(processedGames.steamAppid, Number(id)))
+
+		if (!game) {
+			return {
+				title: 'Game not found',
+				description: 'The game you are looking for does not exist.',
+			}
+		}
+
+		return {
+			title: game.name,
+			description: game.shortDescription,
+			openGraph: {
+				title: game.name,
+				description: game.shortDescription ?? '',
+				images: [game.headerImage ?? ''],
+			},
+		}
+	} catch (error) {
+		console.error('Error generating metadata:', error)
+		return {
+			title: 'Error',
+			description: 'There was an error fetching the game metadata.',
+		}
+	}
+}
 
 export default async function Page({ params: { id } }: PageProps) {
 	let cachedGame: CachedGame | null = null

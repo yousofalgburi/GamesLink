@@ -21,8 +21,29 @@ const fontBody = Manrope({
 })
 
 export const metadata: Metadata = {
-	title: 'GamesLink',
+	metadataBase: new URL('https://gameslink.app'),
+	title: {
+		default: 'GamesLink',
+		template: '%s | GamesLink',
+	},
 	description: 'Explore and find games to play with your friends.',
+	keywords: ['games', 'steam', 'online', 'multiplayer', 'new games to play', 'video games'],
+	openGraph: {
+		title: 'GamesLink',
+		description: 'Explore and find games to play with your friends.',
+		type: 'website',
+		locale: 'en_US',
+		url: 'https://gameslink.app',
+		siteName: 'GamesLink',
+		images: [
+			{
+				url: 'https://gameslink.app/og-image.jpg',
+				width: 1200,
+				height: 630,
+				alt: 'GamesLink',
+			},
+		],
+	},
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
