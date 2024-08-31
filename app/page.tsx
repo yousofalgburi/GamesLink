@@ -1,5 +1,4 @@
 import { buttonVariants } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
