@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		.from(processedGames)
 		.where(and(eq(processedGames.nsfw, false), eq(processedGames.type, 'game')))
 		.orderBy(desc(processedGames.releaseDate))
-		.limit(80000)
+		.limit(60000)
 
 	const gameRoutes = gameIds.map(({ steamAppid }) => ({
 		url: `${baseUrl}/game/${steamAppid}`,
