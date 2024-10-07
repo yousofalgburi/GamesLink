@@ -40,7 +40,6 @@ export const friendships = pgTable(
 	},
 	(table) => ({
 		userFriendUnique: uniqueIndex('user_friend_unique_idx').on(table.userId, table.friendId),
-		friendIdIdx: uniqueIndex('friend_id_idx').on(table.friendId),
 		userFk: foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
