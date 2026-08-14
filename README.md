@@ -1,6 +1,17 @@
+
+
 > Follow me on twitter [@yousof_dev](https://twitter.com/yousof_dev) for updates.
 
 ![alt text](./public/homepage.png)
+
+## Getting Started
+
+Run the following commands to set up and run the project locally:
+
+```bash
+npm install
+npm run dev
+```
 
 ## Planned Features
 
